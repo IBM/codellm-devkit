@@ -52,18 +52,19 @@ from cldk import CLDK
 from cldk.models.java.models import *
 
 # Initialize the Codellm-DevKit object with the project directory, language, and backend.
-ns = CLDK(
-    project_dir=os.getenv("DAYTRADER8_DIR"),  # Change this to the path of the project you want to analyze.
-    language="java",  # The language of the project.
-    backend="codeanalyzer",  # The backend to use for the analysis.
-    analysis_db="/tmp",  # A temporary directory to store the analysis results.
-    sdg=True, # Generate the System Dependence Graph (SDG) for the project.
-)
+cldk = CLDK(language="java")
 
+analysis = cldk.analysis(
+    project_path=os.getenv("DAYTRADER8_DIR"),
+    analysis_backend="codeanalyzer",
+    analysis_json_path="/tmp",
+    eager=True,
+    analysis_level='call-graph'
+)
 # Get the java application view for the project. The application view is a representation of the project as a graph with all the classes, methods, and fields.
-app: JApplication = ns.preprocessing.get_application_view()
+app: JApplication = analysis.get_application_view()
 
 # Get all the classes in the project.
-classes_dict = ns.preprocessing.get_all_classes()
+classes_dict = analysis.get_classes()
 print(classes_dict)
 ```
