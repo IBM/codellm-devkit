@@ -4,7 +4,7 @@ from cldk.models.treesitter import Captures
 
 
 class TreeSitterUtils:
-    def __frame_query_and_capture_output(self, query: str, code_to_process: str) -> Captures:
+    def frame_query_and_capture_output(self, parser, language, query: str, code_to_process: str) -> Captures:
         """Frame a query for the tree-sitter parser.
 
         Parameters
@@ -14,11 +14,11 @@ class TreeSitterUtils:
         code_to_process : str
             The code to process.
         """
-        framed_query: Query = self.language.query(query)
-        tree = self.parser.parse(bytes(code_to_process, "utf-8"))
+        framed_query: Query = language.query(query)
+        tree = parser.parse(bytes(code_to_process, "utf-8"))
         return Captures(framed_query.captures(tree.root_node))
 
-    def __safe_ascend(self, node: Node, ascend_count: int) -> Node:
+    def safe_ascend(self, node: Node, ascend_count: int) -> Node:
         """Safely ascend the tree. If the node does not exist or if it has no parent, raise an error.
 
         Parameters
@@ -45,4 +45,4 @@ class TreeSitterUtils:
         if ascend_count == 0:
             return node
         else:
-            return self.__safe_ascend(node.parent, ascend_count - 1)
+            return self.safe_ascend(node.parent, ascend_count - 1)

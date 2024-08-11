@@ -3,12 +3,12 @@ import os
 from pathlib import Path
 from typing import List
 
-from sphinx.domains.python import PyField
 from tree_sitter import Language, Parser, Query, Node
 import tree_sitter_python as tspython
 
 from cldk.models.python.models import PyMethod, PyClass, PyArg, PyImport, PyModule, PyCallSite
 from cldk.models.treesitter import Captures
+from cldk.utils.treesitter.tree_sitter_utils import TreeSitterUtils
 
 
 class PythonSitter:
@@ -19,6 +19,7 @@ class PythonSitter:
     def __init__(self) -> None:
         self.language: Language = Language(tspython.language())
         self.parser: Parser = Parser(self.language)
+        self.utils: TreeSitterUtils = TreeSitterUtils()
 
     def get_all_methods(self, module: str) -> List[PyMethod]:
         """
@@ -104,9 +105,9 @@ class PythonSitter:
             List[str]: List of imports
         """
         import_list = []
-        captures_from_import: Captures = self.__frame_query_and_capture_output("(((import_from_statement) @imports))",
+        captures_from_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_from_statement) @imports))",
                                                                                module)
-        captures_import: Captures = self.__frame_query_and_capture_output("(((import_statement) @imports))", module)
+        captures_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_statement) @imports))", module)
         for capture in captures_import:
             import_list.append(capture.node.text.decode())
         for capture in captures_from_import:
@@ -131,9 +132,9 @@ class PythonSitter:
             List[PyImport]: List of imports
         """
         import_list = []
-        captures_from_import: Captures = self.__frame_query_and_capture_output("(((import_from_statement) @imports))",
+        captures_from_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_from_statement) @imports))",
                                                                                module)
-        captures_import: Captures = self.__frame_query_and_capture_output("(((import_statement) @imports))", module)
+        captures_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_statement) @imports))", module)
         for capture in captures_import:
             imports = []
             for import_name in capture.node.children:
@@ -152,7 +153,7 @@ class PythonSitter:
             import_list.append(PyImport(from_statement=capture.node.children[1].text.decode(), imports=imports))
         return import_list
 
-    def get_all_fields(self, module: str) -> List[PyField]:
+    def get_all_fields(self, module: str):
         pass
 
     def get_all_classes(self, module: str) -> List[PyClass]:
@@ -167,7 +168,7 @@ class PythonSitter:
             List[PyClass]: returns details of all classes in it
         """
         classes: List[PyClass] = []
-        all_class_details: Captures = self.__frame_query_and_capture_output("(((class_definition) @class_name))",
+        all_class_details: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((class_definition) @class_name))",
                                                                             module)
         for class_name in all_class_details:
             code_body = class_name.node.text.decode()
@@ -280,7 +281,7 @@ class PythonSitter:
         is_constructor = False
         is_static = False
         call_sites: List[PyCallSite] = []
-        call_nodes: Captures = self.__frame_query_and_capture_output("(((call) @call_name))", node.text.decode())
+        call_nodes: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((call) @call_name))", node.text.decode())
         for call_node in call_nodes:
             call_sites.append(self.__get_call_site_details(call_node.node))
         for function_detail in node.children:
@@ -342,9 +343,9 @@ class PythonSitter:
 
 
     def __get_class_nodes(self, module: str) -> Captures:
-        captures: Captures = self.__frame_query_and_capture_output("(((class_definition) @class_name))", module)
+        captures: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((class_definition) @class_name))", module)
         return captures
 
     def __get_method_nodes(self, module: str) -> Captures:
-        captures: Captures = self.__frame_query_and_capture_output("(((function_definition) @function_name))", module)
+        captures: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((function_definition) @function_name))", module)
         return captures

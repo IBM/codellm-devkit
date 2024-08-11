@@ -65,9 +65,13 @@ class JCodeanalyzer:
         self.use_graalvm_binary = use_graalvm_binary
         self.eager_analysis = eager_analysis
         self.analysis_level = analysis_level
+        self.application = self._init_codeanalyzer(analysis_level=1 if analysis_level == 'symbol_table' else 2)
         # Attributes related the Java code analysis...
-        self.call_graph: DiGraph | None = None
-        self.application = None
+        if analysis_level == 'symbol_table':
+            self.call_graph: DiGraph | None = None
+        else:
+            self.call_graph: DiGraph = self._generate_call_graph(using_symbol_table=False)
+
 
     @staticmethod
     def _download_or_update_code_analyzer(filepath: Path) -> str:
@@ -164,7 +168,7 @@ class JCodeanalyzer:
                 codeanalyzer_exec = shlex.split(codeanalyzer_bin_path.__str__())
         else:
             if self.analysis_backend_path:
-                analysis_backend_path = Path(analysis_backend_path)
+                analysis_backend_path = Path(self.analysis_backend_path)
                 logger.info(f"Using codeanalyzer.jar from {analysis_backend_path}")
                 codeanalyzer_exec = shlex.split(f"java -jar {analysis_backend_path / 'codeanalyzer.jar'}")
             else:
@@ -715,43 +719,19 @@ class JCodeanalyzer:
         """
         # If the method name is not provided, we'll get the call graph for the entire class.
 
-        # TODO: Implement class call graph generation @rahlk
+        if method_name is None:
+            filter_criteria = {node for node in self.call_graph.nodes if node[1] == qualified_class_name}
+        else:
+            filter_criteria = {node for node in self.call_graph.nodes if
+                               tuple(node) == (method_name, qualified_class_name)}
 
-        _class: JType = self.get_class(qualified_class_name)
+        graph_edges: List[Tuple[JMethodDetail, JMethodDetail]] = list()
+        for edge in self.call_graph.edges(nbunch=filter_criteria):
+            source: JMethodDetail = self.call_graph.nodes[edge[0]]["method_detail"]
+            target: JMethodDetail = self.call_graph.nodes[edge[1]]["method_detail"]
+            graph_edges.append((source, target))
 
-        edge_list = []
-        for method_signature, callable in _class.callable_declarations.items():
-            for callsite in callable.callsites:
-                edge_list.append(((callable.signature, qualified_class_name),))
-
-        class_call_graph = nx.DiGraph()
-
-        edge_list = [
-            (
-                (jge.source.method.signature, jge.source.klass),
-                (jge.target.method.signature, jge.target.klass),
-                {
-                    "type": jge.type,
-                    "weight": jge.weight,
-                    "calling_lines": tsu.get_calling_lines(jge.source.method.code, jge.target.method.signature),
-                },
-            )
-            for jge in sdg
-            if jge.type == "CONTROL_DEP" or jge.type == "CALL_DEP"
-        ]
-
-        for jge in sdg:
-            class_call_graph.add_node(
-                (jge.source.method.signature, jge.source.klass),
-                method_detail=jge.source,
-            )
-            class_call_graph.add_node(
-                (jge.target.method.signature, jge.target.klass),
-                method_detail=jge.target,
-            )
-        class_call_graph.add_edges_from(edge_list)
-
-        NotImplementedError("Class call graph generation is not implemented yet.")
+        return graph_edges
 
     def get_all_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
         """
