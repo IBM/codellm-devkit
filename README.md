@@ -22,9 +22,19 @@ Codellm-devkit is:
 
 Codellm-devkit is an ongoing project, developed at IBM Research.
 
+## Contact
+
+For any questions, feedback, or suggestions, please contact the authors:
+
+| Name | Email |
+| ---- | ----- |
+| Rahul Krishna | [i.m.ralk@gmail.com](mailto:i.m.ralk@gmail.com) |
+| Rangeet Pan | [rangeet.pan@gmail.com](mailto:rangeet.pan@gmail.com) |
+| Saurabh Sihna | [sinhas@us.ibm.com](mailto:sinhas@us.ibm.com) |
 ## Table of Contents
 
 - [CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs](#codellm-devkit-a-python-library-for-seamless-interaction-with-codellms)
+  - [Contact](#contact)
   - [Table of Contents](#table-of-contents)
   - [Architectural and Design Overview](#architectural-and-design-overview)
   - [Quick Start: Example Walkthrough](#quick-start-example-walkthrough)
