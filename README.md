@@ -29,7 +29,7 @@ For any questions, feedback, or suggestions, please contact the authors:
 | Name | Email |
 | ---- | ----- |
 | Rahul Krishna | [i.m.ralk@gmail.com](mailto:i.m.ralk@gmail.com) |
-| Rangeet Pan | [rangeet.pan@gmail.com](mailto:rangeet.pan@gmail.com) |
+| Rangeet Pan | [rangeet.pan@ibm.com](mailto:rangeet.pan@gmail.com) |
 | Saurabh Sihna | [sinhas@us.ibm.com](mailto:sinhas@us.ibm.com) |
 ## Table of Contents
 
