@@ -230,7 +230,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         if inclusions is None:
             inclusions = []
         class_dict: Dict[str, JType] = {}
-        all_classes = self.get_all_classes()
+        all_classes = self.backend.get_all_classes()
         for application_class in all_classes:
             is_selected = False
             for inclusion in inclusions:
