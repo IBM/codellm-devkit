@@ -12,6 +12,7 @@ def test_get_class_call_graph(test_fixture):
         analysis_backend="codeanalyzer",
         analysis_json_path="/tmp",
         eager=True,
+        analysis_level='call-graph'
     )
     class_call_graph: List[Tuple[JMethodDetail, JMethodDetail]] = analysis.get_class_call_graph(
         qualified_class_name="com.ibm.websphere.samples.daytrader.impl.direct.TradeDirectDBUtils"

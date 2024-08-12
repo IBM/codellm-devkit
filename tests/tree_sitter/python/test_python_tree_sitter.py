@@ -37,7 +37,7 @@ class TestPythonTreeSitter(TestCase):
         self.assertFalse(all_methods[0].is_static)
         self.assertEquals(all_methods[0].class_signature, "Person")
         self.assertEquals(all_functions[0].class_signature, "")
-        self.assertTrue(all_functions[0].is_static)
+        self.assertFalse(all_functions[0].is_static)
 
     def test_get_all_imports(self):
         module_str = """

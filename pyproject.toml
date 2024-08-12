@@ -2,7 +2,7 @@
 name = "cldk"
 version = "0.1.0-dev"
 description = "codellm-devkit: A python library for seamless interation with LLMs."
-authors = ["Rahul Krishna <i.m.ralk@gmail.com>", "Rangeet Pan <rangeetpan@gmail.com>", "Saurabh Sinhas <sinhas@us.ibm.com>",
+authors = ["Rahul Krishna <i.m.ralk@gmail.com>", "Rangeet Pan <rangeet.pan@ibm.com>", "Saurabh Sinhas <sinhas@us.ibm.com>",
             "Raju Pavuluri <pavuluri@us.ibm.com>"]
 license = "Apache 2.0"
 readme = "README.md"
@@ -22,7 +22,7 @@ requests = "^2.31.0"
 tree-sitter-java = "^0.21.0"
 tree-sitter-c = "^0.21.0"
 tree-sitter-go = "^0.21.0"
-tree-sitter-python = {git = "https://github.com/tree-sitter/tree-sitter-python", rev = "0f9047c"} # Points to 0.21.0
+tree-sitter-python = "^0.21.0"
 tree-sitter-javascript = "^0.21.0"
 # Test dependencies
 
