@@ -52,25 +52,24 @@ Below is a very high-level overview of the architectural of CLDK:
 ```mermaid
 graph TD
 User <--> A[CLDK]
+    A --> 15[Retrieval ‡]
+    A --> 16[Prompting ‡]
     A[CLDK] <--> B[Languages]
-        B --> C[Java, Python, Go, C++, JavaScript, TypeScript, Rust]
+        B --> C[Java, Python, Go, C++, JavaScript, TypeScript ‡, Rust ‡]
             C --> D[Data Models]
                 D --> 13{Pydantic}
             13 --> 7            
             C --> 7{backends}
-                7 <--> 8[CodeQL]
-                    8 <--> 14[Analysis]
                 7 <--> 9[WALA]
                     9 <--> 14[Analysis]
                 7 <--> 10[Tree-sitter] 
                     10 <--> 14[Analysis]
                 7 <--> 11[LLVM]
                     11 <--> 14[Analysis]
-                7 <--> 12[CodeQL]
+                7 <--> 12[CodeQL ‡]
                     12 <--> 14[Analysis]
 
-    A --> 17[Retrieval ‡]
-    A --> 16[Prompting ‡]
+    
 
 X[‡ Yet to be implemented]
 ```
