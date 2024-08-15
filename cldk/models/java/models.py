@@ -101,6 +101,7 @@ class JCallSite(BaseModel):
     receiver_type: str
     argument_types: List[str]
     return_type: str = ""
+    callee_signature: str = ""
     is_static_call: bool
     is_private: bool 
     is_public: bool 
@@ -299,7 +300,7 @@ class JType(BaseModel):
     nested_type_declerations: List[str] = []
     callable_declarations: Dict[str, JCallable] = {}
     field_declarations: List[JField] = []
-    enum_JavaEEEntryPoints: List[JEnumConstant] = []
+    enum_constants: List[JEnumConstant] = []
 
     # first get the data in raw form and check if the class is concrete or not, before any model validation is done
     #   for this we assume if a class is not an interface or abstract it is concrete
