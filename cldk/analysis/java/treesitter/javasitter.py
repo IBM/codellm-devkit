@@ -232,6 +232,79 @@ class JavaSitter:
                         annotation_method_dict[annotation] = [method]
         return annotation_method_dict
 
+    def get_fields_with_annotations(self, source_class_code: str) -> Dict[str, Dict]:
+        """
+        Returns a dictionary of field names and field bodies.
+
+        Parameters:
+        -----------
+        source_class_code : str
+            String containing code for a java class.
+        Returns:
+        --------
+        Dict[str,Dict]
+            Dictionary with field names as keys and a dictionary of annotation and body as values.
+        """
+        query = """
+                    (field_declaration 
+                        (variable_declarator
+                            name: (identifier) @field_name
+                        )
+                    )
+                """
+        captures: Captures = self.frame_query_and_capture_output(query, source_class_code)
+        field_dict = {}
+        for capture in captures:
+            if capture.name == "field_name":
+                field_name = capture.node.text.decode()
+                inner_dict = {}
+                annotation = None
+                field_node = self.safe_ascend(capture.node, 2)
+                body = field_node.text.decode()
+                for fc in field_node.children:
+                    if fc.type == "modifiers":
+                        for mc in fc.children:
+                            if mc.type == "marker_annotation":
+                                annotation = mc.text.decode()
+                inner_dict["annotation"] = annotation
+                inner_dict["body"] = body
+                field_dict[field_name] = inner_dict
+        return field_dict
+
+    def get_field_accesses(self, source_class_code: str) -> Dict[str, list[list[int]]]:
+        """
+        Returns a dictionary of field names with start and end positions of field accesses.
+
+        Parameters:
+        -----------
+        source_class_code : str
+            String containing code for a java class.
+        Returns:
+        --------
+        Dict[str, [[int, int], [int, int]]]
+            Dictionary with field names as keys and a list of starting and ending line, and starting and ending column.
+        """
+        query = """
+                    (field_access 
+                        field:(identifier) @field_name
+                        )
+                """
+        captures: Captures = self.frame_query_and_capture_output(query, source_class_code)
+        field_dict = {}
+        for capture in captures:
+            if capture.name == "field_name":
+                field_name = capture.node.text.decode()
+                field_node = self.safe_ascend(capture.node, 2)
+                start_line = field_node.start_point[0]
+                start_column = field_node.start_point[1]
+                end_line = field_node.end_point[0]
+                end_column = field_node.end_point[1]
+                start_list = [start_line, start_column]
+                end_list = [end_line, end_column]
+                position = [start_list, end_list]
+                field_dict[field_name] = position
+        return field_dict
+
     def get_all_type_invocations(self, source_code: str) -> Set[str]:
         """
         Given the source code, get all the type invocations in the source code.

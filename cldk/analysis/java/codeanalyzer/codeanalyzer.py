@@ -552,7 +552,7 @@ class JCodeanalyzer:
 
         if self.application is None:
             self.application = self._init_codeanalyzer()
-        return self.application[file_path]
+        return self.application.symbol_table[file_path]
 
     def get_all_methods_in_class(self, qualified_class_name) -> Dict[str, JCallable]:
         """
