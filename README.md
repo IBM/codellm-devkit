@@ -55,7 +55,7 @@ User <--> A[CLDK]
     A --> 15[Retrieval ‡]
     A --> 16[Prompting ‡]
     A[CLDK] <--> B[Languages]
-        B --> C[Java, Python, Go, C++, JavaScript, TypeScript ‡, Rust ‡]
+        B --> C[Java, Python, Go ‡, C ‡, JavaScript ‡, TypeScript ‡, Rust ‡]
             C --> D[Data Models]
                 D --> 13{Pydantic}
             13 --> 7            
