@@ -167,6 +167,7 @@ class JCodeanalyzer:
             with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.bin") / "codeanalyzer") as codeanalyzer_bin_path:
                 codeanalyzer_exec = shlex.split(codeanalyzer_bin_path.__str__())
         else:
+            print(f'analysis path: {self.analysis_json_path}')
             if self.analysis_backend_path:
                 analysis_backend_path = Path(self.analysis_backend_path)
                 logger.info(f"Using codeanalyzer.jar from {analysis_backend_path}")
