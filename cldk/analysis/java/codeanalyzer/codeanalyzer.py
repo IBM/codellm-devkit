@@ -168,11 +168,12 @@ class JCodeanalyzer:
                 codeanalyzer_exec = shlex.split(codeanalyzer_bin_path.__str__())
         else:
             print(f'analysis path: {self.analysis_json_path}')
+            analysis_json_path_file = Path(self.analysis_json_path).joinpath("analysis.json")
             if self.analysis_backend_path:
                 analysis_backend_path = Path(self.analysis_backend_path)
                 logger.info(f"Using codeanalyzer.jar from {analysis_backend_path}")
                 codeanalyzer_exec = shlex.split(f"java -jar {analysis_backend_path / 'codeanalyzer.jar'}")
-            elif self.analysis_json_path:
+            elif analysis_json_path_file.exists():
                 logger.info(f"Using existing analysis from {self.analysis_json_path}")
                 codeanalyzer_exec = shlex.split(f"java -jar codeanalyzer.jar")
             else:
