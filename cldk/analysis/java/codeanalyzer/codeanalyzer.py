@@ -171,6 +171,9 @@ class JCodeanalyzer:
                 analysis_backend_path = Path(self.analysis_backend_path)
                 logger.info(f"Using codeanalyzer.jar from {analysis_backend_path}")
                 codeanalyzer_exec = shlex.split(f"java -jar {analysis_backend_path / 'codeanalyzer.jar'}")
+            elif self.analysis_json_path:
+                logger.info(f"Using existing analysis from {self.analysis_json_path}")
+                codeanalyzer_exec = shlex.split(f"java -jar codeanalyzer.jar")
             else:
                 # Since the path to codeanalyzer.jar was not provided, we'll download the latest version from GitHub.
                 with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.jar")) as codeanalyzer_jar_path:
