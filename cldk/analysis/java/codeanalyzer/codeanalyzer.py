@@ -698,6 +698,117 @@ class JCodeanalyzer:
             return list()
         return ci.implements_list
 
+    def get_class_call_graph_using_symbol_table(self, qualified_class_name: str,
+                                                method_signature: str | None = None) -> (
+            List)[Tuple[JMethodDetail, JMethodDetail]]:
+        """
+        Returns call graph using symbol table. The analysis will not be
+        complete as symbol table has known limitation of resolving types
+        Args:
+            qualified_class_name: qualified name of the class
+            method_signature: method signature of the starting point of the call graph
+
+        Returns: List[Tuple[JMethodDetail, JMethodDetail]]
+            List of edges
+        """
+        call_graph = self.__call_graph_using_symbol_table(qualified_class_name, method_name)
+        if method_name is None:
+            filter_criteria = {node for node in call_graph.nodes if node[1] == qualified_class_name}
+        else:
+            filter_criteria = {node for node in call_graph.nodes if
+                               tuple(node) == (method_name, qualified_class_name)}
+
+        graph_edges: List[Tuple[JMethodDetail, JMethodDetail]] = list()
+        for edge in self.call_graph.edges(nbunch=filter_criteria):
+            source: JMethodDetail = call_graph.nodes[edge[0]]["method_detail"]
+            target: JMethodDetail = call_graph.nodes[edge[1]]["method_detail"]
+            graph_edges.append((source, target))
+        return graph_edges
+
+    def __call_graph_using_symbol_table(self,
+                                        qualified_class_name: str,
+                                        method_signature: str):
+        sdg = self.__raw_call_graph_using_symbol_table(qualified_class_name=qualified_class_name,
+                                                      method_signature=method_signature)
+        tsu = JavaSitter()
+        edge_list = [
+            (
+                (jge.source.method.signature, jge.source.klass),
+                (jge.target.method.signature, jge.target.klass),
+                {
+                    "type": jge.type,
+                    "weight": jge.weight,
+                    "calling_lines": tsu.get_calling_lines(jge.source.method.code, jge.target.method.signature),
+                },
+            )
+            for jge in sdg
+        ]
+        for jge in sdg:
+            cg.add_node(
+                (jge.source.method.signature, jge.source.klass),
+                method_detail=jge.source,
+            )
+            cg.add_node(
+                (jge.target.method.signature, jge.target.klass),
+                method_detail=jge.target,
+            )
+        cg.add_edges_from(edge_list)
+        return cg
+
+    def __raw_call_graph_using_symbol_table(self,
+                         qualified_class_name: str,
+                         method_signature: str,
+                         cg: list[JGraphEdges] = []) -> list[JGraphEdges]:
+        """
+        Generates call graph using symbol table information
+        Args:
+            qualified_class_name: qualified class name
+            method_signature: source method signature
+            cg: call graph
+
+        Returns:
+            list[JGraphEdges]: list of call edges
+        """
+        source_method_details = self.get_method(qualified_class_name=qualified_class_name,
+                                                                 qualified_method_name=method_signature)
+        for call_site in source_method_details.call_sites:
+            target_method_details = None
+            target_class = ''
+            if call_site.receiver_type != "":
+                # call to any class
+                if self.get_class(qualified_class_name=call_site.receiver_type):
+                    tmd = self.get_method(qualified_method_name=call_site.callee_signature,
+                                                           qualified_class_name=call_site.receiver_type)
+                    if tmd is not None:
+                        target_method_details = tmd
+                        target_class = call_site.receiver_type
+            else:
+                # private calls
+                if call_site.is_private:
+                    target_method_details = self.get_method(qualified_class_name=method_signature,
+                                                                             qualified_method_name=call_site.callee_signature)
+                    target_class = qualified_class_name
+                if target_class == '':
+                    # check if any method exists with the signature in the class even if the receiver type is blank
+                    tmd = self.get_method(qualified_method_name=call_site.callee_signature,
+                                                           qualified_class_name=qualified_class_name)
+                    if tmd is not None:
+                        target_method_details = tmd
+                        target_class = qualified_class_name
+            if target_class != '':
+                call_edge = JGraphEdges(
+                    source=source_method_details,
+                    target=target_method_details,
+                    type='CALL_DEP',
+                    weight='1')
+                if call_edge not in cg:
+                    cg.append(call_edge)
+                cg = self.__raw_call_graph_using_symbol_table(qualified_class_name=target_class,
+                                         method_signature=target_method_details.signature,
+                                         preprocessor=preprocessor,
+                                         cg=cg)
+        return cg
+
     def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None) -> List[Tuple[JMethodDetail, JMethodDetail]]:
         """
         A call graph for a given class and (optionally) filtered by a given method.
