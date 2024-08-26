@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Set
 from networkx import DiGraph
 
-from cldk.analysis import SymbolTable, CallGraph
+from cldk.analysis import SymbolTable, CallGraph, AnalysisLevel
 from cldk.models.java import JCallable
 from cldk.models.java import JApplication
 from cldk.models.java.models import JCompilationUnit, JMethodDetail, JType, JField
@@ -436,6 +436,21 @@ class JavaAnalysis(SymbolTable, CallGraph):
         if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_implemented_interfaces(qualified_class_name)
+
+    def get_class_call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
+        """
+        A call graph using symbol table for a given class and a given method.
+        Args:
+            qualified_class_name:
+            method_signature:
+
+        Returns:
+            List[Tuple[JMethodDetail, JMethodDetail]]
+            An edge list of the call graph for the given class and method.
+        """
+        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER] or self.analysis_level!=AnalysisLevel.symbol_table:
+            raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        return self.backend.get_class_call_graph_using_symbol_table(qualified_class_name, method_signature)
 
     def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
         """

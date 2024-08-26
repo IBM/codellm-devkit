@@ -103,10 +103,10 @@ class JCallSite(BaseModel):
     return_type: str = ""
     callee_signature: str = ""
     is_static_call: bool
-    is_private: bool 
-    is_public: bool 
-    is_protected: bool 
-    is_unspecified: bool 
+    is_private: bool
+    is_public: bool
+    is_protected: bool
+    is_unspecified: bool
     is_constructor_call: bool
     start_line: int
     start_column: int
@@ -354,6 +354,15 @@ class JMethodDetail(BaseModel):
 
     def __hash__(self):
         return hash(tuple(self))
+
+
+class JGraphEdgesST(BaseModel):
+    source: JMethodDetail
+    target: JMethodDetail
+    type: str
+    weight: str
+    source_kind: str | None = None
+    destination_kind: str | None = None
 
 
 class JGraphEdges(BaseModel):
