@@ -437,7 +437,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_implemented_interfaces(qualified_class_name)
 
-    def get_class_call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
+    def __get_class_call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
         """
         A call graph using symbol table for a given class and a given method.
         Args:
@@ -452,22 +452,32 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph_using_symbol_table(qualified_class_name, method_signature)
 
-    def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
+    def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None,
+                             using_symbol_table: bool = False) -> List[Tuple[JMethodDetail, JMethodDetail]]:
         """
         A call graph for a given class and (optionally) a given method.
 
         Parameters
         ----------
+        using_symbol_table: bool
+            Generate call graph using symbol table
         qualified_class_name : str
             The qualified name of the class.
         method_name : str, optional
-            The name of the method in the class.
+            The signature of the method in the class.
 
         Returns
         -------
         List[Tuple[JMethodDetail, JMethodDetail]]
             An edge list of the call graph for the given class and method.
+
+        Args:
+            using_symbol_table:
+            using_symbol_table:
         """
+        if using_symbol_table:
+            return self.__get_class_call_graph_using_symbol_table(qualified_class_name=qualified_class_name,
+                                                                method_signature=method_name)
         if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph(qualified_class_name, method_name)

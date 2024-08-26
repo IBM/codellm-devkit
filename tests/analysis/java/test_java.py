@@ -93,9 +93,10 @@ def test_get_class_call_graph_using_symbol_table(test_fixture):
         eager=False,
         analysis_level=AnalysisLevel.symbol_table
     )
-    class_call_graph: List[Tuple[JMethodDetail, JMethodDetail]] = analysis.get_class_call_graph_using_symbol_table(
+    class_call_graph: List[Tuple[JMethodDetail, JMethodDetail]] = analysis.get_class_call_graph(
         qualified_class_name="org.apache.commons.cli.DefaultParser",
-        method_signature="handleConcatenatedOptions(String)"
+        method_name="handleConcatenatedOptions(String)",
+        using_symbol_table=True
     )
 
     assert class_call_graph is not None
