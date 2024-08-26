@@ -95,7 +95,7 @@ def test_get_class_call_graph_using_symbol_table(test_fixture):
     )
     class_call_graph: List[Tuple[JMethodDetail, JMethodDetail]] = analysis.get_class_call_graph(
         qualified_class_name="org.apache.commons.cli.DefaultParser",
-        method_name="handleConcatenatedOptions(String)",
+        method_signature="handleConcatenatedOptions(String)",
         using_symbol_table=True
     )
 

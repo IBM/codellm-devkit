@@ -452,7 +452,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph_using_symbol_table(qualified_class_name, method_signature)
 
-    def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None,
+    def get_class_call_graph(self, qualified_class_name: str, method_signature: str | None = None,
                              using_symbol_table: bool = False) -> List[Tuple[JMethodDetail, JMethodDetail]]:
         """
         A call graph for a given class and (optionally) a given method.
