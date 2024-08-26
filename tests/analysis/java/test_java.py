@@ -70,7 +70,7 @@ def test_get_class_call_graph(test_fixture):
     analysis = cldk.analysis(
         project_path=test_fixture,
         analysis_backend="codeanalyzer",
-        analysis_json_path="/Users/rangeetpan/Documents/Research/NorthStar/codellm-devkit/tests/resources/java/analysis_db",
+        analysis_json_path="../../../tests/resources/java/analysis_db",
         eager=True,
         analysis_level=AnalysisLevel.call_graph
     )
