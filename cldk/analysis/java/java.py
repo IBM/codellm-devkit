@@ -477,10 +477,10 @@ class JavaAnalysis(SymbolTable, CallGraph):
         """
         if using_symbol_table:
             return self.__get_class_call_graph_using_symbol_table(qualified_class_name=qualified_class_name,
-                                                                method_signature=method_name)
+                                                                method_signature=method_signature)
         if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
-        return self.backend.get_class_call_graph(qualified_class_name, method_name)
+        return self.backend.get_class_call_graph(qualified_class_name, method_signature)
 
     def get_entry_point_classes(self) -> Dict[str, JType]:
         """
