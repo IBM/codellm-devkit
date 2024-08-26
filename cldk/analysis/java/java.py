@@ -448,7 +448,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
             List[Tuple[JMethodDetail, JMethodDetail]]
             An edge list of the call graph for the given class and method.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER] or self.analysis_level!=AnalysisLevel.symbol_table:
+        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph_using_symbol_table(qualified_class_name, method_signature)
 
