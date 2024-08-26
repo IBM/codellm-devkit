@@ -815,7 +815,7 @@ class JCodeanalyzer:
                 else:
                     # private calls
                     if call_site.is_private:
-                        target_method_details = self.get_method(qualified_class_name=method_signature,
+                        target_method_details = self.get_method(qualified_class_name=qualified_class_name,
                                                                 method_signature=callee_signature)
                         target_class = qualified_class_name
                     if target_class == '':
