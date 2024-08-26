@@ -789,7 +789,7 @@ class JCodeanalyzer:
                 target_class = ''
                 callee_signature = ''
                 if call_site.callee_signature != '':
-                    pattern = r'\b(?:[a-zA-Z_][\w\.]*\.)+([a-zA-Z_][\w]*)\b'
+                    pattern = r'\b(?:[a-zA-Z_][\w\.]*\.)+([a-zA-Z_][\w]*)\b|<.*?>'
 
                     # Find the part within the parentheses
                     start = call_site.callee_signature.find('(') + 1
