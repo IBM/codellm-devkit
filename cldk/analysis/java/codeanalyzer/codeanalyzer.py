@@ -770,7 +770,7 @@ class JCodeanalyzer:
     def __raw_call_graph_using_symbol_table(self,
                                             qualified_class_name: str,
                                             method_signature: str,
-                                            cg: list[JGraphEdges] = []) -> list[JGraphEdgesST]:
+                                            cg: list[JGraphEdgesST] = []) -> list[JGraphEdgesST]:
         """
         Generates call graph using symbol table information
         Args:
@@ -779,7 +779,7 @@ class JCodeanalyzer:
             cg: call graph
 
         Returns:
-            list[JGraphEdges]: list of call edges
+            list[JGraphEdgesST]: list of call edges
         """
         source_method_details = self.get_method(qualified_class_name=qualified_class_name,
                                                 method_signature=method_signature)
