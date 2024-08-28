@@ -26,7 +26,6 @@ def test_fixture():
 
     if not Path(test_data_path).exists():
         Path(test_data_path).mkdir(parents=True)
-
     url = "https://github.com/OpenLiberty/sample.daytrader8/archive/refs/tags/v1.2.zip"
     filename = Path(test_data_path).absolute() / "v1.2.zip"
     urlretrieve(url, filename)
@@ -38,7 +37,6 @@ def test_fixture():
     # Remove the zip file
     filename.unlink()
     # --------------------------------------------------------------------------------
-
     # Daytrader8 sample application path
     yield Path(test_data_path) / "sample.daytrader8-1.2"
 

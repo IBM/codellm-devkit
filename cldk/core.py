@@ -114,7 +114,7 @@ class CLDK:
         else:
             raise NotImplementedError(f"Treesitter parser for {self.language} is not implemented yet.")
 
-    def tree_sitter_utils(self, source_code: str):
+    def tree_sitter_utils(self, source_code: str) -> [TreesitterSanitizer| NotImplementedError]:
         """
         Parse the project using treesitter.
 

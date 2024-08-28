@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Set
 from networkx import DiGraph
 
-from cldk.analysis import SymbolTable, CallGraph
+from cldk.analysis import SymbolTable, CallGraph, AnalysisLevel
 from cldk.models.java import JCallable
 from cldk.models.java import JApplication
 from cldk.models.java.models import JCompilationUnit, JMethodDetail, JType, JField
@@ -157,7 +157,8 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError("Producing a call graph over a single file is not implemented yet.")
         return self.backend.get_call_graph_json()
 
-    def get_callers(self, target_class_name: str, target_method_declaration: str):
+    def get_callers(self, target_class_name: str, target_method_declaration: str,
+                    using_symbol_table: bool = False) -> Dict:
         """
         Get all the caller details for a given java method.
 
@@ -168,7 +169,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         """
         if self.source_code:
             raise NotImplementedError("Generating all callers over a single file is not implemented yet.")
-        return self.backend.get_all_callers(target_class_name, target_method_declaration)
+        return self.backend.get_all_callers(target_class_name, target_method_declaration, using_symbol_table)
 
     def get_callees(self, source_class_name: str, source_method_declaration: str):
         """
@@ -437,25 +438,50 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_implemented_interfaces(qualified_class_name)
 
-    def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
+    def __get_class_call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
+        """
+        A call graph using symbol table for a given class and a given method.
+        Args:
+            qualified_class_name:
+            method_signature:
+
+        Returns:
+            List[Tuple[JMethodDetail, JMethodDetail]]
+            An edge list of the call graph for the given class and method.
+        """
+        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
+            raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        return self.backend.get_class_call_graph_using_symbol_table(qualified_class_name, method_signature)
+
+    def get_class_call_graph(self, qualified_class_name: str, method_signature: str | None = None,
+                             using_symbol_table: bool = False) -> List[Tuple[JMethodDetail, JMethodDetail]]:
         """
         A call graph for a given class and (optionally) a given method.
 
         Parameters
         ----------
+        using_symbol_table: bool
+            Generate call graph using symbol table
         qualified_class_name : str
             The qualified name of the class.
         method_name : str, optional
-            The name of the method in the class.
+            The signature of the method in the class.
 
         Returns
         -------
         List[Tuple[JMethodDetail, JMethodDetail]]
             An edge list of the call graph for the given class and method.
+
+        Args:
+            using_symbol_table:
+            using_symbol_table:
         """
+        if using_symbol_table:
+            return self.__get_class_call_graph_using_symbol_table(qualified_class_name=qualified_class_name,
+                                                                method_signature=method_signature)
         if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
-        return self.backend.get_class_call_graph(qualified_class_name, method_name)
+        return self.backend.get_class_call_graph(qualified_class_name, method_signature)
 
     def get_entry_point_classes(self) -> Dict[str, JType]:
         """
