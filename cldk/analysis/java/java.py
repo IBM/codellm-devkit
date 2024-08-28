@@ -157,7 +157,8 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError("Producing a call graph over a single file is not implemented yet.")
         return self.backend.get_call_graph_json()
 
-    def get_callers(self, target_class_name: str, target_method_declaration: str):
+    def get_callers(self, target_class_name: str, target_method_declaration: str,
+                    using_symbol_table: bool = False) -> Dict:
         """
         Get all the caller details for a given java method.
 
@@ -168,7 +169,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         """
         if self.source_code:
             raise NotImplementedError("Generating all callers over a single file is not implemented yet.")
-        return self.backend.get_all_callers(target_class_name, target_method_declaration)
+        return self.backend.get_all_callers(target_class_name, target_method_declaration, using_symbol_table)
 
     def get_callees(self, source_class_name: str, source_method_declaration: str):
         """
