@@ -796,7 +796,7 @@ class JCodeanalyzer:
     def __raw_call_graph_using_symbol_table_target_method(self,
                                             target_class_name: str,
                                             target_method_signature: str,
-                                            cg: list[JGraphEdgesST] = []) -> list[JGraphEdgesST]:
+                                                          cg=None) -> list[JGraphEdgesST]:
         """
         Generates call graph using symbol table information given the target method and target class
         Args:
@@ -807,6 +807,8 @@ class JCodeanalyzer:
         Returns:
             list[JGraphEdgesST]: list of call edges
         """
+        if cg is None:
+            cg = []
         target_method_details = self.get_method(qualified_class_name=target_class_name,
                                                 method_signature=target_method_signature)
         for class_name in self.get_all_classes():
@@ -840,18 +842,13 @@ class JCodeanalyzer:
                                 source_method_details = self.get_method(method_signature=method,
                                                   qualified_class_name=class_name)
                                 source_class = class_name
-                        # private calls
-                        if call_site.is_private:
-                            if callee_signature == target_method_signature and class_name == target_class_name:
-                                source_method_details = self.get_method(method_signature=method,
-                                                                        qualified_class_name=class_name)
-                                source_class = class_name
-                        if source_class == '':
-                            # check if any method exists with the signature in the class even if the receiver type is blank
-                            if callee_signature == target_method_signature and class_name == target_class_name:
-                                source_method_details = self.get_method(method_signature=method,
-                                                                        qualified_class_name=class_name)
-                                source_class = class_name
+                    else:
+                        # check if any method exists with the signature in the class even if the receiver type is blank
+                        if callee_signature == target_method_signature and class_name == target_class_name:
+                            source_method_details = self.get_method(method_signature=method,
+                                                                    qualified_class_name=class_name)
+                            source_class = class_name
+
                     if source_class != '' and source_method_details is not None:
                         source: JMethodDetail
                         target: JMethodDetail
@@ -873,7 +870,7 @@ class JCodeanalyzer:
     def __raw_call_graph_using_symbol_table(self,
                                             qualified_class_name: str,
                                             method_signature: str,
-                                            cg: list[JGraphEdgesST] = []) -> list[JGraphEdgesST]:
+                                            cg=None) -> list[JGraphEdgesST]:
         """
         Generates call graph using symbol table information
         Args:
@@ -884,69 +881,71 @@ class JCodeanalyzer:
         Returns:
             list[JGraphEdgesST]: list of call edges
         """
+        if cg is None:
+            cg = []
         source_method_details = self.get_method(qualified_class_name=qualified_class_name,
                                                 method_signature=method_signature)
-        if source_method_details is not None:
-            for call_site in source_method_details.call_sites:
-                target_method_details = None
-                target_class = ''
-                callee_signature = ''
-                if call_site.callee_signature != '':
-                    pattern = r'\b(?:[a-zA-Z_][\w\.]*\.)+([a-zA-Z_][\w]*)\b|<[^>]*>'
+        # If the provided classname and method signature combination do not exist
+        if source_method_details is None:
+            return cg
+        for call_site in source_method_details.call_sites:
+            target_method_details = None
+            target_class = ''
+            callee_signature = ''
+            if call_site.callee_signature != '':
+                # Currently the callee signature returns the fully qualified type, whereas
+                # the key for JCallable does not. The below logic converts the fully qualified signature
+                # to the desider format. Only limitation is the nested generic type.
+                pattern = r'\b(?:[a-zA-Z_][\w\.]*\.)+([a-zA-Z_][\w]*)\b|<[^>]*>'
 
-                    # Find the part within the parentheses
-                    start = call_site.callee_signature.find('(') + 1
-                    end = call_site.callee_signature.rfind(')')
+                # Find the part within the parentheses
+                start = call_site.callee_signature.find('(') + 1
+                end = call_site.callee_signature.rfind(')')
 
-                    # Extract the elements inside the parentheses
-                    elements = call_site.callee_signature[start:end].split(',')
+                # Extract the elements inside the parentheses
+                elements = call_site.callee_signature[start:end].split(',')
 
-                    # Apply the regex to each element
-                    simplified_elements = [re.sub(pattern, r'\1', element.strip()) for element in elements]
+                # Apply the regex to each element
+                simplified_elements = [re.sub(pattern, r'\1', element.strip()) for element in elements]
 
-                    # Reconstruct the string with simplified elements
-                    callee_signature = f"{call_site.callee_signature[:start]}{', '.join(simplified_elements)}{call_site.callee_signature[end:]}"
+                # Reconstruct the string with simplified elements
+                callee_signature = f"{call_site.callee_signature[:start]}{', '.join(simplified_elements)}{call_site.callee_signature[end:]}"
 
-                if call_site.receiver_type != "":
-                    # call to any class
-                    if self.get_class(qualified_class_name=call_site.receiver_type):
-                        tmd = self.get_method(method_signature=callee_signature,
-                                              qualified_class_name=call_site.receiver_type)
-                        if tmd is not None:
-                            target_method_details = tmd
-                            target_class = call_site.receiver_type
-                else:
-                    # private calls
-                    if call_site.is_private:
-                        target_method_details = self.get_method(qualified_class_name=qualified_class_name,
-                                                                method_signature=callee_signature)
-                        target_class = qualified_class_name
-                    if target_class == '':
-                        # check if any method exists with the signature in the class even if the receiver type is blank
-                        tmd = self.get_method(method_signature=callee_signature,
-                                              qualified_class_name=qualified_class_name)
-                        if tmd is not None:
-                            target_method_details = tmd
-                            target_class = qualified_class_name
-                if target_class != '' and target_method_details is not None:
-                    source: JMethodDetail
-                    target: JMethodDetail
-                    type: str
-                    weight: str
-                    call_edge = JGraphEdgesST(
-                        source=JMethodDetail(method_declaration=source_method_details.declaration,
-                                             klass=qualified_class_name,
-                                             method=source_method_details),
-                        target=JMethodDetail(method_declaration=target_method_details.declaration,
-                                             klass=target_class,
-                                             method=target_method_details),
-                        type='CALL_DEP',
-                        weight='1')
-                    if call_edge not in cg:
-                        cg.append(call_edge)
-                    cg = self.__raw_call_graph_using_symbol_table(qualified_class_name=target_class,
-                                                                  method_signature=target_method_details.signature,
-                                                                  cg=cg)
+            if call_site.receiver_type != "":
+                # call to any class
+                if self.get_class(qualified_class_name=call_site.receiver_type):
+                    tmd = self.get_method(method_signature=callee_signature,
+                                          qualified_class_name=call_site.receiver_type)
+                    if tmd is not None:
+                        target_method_details = tmd
+                        target_class = call_site.receiver_type
+            else:
+                # check if any method exists with the signature in the class even if the receiver type is blank
+                tmd = self.get_method(method_signature=callee_signature,
+                                      qualified_class_name=qualified_class_name)
+                if tmd is not None:
+                    target_method_details = tmd
+                    target_class = qualified_class_name
+
+            if target_class != '' and target_method_details is not None:
+                source: JMethodDetail
+                target: JMethodDetail
+                type: str
+                weight: str
+                call_edge = JGraphEdgesST(
+                    source=JMethodDetail(method_declaration=source_method_details.declaration,
+                                         klass=qualified_class_name,
+                                         method=source_method_details),
+                    target=JMethodDetail(method_declaration=target_method_details.declaration,
+                                         klass=target_class,
+                                         method=target_method_details),
+                    type='CALL_DEP',
+                    weight='1')
+                if call_edge not in cg:
+                    cg.append(call_edge)
+                cg = self.__raw_call_graph_using_symbol_table(qualified_class_name=target_class,
+                                                              method_signature=target_method_details.signature,
+                                                              cg=cg)
         return cg
 
     def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None) -> List[
