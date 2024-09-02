@@ -176,7 +176,7 @@ You just saw how easy it was to analyze a Java application and use the analysis 
 
 Now, we will show how with small changes, a junit test case can be generated using CLDK and LLM for the same method. For test generation, we will change the prompt, which takes, the focal method and class name, focal method body, and the signature of the constructors to form an object of the focal class.
 
-```
+```python
 def format_inst(focal_method_body, focal_method, focal_class, constructor_signatures, language):
     """
     Format the LLM instruction for the given focal method and class.
@@ -195,7 +195,7 @@ def format_inst(focal_method_body, focal_method, focal_class, constructor_signat
 ```
 First, we will get signature of all the constructors in ```org.apache.commons.cli.GnuParser```.
 
-```
+```python
 class_name = 'org.apache.commons.cli.GnuParser'
 constructor_signatures = ''
 for method in analysis.get_methods_in_class(qualified_class_name=class_name):
@@ -206,7 +206,7 @@ for method in analysis.get_methods_in_class(qualified_class_name=class_name):
 We go through each method in the class and check if the method is a signature by simply call ```is_constructor``` that is stored in our Pydantic model.
 Now, we will provide all the details needed for the prompt generation.
 
-```
+```python
 method_body = method_details.declaration + flatten_method.code
 method_name = flatten_method.signature.split("(")[0]
 focal_class_name = class_name.split('.')[-1]
