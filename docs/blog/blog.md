@@ -11,13 +11,12 @@ Nice picture: Rahul -->
 ### Introduction
 Introduction:
 
-As our team at IBM Research started to build a solution for application modernization based on Code Large Language Model (CodeLLM), we were faced with the abundance of multiple static analysis tooling to use coupled with core CodeLLM capabilities. These static analysis tools, such as [Tree-sitter](https://tree-sitter.github.io/tree-sitter/), [WALA](https://github.com/wala/WALA), etc., each range in their support for different programming language and its coverage of programming language features. Developers require a deep understanding of program analysis tooling and what they offer for each programming language, to create meaningful context/prompt augmentations when developing CodeLLM solutions. This in turn becomes a tedious task, and often requires multiple lines of code to be written to support various CodeLLM enabled tasks such as, generating unit tests, summarizing code, etc.  As a result, we have developed CodeLLM Development Kit (CLDK), which abstracts the interaction with the static analysis tools and enables seamless integration with CodeLLMs. 
+As our team at IBM Research started to build a solution for application modernization based on Large Language Models for code (CodeLLMs), we were faced with the choice of different static-analysis tooling to use coupled with core code LLM capabilities. These static-analysis tools, such as [Tree-sitter](https://tree-sitter.github.io/tree-sitter/), [WALA](https://github.com/wala/WALA), etc., each vary in their support for different programming languages, programming-language features, and types of program analyses. Developers require a deep understanding of such tools and what they offer for each programming language, to create meaningful context/prompt augmentations when developing CodeLLM solutions. This, in turn, becomes a tedious task that often requires considerable amount of code to be written to support various CodeLLM use cases, such as test generation, code summarization, code translation, etc.  To address this problem, we have developed CodeLLM Development Kit (CLDK), which abstracts the interaction with the static-analysis tools and enables seamless integration with CodeLLMs. 
 ![image](cldk-logo.png)
 
-CLDK finds its use in different aspects of CodeLLM lifecycle. It can help augment and enable generation of instruct datasets to enhance the existing models, it can be used to build new code models by creating finetuning datasets, build more code-related LLM assisted solutions, support evaluation of the models, and last but not least simplify development of enterprise use cases. 
+CLDK finds its use in different phases of the CodeLLM lifecycle. It can help augment and enable generation of instruct datasets to enhance existing models. It can be used to build new code models by creating finetuning datasets, build code-related LLM-assisted solutions, support evaluation of models, and last, but not least, simplify the development of enterprise use cases. 
 
-At IBM Research, we utilized CLDK for various enterprise use cases, including code explanation generation and test generation, as part of our efforts with [watsonx Code Assistant for Enterprise Java Applications](https://www.ibm.com/products/watsonx-code-assistant-for-enterprise-java-applications). We observed a significant boost in both productivity and creativity through the use of this tool. Our experience showed that CLDK offers several key benefits: (a) it abstracts the complex details of various program analysis engines, such as WALA, which runs on Java and typically requires significant expertise to generate code analysis, and Tree-sitter, which relies on query-based language processing and requires proper post-processing for extracting relevant information; (b) it facilitates the creation of [Pydantic](https://docs.pydantic.dev/latest/concepts/models/) models for code analysis (example, [Java code analysis model](https://github.com/IBM/codellm-devkit/blob/main/cldk/models/java/models.py)) ; (c) it enables support for multiple program analysis backends, including WALA and Tree-sitter; (d) it supports multiple programming languages—currently Java and Python, with plans to release support for additional languages soon; and (e) it offers different levels of analysis, allowing for more efficient workflows by enabling users to bypass more intensive analyses, such as call graph, program dependency graph, system dependency graph-based analysis, when a symbol table analysis suffices, which is especially valuable for enterprise-grade projects.
-
+At IBM Research, we use CLDK for various enterprise use cases, including code explanation and test generation, as part of our efforts with [watsonx Code Assistant for Enterprise Java Applications](https://www.ibm.com/products/watsonx-code-assistant-for-enterprise-java-applications). We observed a significant boost in both productivity and creativity through the use of this tool. Our experience showed that CLDK offers several key benefits: (1) it abstracts the complex details of various program analysis engines, such as WALA, which runs on Java and typically requires significant expertise to generate code-analysis results, and Tree-sitter, which relies on query-based language processing and requires proper post-processing for extracting relevant information; (2) it facilitates the creation of [Pydantic](https://docs.pydantic.dev/latest/concepts/models/) models for code analysis (example, [Java code analysis model](https://github.com/IBM/codellm-devkit/blob/main/cldk/models/java/models.py)); (3) it enables support for multiple program-analysis backends, including WALA and Tree-sitter; (4) it supports multiple programming languages (currently, Java and Python, with plans to support additional languages soon); and (5) it offers different levels of analysis, allowing for more efficient workflows by enabling users to bypass more intensive analyses, such as those based on call graphs, program dependency graphs, system dependency graphs, when a symbol-table-based analysis suffices, which is especially valuable for enterprise-grade projects.
 
 
 How to use CLDK in practice:
@@ -28,9 +27,9 @@ Installing CLDK is very simple. All you have to do is run the below command.
 pip install git+https://github.com/IBM/codellm-devkit.git
 ```
 
-To understand the potential of CLDK, let’s walkthrough an example of summarizing a java method using a Code LLM with the help of program analysis.  Since we will be interacting with a CodeLLM in this example, let's downnload and install ```Ollama```, a tool that helps run LLMs locally, from here https://ollama.com/download. 
+To understand the potential of CLDK, let’s walkthrough an example of summarizing a Java method using a CodeLLM with the help of program analysis.  As we will be interacting with a CodeLLM in this example, let's downnload and install `Ollama`, a tool that helps run LLMs locally, from here https://ollama.com/download. 
 
-While any CodeLLM of choice can be used with CLDK, for this example, we will use IBM Granite 8b-instruct CodeLLM. More information about IBM Granite code models can be found at https://github.com/ibm-granite/granite-code-models. Once we have Ollama up and running, let's pull granite model.
+Although any CodeLLM of choice can be used with CLDK, for this example, we will use the IBM Granite code 8b-instruct model. More information about IBM Granite code models can be found at https://github.com/ibm-granite/granite-code-models. Once we have Ollama up and running, let's pull the Granite model.
 
 ```bash
 ollama pull granite-code:8b-instruct
@@ -39,23 +38,23 @@ ollama pull granite-code:8b-instruct
 After the download completes, let's test it once with a basic prompt.
 
 ```bash
-ollama run granite-code:8b-instruct \"Write a python function to print 'Hello, World!'
+ollama run granite-code:8b-instruct \"Write a python function to print 'Hello, World!'\"
 ```
-You should see a response from the granite model with python code and some instructions.  Let's also install Ollama's python sdk, so we can interact with the model in our example.
+You should see a response from the Granite model, consisting of Python code and some instructions.  Let's also install Ollama's Python SDK, so we can interact with the model in our example.
 
 ```bash
 pip install ollama
 ```
 
-We will use commons-cli java application to exercise a few analysis operations.  Let's download it.  Make sure you have ```wget``` installed on your system.
+We will use [Apache Commons CLI](https://github.com/apache/commons-cli) Java application to exercise a few analysis operations.  Let's download it.  Make sure you have `wget` installed on your system.
 
 ```bash
 wget https://github.com/apache/commons-cli/archive/refs/tags/rel/commons-cli-1.7.0.zip -O /tmp/commons-cli-1.7.0.zip && unzip -o /tmp/commons-cli-1.7.0.zip -d /tmp
 ```
 
-Now that we are done with the pre-reqs, let's get back to our example and start coding it in a python notebook. First, let's warm ourselves up with a few basic operations on this Java application. You can copy/paste the following code snippets into your python notebook.
+Now that we are done with the pre-requisites, let's get back to our example and start coding it in a Python notebook. First, let's warm ourselves up with a few basic operations on this Java application. You can copy/paste the following code snippets into your Python notebook.
 
-A few necessary imports.
+A few necessary imports:
 
 ```python
 from pathlib import Path
@@ -64,42 +63,43 @@ from cldk import CLDK
 from cldk.analysis import AnalysisLevel
 ```
 
-Create an object of CLDK by providing the programming language of the source code we want to analyze, in this case it is ```java```.
+Create an instance of CLDK by providing the programming language of the code under analysis; in this case it is Java.
 
 ```python
 # Create a new instance of the CLDK class
 cldk = CLDK(language="java")
 ```
 
-CLDK uses different analysis engines -- Codeanalyzer (built using WALA and Javaparser), Tree-sitter, and CodeQL (future). Codeanalyzer is selected as a default analysis engine for ```java``` programming language. 
+CLDK uses different analysis engines---[CodeAnalyzer](https://github.com/IBM/codenet-minerva-code-analyzer) (built using [WALA](https://github.com/wala/WALA) and [JavaParser](https://github.com/javaparser/javaparser)), [Tree-sitter](https://tree-sitter.github.io/tree-sitter/), and [CodeQL](https://codeql.github.com/) (future). CodeAnalyzer is selected as a default analysis engine for Java. 
 
-CLDK supports different analysis levels as well --symbol table, call graph, program dependency graph, and system dependency graph. Analysis level can be selected using ```AnalysisLevel``` enum. Let's select ```symbol_table``` for the AnalysisLevel and also provide path for our example appliation we just downloaded.
+CLDK supports different analysis levels as well---symbol table, call graph, program dependency graph, and system dependency graph. The analysis level can be selected using the `AnalysisLevel` enumerated type.
+Let's select `symbol_table` as the analysis level and also provide the path to the downloaded Commons CLI application.
 
 ```python
 # Create an analysis object over the java application
 analysis = cldk.analysis(project_path="/tmp/commons-cli-rel-commons-cli-1.7.0", analysis_level=AnalysisLevel.symbol_table)
 ```
-Using this analysis object we can get a wealth of information about this application.  For example, we can get all the classes, methods, their signatures, parameters, code bodies, callers, callees and a lot more! 
+Using this analysis object we can get a wealth of information about this application.  For example, we can get all the classes, methods, their signatures, parameters, code bodies, callers, callees, and a lot more! 
 
-Let's list all the classes in this application.
+Let's list all the classes in the application.
 
 ```python
 print(list(analysis.get_classes().keys()))
 ```
-You shoud see a list of java classes.  To play with this further, let's choose one particular class 'org.apache.commons.cli.GnuParser' out of many in this application. We can get the java file for this class, and get the code as well.
+You shoud see a list of Java classes.  To play with this further, let's choose one particular class, `org.apache.commons.cli.GnuParser` from the classes in this application. We can get the Java file for this class and the code as well.
 
 ```python
 gp_class_file = analysis.get_java_file('org.apache.commons.cli.GnuParser')
 gp_class_file_path = Path(gp_class_file).absolute().resolve()
 gp_code_body = gp_class_file_path.read_text()
 ```
-We will use this code body later in the example.  We can also list all the methods in this class.  Let's print the first one.
+We will use this code body later in the example.  We can also list all the methods in this class.  Let's print the first method.
 
 ```python
 some_method = next(iter(analysis.get_methods_in_class('org.apache.commons.cli.GnuParser')))
 print(some_method)
 ```
-This happens to be `flatten(Options, String[], boolean)`.  We can get an object for this ```flatten``` method and print its signature as well.
+This happens to be `flatten(Options, String[], boolean)`.  We can get an object for the `flatten` method and print its signature.
 
 ```python
 flatten_method = analysis.get_method('org.apache.commons.cli.GnuParser','flatten(Options, String[], boolean)')
@@ -107,7 +107,7 @@ print(flatten_method.signature)
 ```
 We will use this signature too later in our example.
 
-We mentioned above that CLDK also supports Tree-sitter.  Let's see how we can use Tree-sitter utilities to do further analysis to build an LLM prompt for our code summarization.  We can add any caller/callee information for the method of interest, if they exist. Further, we can also delete any unwanted imports/comments that are not relevant in this context. All of this can be achieved by a single call to ```sanitize_focal_class``` API.
+We mentioned above that CLDK also supports Tree-sitter.  Let's see how we can use Tree-sitter utilities to do further analysis to build an LLM prompt for code summarization.  We can add any caller/callee information for the method of interest, if they exist. Further, we can also delete any unwanted imports/comments that are not relevant in this context. All of this can be achieved by a single call to ```sanitize_focal_class``` API.
 
 ```python
 # Instantiate tree sitter utilities with GnuParser code body.
@@ -119,7 +119,7 @@ print(sanitized_class)
 
 Now we are ready to prompt the LLM to get a summary for this method.  For this let's use a couple of helper methods. 
 
-Following helper method builds a prompt to request LLM for code summary.  
+The following helper method builds a prompt to instruct the LLM to summarize a price of code.  
 
 ```python
 def format_inst(code, focal_method, focal_class, language):
@@ -137,6 +137,7 @@ def format_inst(code, focal_method, focal_class, language):
 ```
 
 Our second helper method prompts the local model hosted by Ollama and returns the response.
+
 ```python
 def prompt_ollama(message: str, model_id: str = "granite-code:8b-instruct") -> str:
     """Prompt local model on Ollama"""
@@ -144,10 +145,8 @@ def prompt_ollama(message: str, model_id: str = "granite-code:8b-instruct") -> s
     return response_object["response"]
 ```
 
-Using the above two methods and the program analysis we have done so far, let's get the code summary.
+Using the above two methods and the program analysis we have done so far, let's get the code summary. We build the code-summarization prompt with the sanitized class and the target method signature.
 
-
-Build our code summarization prompt and see how it looks like.  Use the sanitized class body, and the signature of flatten method.
 ```python
 # Format the instruction for the given focal method and class
 instruction = format_inst(
@@ -159,7 +158,7 @@ instruction = format_inst(
 print(instruction)
 ```
 
-Request a summary from LLM and print it out.
+Finally, we invoke the LLM with the prompt and print the LLM's response.
 
 ```python
 # Prompt the local model on Ollama
@@ -169,10 +168,12 @@ llm_output = prompt_ollama(
 )
 print(llm_output)
 ```
-In a few secs you will see the summary for flatten method printed.  
-You just saw how easy it was to analyze a Java application and use the analysis artifacts to query a CodeLLM. A complete notebook for this example is also available [here](https://github.com/IBM/codellm-devkit/blob/main/docs/examples/java/notebook/code_summarization.ipynb).
 
-Now, we will show how with small changes, a junit test case can be generated using CLDK and LLM for the same method. For test generation, we will change the prompt, which takes, the focal method and class name, focal method body, and the signature of the constructors to form an object of the focal class.
+In a few seconds, you will see the generated summary for the `flatten` method.
+
+You just saw how easy it was to analyze a Java application and use the analysis artifacts to query a CodeLLM. The complete Python notebook for this example is available [here](https://github.com/IBM/codellm-devkit/blob/main/docs/examples/java/notebook/code_summarization.ipynb).
+
+Now, we will show how with small changes, a JUnit test case can be generated using CLDK and LLM for the same method. For test generation, we will change the prompt, which takes, the focal method and class names, focal method body, and signatures of constructors of the focal class.
 
 ```python
 def format_inst(focal_method_body, focal_method, focal_class, constructor_signatures, language):
@@ -191,7 +192,7 @@ def format_inst(focal_method_body, focal_method, focal_class, constructor_signat
     inst += "Answer:\n"
     return inst
 ```
-First, we will get signature of all the constructors in ```org.apache.commons.cli.GnuParser```.
+First, we will get the signatures of all constructors in `org.apache.commons.cli.GnuParser`.
 
 ```python
 class_name = 'org.apache.commons.cli.GnuParser'
@@ -201,20 +202,21 @@ for method in analysis.get_methods_in_class(qualified_class_name=class_name):
     if method_details.is_constructor:
         constructor_signatures += method_details.signature + '\n'
 ```
-We go through each method in the class and check if the method is a signature by simply call ```is_constructor``` that is stored in our Pydantic model.
-Now, we will provide all the details needed for the prompt generation.
+
+We go through each method in the class and check if the method is a signature by simply checking the `is_constructor` attribute in the Pydantic model.
+Now, we will provide all the details needed for prompt generation.
 
 ```python
 method_body = method_details.declaration + flatten_method.code
 method_name = flatten_method.signature.split("(")[0]
 focal_class_name = class_name.split('.')[-1]
 prompt = format_inst(
-                    focal_method_body=method_body,
-                    focal_method=method_name,
-                    focal_class=focal_class_name,
-                    constructor_signatures=constructor_signatures,
-                    language="java"
-                )
+    focal_method_body=method_body,
+    focal_method=method_name,
+    focal_class=focal_class_name,
+    constructor_signatures=constructor_signatures,
+    language="java"
+)
                 
 # Print the instruction
 print(f"Instruction:\n{prompt}\n")
@@ -226,17 +228,18 @@ llm_output = prompt_ollama(message=prompt)
 # Print the LLM output
 print(f"LLM Output:\n{llm_output}")
 ```
-In a few secs you will see the junit test case for flatten method printed.  
-With CLDK, code analysis has become significantly easier and developers and researchers can use without worrying about a lot of intrinsic details. A complete notebook for this example is also available [here](https://github.com/IBM/codellm-devkit/blob/main/docs/examples/java/notebook/generate_unit_tests.ipynb). 
+In a few seconds, you will see the genreratd JUnit test case for the `flatten` method.
+
+CLDK makes code analysis significantly easier and developers and researchers can use without worrying about a lot of intrinsic details. The complete Python notebook for this example is available [here](https://github.com/IBM/codellm-devkit/blob/main/docs/examples/java/notebook/generate_unit_tests.ipynb). 
 
 For more examples, please refer to our [GitHub repo](https://github.com/IBM/codellm-devkit/tree/main/docs/examples).
 
-Link to granite: https://github.com/ibm-granite/granite-code-models
+Link to Granite code models: https://github.com/ibm-granite/granite-code-models
 
 Crosslink to AI Alliance: 
 
-Link to CLDK GitHub: https://github.com/IBM/codellm-devkit
+Link to CLDK GitHub repositiory: https://github.com/IBM/codellm-devkit
 
 We have just started this journey - join our [community](https://github.com/ibm-granite-community).
 
-We started with support for Java and Python with symbol table and call-graph support. Our immediate next step includes increasing the support in multiple directions — (a) more programming languages, such as C, C++, JavaScript, Go, Rust, etc., (b) deeper analysis by enabling call-graph analysis for more languages, and eventually support another analysis level for all the programming languages, (c) support prompt template generation languages, such as LMQL, Guidance, etc., and (d) enable more features like more APIs targeted towards post-processing of the LLM-based code generation, enabling RAG, and other LLM-based use cases.
+We have started with support for Java and Python languages at symbol-table and call-graph analysis levels. Our next steps include enhancing CLDK in several directions: (1) support more programming languages, such as C, C++, JavaScript, Go, Rust, etc., (2) support deeper analysis by enabling call-graph analysis for more languages, and eventually support other analysis levels for all the programming languages, (3) support prompt template generation languages, such as LMQL, Guidance, etc., and (4) enable more features, such as more APIs targeted toward post-processing of the LLM-generated code, enabling RAG, and other LLM-based use cases.
