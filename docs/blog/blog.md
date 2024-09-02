@@ -174,7 +174,7 @@ print(llm_output)
 In a few secs you will see the summary for flatten method printed.  
 You just saw how easy it was to analyze a Java application and use the analysis artifacts to query a CodeLLM. A complete notebook for this example is also available at https://github.com/IBM/codellm-devkit/blob/main/docs/examples/java/code_summarization.ipynb.
 
-For more examples, please refer our [GitHub repo](https://github.com/IBM/codellm-devkit/tree/main/docs/examples).
+For more examples, please refer to our [GitHub repo](https://github.com/IBM/codellm-devkit/tree/main/docs/examples).
 
 Link to granite: https://github.com/ibm-granite/granite-code-models
 
