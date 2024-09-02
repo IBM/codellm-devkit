@@ -172,7 +172,64 @@ llm_output = prompt_ollama(
 print(llm_output)
 ```
 In a few secs you will see the summary for flatten method printed.  
-You just saw how easy it was to analyze a Java application and use the analysis artifacts to query a CodeLLM. A complete notebook for this example is also available at https://github.com/IBM/codellm-devkit/blob/main/docs/examples/java/code_summarization.ipynb.
+You just saw how easy it was to analyze a Java application and use the analysis artifacts to query a CodeLLM. A complete notebook for this example is also available [here](https://github.com/IBM/codellm-devkit/blob/main/docs/examples/java/notebook/code_summarization.ipynb).
+
+Now, we will show how with small changes, a junit test case can be generated using CLDK and LLM for the same method. For test generation, we will change the prompt, which takes, the focal method and class name, focal method body, and the signature of the constructors to form an object of the focal class.
+
+```
+def format_inst(focal_method_body, focal_method, focal_class, constructor_signatures, language):
+    """
+    Format the LLM instruction for the given focal method and class.
+    """
+    inst = f"Question: Can you generate junit tests with @Test annotation for the method `{focal_method}` in the class `{focal_class}` below. Only generate the test and no description.\n"
+    inst += 'Use the constructor signatures to form the object if the method is not static. Generate the code under ``` code block.'
+    inst += "\n"
+    inst += f"```{language}\n"
+    inst += f"public class {focal_class} " + "{\n"
+    inst += f"{constructor_signatures}\n"
+    inst += f"{focal_method_body} \n" 
+    inst += "}"
+    inst += "```\n"
+    inst += "Answer:\n"
+    return inst
+```
+First, we will get signature of all the constructors in ```org.apache.commons.cli.GnuParser```.
+
+```
+class_name = 'org.apache.commons.cli.GnuParser'
+constructor_signatures = ''
+for method in analysis.get_methods_in_class(qualified_class_name=class_name):
+    method_details = analysis.get_method(qualified_class_name=class_name, qualified_method_name=method)
+    if method_details.is_constructor:
+        constructor_signatures += method_details.signature + '\n'
+```
+We go through each method in the class and check if the method is a signature by simply call ```is_constructor``` that is stored in our Pydantic model.
+Now, we will provide all the details needed for the prompt generation.
+
+```
+method_body = method_details.declaration + flatten_method.code
+method_name = flatten_method.signature.split("(")[0]
+focal_class_name = class_name.split('.')[-1]
+prompt = format_inst(
+                    focal_method_body=method_body,
+                    focal_method=method_name,
+                    focal_class=focal_class_name,
+                    constructor_signatures=constructor_signatures,
+                    language="java"
+                )
+                
+# Print the instruction
+print(f"Instruction:\n{prompt}\n")
+print(f"Generating test case ...\n")
+
+# Prompt the local model on Ollama
+llm_output = prompt_ollama(message=prompt)
+
+# Print the LLM output
+print(f"LLM Output:\n{llm_output}")
+```
+In a few secs you will see the junit test case for flatten method printed.  
+With CLDK, code analysis has become significantly easier and developers and researchers can use without worrying about a lot of intrinsic details. A complete notebook for this example is also available [here](https://github.com/IBM/codellm-devkit/blob/main/docs/examples/java/notebook/generate_unit_tests.ipynb). 
 
 For more examples, please refer to our [GitHub repo](https://github.com/IBM/codellm-devkit/tree/main/docs/examples).
 
