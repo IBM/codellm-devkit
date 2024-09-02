@@ -237,6 +237,6 @@ Crosslink to AI Alliance:
 
 Link to CLDK GitHub: https://github.com/IBM/codellm-devkit
 
-We have just started this journey - join our community. (granite adoption community)
+We have just started this journey - join our [community](https://github.com/ibm-granite-community).
 
 We started with support for Java and Python with symbol table and call-graph support. Our immediate next step includes increasing the support in multiple directions — (a) more programming languages, such as C, C++, JavaScript, Go, Rust, etc., (b) deeper analysis by enabling call-graph analysis for more languages, and eventually support another analysis level for all the programming languages, (c) support prompt template generation languages, such as LMQL, Guidance, etc., and (d) enable more features like more APIs targeted towards post-processing of the LLM-based code generation, enabling RAG, and other LLM-based use cases.
