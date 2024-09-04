@@ -37,7 +37,7 @@ class CLDK:
         analysis_backend: str | None = "codeanalyzer",
         analysis_level: str = "symbol_table",
         analysis_backend_path: str | None = None,
-        analysis_json_path: str | Path = '.',
+        analysis_json_path: str | Path = None,
         use_graalvm_binary: bool = False,
     ) -> JavaAnalysis:
         """
