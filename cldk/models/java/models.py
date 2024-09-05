@@ -102,11 +102,11 @@ class JCallSite(BaseModel):
     argument_types: List[str]
     return_type: str = ""
     callee_signature: str = ""
-    is_static_call: bool
-    is_private: bool
-    is_public: bool
-    is_protected: bool
-    is_unspecified: bool
+    is_static_call: bool | None = None
+    is_private: bool | None = None
+    is_public: bool | None = None
+    is_protected: bool | None = None
+    is_unspecified: bool | None = None
     is_constructor_call: bool
     start_line: int
     start_column: int
