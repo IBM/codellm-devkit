@@ -64,6 +64,7 @@ class JCodeanalyzer:
         analysis_level: str,
         use_graalvm_binary: bool,
         eager_analysis: bool,
+        target_files: List[str] | None
     ) -> None:
         self.project_dir = project_dir
         self.source_code = source_code
@@ -72,6 +73,7 @@ class JCodeanalyzer:
         self.use_graalvm_binary = use_graalvm_binary
         self.eager_analysis = eager_analysis
         self.analysis_level = analysis_level
+        self.target_files = target_files
         self.application = self._init_codeanalyzer(
             analysis_level=1 if analysis_level == "symbol_table" else 2
         )
@@ -230,9 +232,17 @@ class JCodeanalyzer:
 
         if self.analysis_json_path is None:
             logger.info("Reading analysis from the pipe.")
-            codeanalyzer_args = codeanalyzer_exec + shlex.split(
-                f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
-            )
+            codeanalyzer_args = ''
+            # If target file is provided, the input is merged into a single string and passed to codeanalyzer
+            if self.target_files:
+                target_file_options = ' '.join([s.strip() for s in self.target_files])
+                codeanalyzer_args = codeanalyzer_exec + shlex.split(
+                 f"-i {Path(self.project_dir)} --analysis-level={analysis_level} --target-files={target_file_options}"
+                )
+            else:
+                codeanalyzer_args = codeanalyzer_exec + shlex.split(
+                    f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
+                )
             try:
                 logger.info(f"Running codeanalyzer: {' '.join(codeanalyzer_args)}")
                 console_out: CompletedProcess[str] = subprocess.run(
@@ -254,10 +264,18 @@ class JCodeanalyzer:
                 # flag is set, we'll run the analysis every time the object is created. This will happen regradless
                 # of the existence of the analysis file.
                 # Create the executable command for codeanalyzer.
-                codeanalyzer_args = codeanalyzer_exec + shlex.split(
-                    f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -o {self.analysis_json_path}"
-                )
-
+                codeanalyzer_args = ''
+                # If target file is provided, the input is merged into a single string and passed to codeanalyzer
+                if self.target_files:
+                    target_file_options = ' '.join([s.strip() for s in self.target_files])
+                    codeanalyzer_args = codeanalyzer_exec + shlex.split(
+                        f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
+                        f" -o {self.analysis_json_path} --target-files={target_file_options}"
+                    )
+                else:
+                    codeanalyzer_args = codeanalyzer_exec + shlex.split(
+                        f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -o {self.analysis_json_path}"
+                    )
                 try:
                     logger.info(
                         f"Running codeanalyzer subprocess with args {codeanalyzer_args}"
@@ -289,7 +307,6 @@ class JCodeanalyzer:
         JApplication
             The application view of the Java code with the analysis results.
         """
-        # self.source_code: str = re.sub(r"[\r\n\t\f\v]+", lambda x: " " if x.group() in "\t\f\v" else " ", self.source_code)
         codeanalyzer_exec = self._get_codeanalyzer_exec()
         codeanalyzer_args = ["--source-analysis", self.source_code]
         codeanalyzer_cmd = codeanalyzer_exec + codeanalyzer_args

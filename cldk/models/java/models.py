@@ -291,6 +291,7 @@ class JType(BaseModel):
     is_record_declaration: bool = False
     is_concrete_class: bool = False
     is_entry_point: bool = False
+    is_modified: bool = False
     comment: str
     extends_list: List[str] = []
     implements_list: List[str] = []
