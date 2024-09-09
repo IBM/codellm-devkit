@@ -6,7 +6,7 @@ site_author: IBM Research
 # Repository
 repo_name: codellm-devkit
 repo_url: https://github.com/ibm/codellm-devkit
-edit_uri: edit/gh-pages/docs
+edit_uri: https://github.com/ibm/codellm-devkit/repo/blob/gh-pages/site
 
 # Copyright
 copyright: Copyright &copy; 2024 IBM Research
