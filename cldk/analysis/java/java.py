@@ -83,10 +83,14 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
 
     def get_service_entry_point_classes(self, **kwargs):
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
+            raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        return self.get_entry_point_classes()
 
     def get_service_entry_point_methods(self, **kwargs):
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
+            raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        return self.get_service_entry_point_methods()
 
     def get_application_view(self) -> JApplication:
         """
