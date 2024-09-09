@@ -197,6 +197,7 @@ class PythonSitter:
                                    full_signature=class_full_signature,
                                    methods=methods,
                                    super_classes=super_classes,
+                                   class_name=klass_name,
                                    is_test_class=is_test_class))
         return classes
 
