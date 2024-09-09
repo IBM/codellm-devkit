@@ -1,0 +1,11 @@
+[data-md-color-scheme="ibm"] {
+  --md-primary-fg-color:        #0043ce;
+  --md-primary-fg-color--light: #0043ce;
+  --md-primary-fg-color--dark:  #0043ce;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #0f62fe;
+  --md-primary-fg-color--light: #0f62fe;
+  --md-primary-fg-color--dark:  #0f62fe;
+}

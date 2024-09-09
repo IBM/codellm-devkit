@@ -1,4 +1,4 @@
-# CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs
+# CodeLLM-Devkit
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 
@@ -10,9 +10,7 @@ Codellm-devkit (CLDK) is a multilingual program analysis framework that bridges 
 - **Extensible**: Designed to support new analysis tools and LLM platforms, making it adaptable to the evolving landscape of code analysis.
 - **Streamlined**: Simplifies the process of transforming raw code into structured, LLM-ready inputs, reducing the overhead typically associated with multi-language analysis.
 
-## Quick Start
-
-### Installation
+## Installation
 
 ```bash
 pip install git+https://github.com/IBM/codellm-devkit.git
@@ -22,7 +20,30 @@ For a detailed walkthrough on setting up and using CodeLLM-Devkit, check out our
 
 ## Architecture
 
-![CLDK Architecture](assets/cldk-architecture.png)
+```mermaid
+graph TD
+User <--> A[CLDK]
+    A --> 15[Retrieval ‡]
+    A --> 16[Prompting ‡]
+    A[CLDK] <--> B[Languages]
+        B --> C[Java, Python, Go ‡, C ‡, JavaScript ‡, TypeScript ‡, Rust ‡]
+            C --> D[Data Models]
+                D --> 13{Pydantic}
+            13 --> 7            
+            C --> 7{backends}
+                7 <--> 9[WALA]
+                    9 <--> 14[Analysis]
+                7 <--> 10[Tree-sitter] 
+                    10 <--> 14[Analysis]
+                7 <--> 11[LLVM ‡]
+                    11 <--> 14[Analysis]
+                7 <--> 12[CodeQL ‡]
+                    12 <--> 14[Analysis]
+
+    
+
+X[‡ Work in progress]
+```
 
 For more details on the architecture and design, see our [Architecture Overview](architecture.md).
 
@@ -38,4 +59,4 @@ For questions, feedback, or suggestions, please contact the authors:
 
 ## License
 
-This project is developed at IBM Research. Please check the [LICENSE](LICENSE) file for more details.
+This project is developed at IBM Research. Please check the [LICENSE](./LICENSE.txt) file for more details.

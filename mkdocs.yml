@@ -1,7 +1,37 @@
-site_name: CodeLLM-Devkit
-site_url: https://ibm.github.io/codellm-devkit/
+# Project information
+site_name: Codellm-Devkit
+site_url: https://ibm.github.io/codellm-devkit
+site_author: IBM Research
+
+# Repository
+repo_name: codellm-devkit
+repo_url: https://github.com/ibm/codellm-devkit
+edit_uri: edit/gh-pages/docs
+
+# Copyright
+copyright: Copyright &copy; 2024 IBM Research
+
+# Theme
 theme:
   name: material
+  palette:
+    - scheme: ibm
+      toggle:
+        icon: material/toggle-switch-off-outline 
+        name: Switch to dark mode
+      primary: custom
+      accent: custom
+    - scheme: slate 
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode    
+      primary: custom
+      accent: custom
+  font:
+    text: IBM Plex Sans
+    code: IBM Plex Mono
+  icon:
+    logo: material/library
   features:
     - navigation.tabs
     - navigation.sections
@@ -12,50 +42,79 @@ theme:
     - content.tabs.link
     - content.code.annotation
     - content.code.copy
-  language: en
-  palette:
-    - scheme: default
-      toggle:
-        icon: material/toggle-switch-off-outline 
-        name: Switch to dark mode
-      primary: teal
-      accent: purple 
-    - scheme: slate 
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode    
-      primary: teal
-      accent: lime
 
+extra_css:
+  - stylesheets/extra.css
+
+# Plugins
 plugins:
-  - social
   - search
 
+# Customization
 extra:
   social:
-    - icon: fontawesome/brands/github-alt
-      link: https://github.com/james-willett
+    - icon: fontawesome/brands/github
+      link: https://github.com/ibm
     - icon: fontawesome/brands/twitter
-      link: https://twitter.com/TheJamesWillett
+      link: https://twitter.com/ibmdeveloper
     - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/in/willettjames/
+      link: https://www.linkedin.com/company/ibm/
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/user/developerworks
+    - icon: fontawesome/brands/dev
+      link: https://dev.to/ibmdeveloper
 
+# Extensions
 markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - abbr
   - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
   - pymdownx.arithmatex:
       generic: true
-  - footnotes
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
   - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.mark
-  - attr_list
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
 
-copyright: |
-  &copy; 2024 <a href="https://github.com/IBM"  target="_blank" rel="noopener">IBM Research</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
