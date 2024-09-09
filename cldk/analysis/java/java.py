@@ -83,10 +83,14 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
 
     def get_service_entry_point_classes(self, **kwargs):
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
+            raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        return self.backend.get_all_entry_point_classes()
 
     def get_service_entry_point_methods(self, **kwargs):
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
+            raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        return self.backend.get_all_entry_point_methods()
 
     def get_application_view(self) -> JApplication:
         """
@@ -483,33 +487,33 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph(qualified_class_name, method_signature)
 
-    def get_entry_point_classes(self) -> Dict[str, JType]:
-        """
-        Returns a dictionary of all entry point classes in the Java code.
-
-        Returns:
-        --------
-        Dict[str, JType]
-            A dict of all entry point classes in the Java code, with qualified class names as keys
-        """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
-        return self.backend.get_all_entry_point_classes()
-
-    def get_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
-        """
-        Returns a dictionary of all entry point methods in the Java code with
-          qualified class name as key and dictionary of methods in that class
-          as value
-
-        Returns:
-        --------
-        Dict[str, Dict[str, JCallable]]:
-            A dictionary of dictionaries of entry point methods in the Java code.
-        """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
-        return self.backend.get_all_entry_point_methods()
+    # def get_entry_point_classes(self) -> Dict[str, JType]:
+    #     """
+    #     Returns a dictionary of all entry point classes in the Java code.
+    #
+    #     Returns:
+    #     --------
+    #     Dict[str, JType]
+    #         A dict of all entry point classes in the Java code, with qualified class names as keys
+    #     """
+    #     if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
+    #         raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+    #     return self.backend.get_all_entry_point_classes()
+    #
+    # def get_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
+    #     """
+    #     Returns a dictionary of all entry point methods in the Java code with
+    #       qualified class name as key and dictionary of methods in that class
+    #       as value
+    #
+    #     Returns:
+    #     --------
+    #     Dict[str, Dict[str, JCallable]]:
+    #         A dictionary of dictionaries of entry point methods in the Java code.
+    #     """
+    #     if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
+    #         raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+    #     return self.backend.get_all_entry_point_methods()
 
     def remove_all_comments(self) -> str:
         """
