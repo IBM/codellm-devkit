@@ -205,7 +205,7 @@ class JCodeanalyzer:
             logger.info("Reading analysis from the pipe.")
             # If target file is provided, the input is merged into a single string and passed to codeanalyzer
             if self.target_files:
-                target_file_options = '-t '.join([s.strip() for s in self.target_files])
+                target_file_options = ' -t '.join([s.strip() for s in self.target_files])
                 codeanalyzer_args = codeanalyzer_exec + shlex.split(
                  f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -t {target_file_options}"
                 )
@@ -231,7 +231,7 @@ class JCodeanalyzer:
             analysis_json_path_file = Path(self.analysis_json_path).joinpath("analysis.json")
             # If target file is provided, the input is merged into a single string and passed to codeanalyzer
             if self.target_files:
-                target_file_options = '-t '.join([s.strip() for s in self.target_files])
+                target_file_options = ' -t '.join([s.strip() for s in self.target_files])
                 codeanalyzer_args = codeanalyzer_exec + shlex.split(
                     f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
                     f" -o {self.analysis_json_path} -t {target_file_options}"
