@@ -15,15 +15,16 @@ from cldk.utils.analysis_engine import AnalysisEngine
 class JavaAnalysis(SymbolTable, CallGraph):
 
     def __init__(
-        self,
-        project_dir: str | Path | None,
-        source_code: str | None,
-        analysis_backend: str,
-        analysis_backend_path: str | None,
-        analysis_json_path: str | Path | None,
-        analysis_level: str,
-        use_graalvm_binary: bool,
-        eager_analysis: bool,
+            self,
+            project_dir: str | Path | None,
+            source_code: str | None,
+            analysis_backend: str,
+            analysis_backend_path: str | None,
+            analysis_json_path: str | Path | None,
+            analysis_level: str,
+            target_files: List[str] | None,
+            use_graalvm_binary: bool,
+            eager_analysis: bool,
     ) -> None:
         """
         Parameters
@@ -44,7 +45,9 @@ class JavaAnalysis(SymbolTable, CallGraph):
         eager_analysis : bool, optional
             A flag indicating whether to perform eager analysis, defaults to False. If True, the analysis is performed
             eagerly. That is, the analysis.json file is created during analysis every time even if it already exists.
-
+        target_files: str, optional
+            The target files for which the analysis will run or get modified. Currently, this feature only supported
+            with symbol table analysis. In the future, we will add this feature to other analysis levels.
         Attributes
         ----------
         analysis_backend : JCodeQL | JApplication
@@ -59,7 +62,8 @@ class JavaAnalysis(SymbolTable, CallGraph):
         self.analysis_backend_path = analysis_backend_path
         self.eager_analysis = eager_analysis
         self.use_graalvm_binary = use_graalvm_binary
-        self.analysis_backend =  analysis_backend
+        self.analysis_backend = analysis_backend
+        self.target_files = target_files
         # Initialize the analysis analysis_backend
         if analysis_backend.lower() == "codeql":
             self.analysis_backend: JCodeQL = JCodeQL(self.project_dir, self.analysis_json_path)
@@ -72,6 +76,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
                 analysis_json_path=self.analysis_json_path,
                 use_graalvm_binary=self.use_graalvm_binary,
                 analysis_backend_path=self.analysis_backend_path,
+                target_files=self.target_files
             )
         else:
             raise NotImplementedError(f"Support for {analysis_backend} has not been implemented yet.")
@@ -442,7 +447,9 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_implemented_interfaces(qualified_class_name)
 
-    def __get_class_call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
+    def __get_class_call_graph_using_symbol_table(self, qualified_class_name: str,
+                                                  method_signature: str | None = None) -> (List)[
+        Tuple[JMethodDetail, JMethodDetail]]:
         """
         A call graph using symbol table for a given class and a given method.
         Args:
@@ -482,7 +489,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         """
         if using_symbol_table:
             return self.__get_class_call_graph_using_symbol_table(qualified_class_name=qualified_class_name,
-                                                                method_signature=method_signature)
+                                                                  method_signature=method_signature)
         if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph(qualified_class_name, method_signature)
