@@ -235,9 +235,9 @@ class JCodeanalyzer:
             codeanalyzer_args = ''
             # If target file is provided, the input is merged into a single string and passed to codeanalyzer
             if self.target_files:
-                target_file_options = ' '.join([s.strip() for s in self.target_files])
+                target_file_options = '-t '.join([s.strip() for s in self.target_files])
                 codeanalyzer_args = codeanalyzer_exec + shlex.split(
-                 f"-i {Path(self.project_dir)} --analysis-level={analysis_level} --target-files={target_file_options}"
+                 f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -t {target_file_options}"
                 )
             else:
                 codeanalyzer_args = codeanalyzer_exec + shlex.split(
@@ -267,10 +267,10 @@ class JCodeanalyzer:
                 codeanalyzer_args = ''
                 # If target file is provided, the input is merged into a single string and passed to codeanalyzer
                 if self.target_files:
-                    target_file_options = ' '.join([s.strip() for s in self.target_files])
+                    target_file_options = '-t '.join([s.strip() for s in self.target_files])
                     codeanalyzer_args = codeanalyzer_exec + shlex.split(
                         f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
-                        f" -o {self.analysis_json_path} --target-files={target_file_options}"
+                        f" -o {self.analysis_json_path} -t {target_file_options}"
                     )
                 else:
                     codeanalyzer_args = codeanalyzer_exec + shlex.split(
