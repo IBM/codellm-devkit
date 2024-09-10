@@ -200,10 +200,9 @@ class JCodeanalyzer:
         """
 
         codeanalyzer_exec = self._get_codeanalyzer_exec()
-
+        codeanalyzer_args = ''
         if self.analysis_json_path is None:
             logger.info("Reading analysis from the pipe.")
-            codeanalyzer_args = ''
             # If target file is provided, the input is merged into a single string and passed to codeanalyzer
             if self.target_files:
                 target_file_options = '-t '.join([s.strip() for s in self.target_files])
@@ -227,24 +226,29 @@ class JCodeanalyzer:
                 raise CodeanalyzerExecutionException(str(e)) from e
 
         else:
+            # Check if the code analyzer needs to be run
+            is_run_code_analyzer = False
             analysis_json_path_file = Path(self.analysis_json_path).joinpath("analysis.json")
-            if not analysis_json_path_file.exists() or self.eager_analysis:
-                # If the analysis file does not exist, we'll run the analysis. Alternately, if the eager_analysis
-                # flag is set, we'll run the analysis every time the object is created. This will happen regradless
-                # of the existence of the analysis file.
-                # Create the executable command for codeanalyzer.
-                codeanalyzer_args = ''
-                # If target file is provided, the input is merged into a single string and passed to codeanalyzer
-                if self.target_files:
-                    target_file_options = '-t '.join([s.strip() for s in self.target_files])
+            # If target file is provided, the input is merged into a single string and passed to codeanalyzer
+            if self.target_files:
+                target_file_options = '-t '.join([s.strip() for s in self.target_files])
+                codeanalyzer_args = codeanalyzer_exec + shlex.split(
+                    f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
+                    f" -o {self.analysis_json_path} -t {target_file_options}"
+                )
+                is_run_code_analyzer = True
+            else:
+                if not analysis_json_path_file.exists() or self.eager_analysis:
+                    # If the analysis file does not exist, we'll run the analysis. Alternately, if the eager_analysis
+                    # flag is set, we'll run the analysis every time the object is created. This will happen regradless
+                    # of the existence of the analysis file.
+                    # Create the executable command for codeanalyzer.
                     codeanalyzer_args = codeanalyzer_exec + shlex.split(
-                        f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
-                        f" -o {self.analysis_json_path} -t {target_file_options}"
-                    )
-                else:
-                    codeanalyzer_args = codeanalyzer_exec + shlex.split(
-                        f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -o {self.analysis_json_path}"
-                    )
+                            f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -o {self.analysis_json_path}"
+                        )
+                    is_run_code_analyzer = True
+
+            if is_run_code_analyzer:
                 try:
                     logger.info(f"Running codeanalyzer subprocess with args {codeanalyzer_args}")
                     subprocess.run(
@@ -258,7 +262,6 @@ class JCodeanalyzer:
 
                 except Exception as e:
                     raise CodeanalyzerExecutionException(str(e)) from e
-
             with open(analysis_json_path_file) as f:
                 data = json.load(f)
                 return JApplication(**data)
