@@ -291,7 +291,6 @@ class JType(BaseModel):
     is_record_declaration: bool = False
     is_concrete_class: bool = False
     is_entry_point: bool = False
-    is_modified: bool = False
     comment: str
     extends_list: List[str] = []
     implements_list: List[str] = []
@@ -342,6 +341,7 @@ class JCompilationUnit(BaseModel):
     comment: str
     imports: List[str]
     type_declarations: Dict[str, JType]
+    is_modified: bool = False
 
 
 class JMethodDetail(BaseModel):
