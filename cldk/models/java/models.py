@@ -341,6 +341,7 @@ class JCompilationUnit(BaseModel):
     comment: str
     imports: List[str]
     type_declarations: Dict[str, JType]
+    is_modified: bool = False
 
 
 class JMethodDetail(BaseModel):
