@@ -90,7 +90,7 @@ class JCodeQL:
             signal.signal(signal.SIGINT, lambda *args, **kwargs: db_path.cleanup())
             signal.signal(signal.SIGTERM, lambda *args, **kwargs: db_path.cleanup())
 
-        codeql_db_create_cmd = shlex.split(f"codeql database create {codeql_db} --source-root={project_dir} --language=java",posix=False)
+        codeql_db_create_cmd = shlex.split(f"codeql database create {codeql_db} --source-root={project_dir} --language=java --overwrite", posix=False)
         call = subprocess.Popen(
             codeql_db_create_cmd,
             stdout=subprocess.DEVNULL,
