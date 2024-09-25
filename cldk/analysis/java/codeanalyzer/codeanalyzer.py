@@ -186,7 +186,16 @@ class JCodeanalyzer:
                     codeanalyzer_jar_file = self._download_or_update_code_analyzer(codeanalyzer_jar_path)
                     codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
         return codeanalyzer_exec
-
+    
+    def init_japplication(self, data: str) -> JApplication:
+        """Return JApplication giving the stringified JSON as input.
+        Returns
+        -------
+        JApplication
+            The application view of the Java code with the analysis results.
+        """
+        return JApplication(**json.loads(data))
+        
     def _init_codeanalyzer(self, analysis_level=1) -> JApplication:
         """Initializes the Codeanalyzer.
         Returns
