@@ -45,6 +45,7 @@ class PyClass(BaseModel):
     full_signature: str
     super_classes: List[str]
     is_test_class: bool
+    class_name: str = None
     methods: List[PyMethod]
 
 

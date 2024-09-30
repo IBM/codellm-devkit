@@ -84,6 +84,7 @@ class JCodeanalyzer:
             analysis_level: str,
             use_graalvm_binary: bool,
             eager_analysis: bool,
+            target_files: List[str] | None
     ) -> None:
         self.project_dir = project_dir
         self.source_code = source_code
@@ -92,6 +93,7 @@ class JCodeanalyzer:
         self.use_graalvm_binary = use_graalvm_binary
         self.eager_analysis = eager_analysis
         self.analysis_level = analysis_level
+        self.target_files = target_files
         self.application = self._init_codeanalyzer(
             analysis_level=1 if analysis_level == AnalysisLevel.symbol_table else 2)
         # Attributes related the Java code analysis...
@@ -183,15 +185,11 @@ class JCodeanalyzer:
                     resources.files("cldk.analysis.java.codeanalyzer.bin") / "codeanalyzer") as codeanalyzer_bin_path:
                 codeanalyzer_exec = shlex.split(codeanalyzer_bin_path.__str__())
         else:
-            print(f'analysis path: {self.analysis_json_path}')
-            analysis_json_path_file = Path(self.analysis_json_path).joinpath("analysis.json")
+
             if self.analysis_backend_path:
                 analysis_backend_path = Path(self.analysis_backend_path)
                 logger.info(f"Using codeanalyzer.jar from {analysis_backend_path}")
                 codeanalyzer_exec = shlex.split(f"java -jar {analysis_backend_path / 'codeanalyzer.jar'}")
-            elif analysis_json_path_file.exists():
-                logger.info(f"Using existing analysis from {self.analysis_json_path}")
-                codeanalyzer_exec = shlex.split(f"java -jar codeanalyzer.jar")
             else:
                 # Since the path to codeanalyzer.jar was not provided, we'll download the latest version from GitHub.
                 with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.jar")) as codeanalyzer_jar_path:
@@ -200,7 +198,16 @@ class JCodeanalyzer:
                     codeanalyzer_jar_file = self._download_or_update_code_analyzer(codeanalyzer_jar_path)
                     codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
         return codeanalyzer_exec
-
+    
+    def init_japplication(self, data: str) -> JApplication:
+        """Return JApplication giving the stringified JSON as input.
+        Returns
+        -------
+        JApplication
+            The application view of the Java code with the analysis results.
+        """
+        return JApplication(**json.loads(data))
+        
     def _init_codeanalyzer(self, analysis_level=1) -> JApplication:
         """ Initializes the Codeanalyzer.
 
@@ -214,11 +221,19 @@ class JCodeanalyzer:
             CodeanalyzerExecutionException: If there is an error running Codeanalyzer.
         """
         codeanalyzer_exec = self._get_codeanalyzer_exec()
-
+        codeanalyzer_args = ''
         if self.analysis_json_path is None:
             logger.info("Reading analysis from the pipe.")
-            codeanalyzer_args = codeanalyzer_exec + shlex.split(
-                f"-i {Path(self.project_dir)} --analysis-level={analysis_level}")
+            # If target file is provided, the input is merged into a single string and passed to codeanalyzer
+            if self.target_files:
+                target_file_options = ' -t '.join([s.strip() for s in self.target_files])
+                codeanalyzer_args = codeanalyzer_exec + shlex.split(
+                    f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -t {target_file_options}"
+                )
+            else:
+                codeanalyzer_args = codeanalyzer_exec + shlex.split(
+                    f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
+                )
             try:
                 logger.info(f"Running codeanalyzer: {' '.join(codeanalyzer_args)}")
                 console_out: CompletedProcess[str] = subprocess.run(
@@ -232,15 +247,29 @@ class JCodeanalyzer:
                 raise CodeanalyzerExecutionException(str(e)) from e
 
         else:
+            # Check if the code analyzer needs to be run
+            is_run_code_analyzer = False
             analysis_json_path_file = Path(self.analysis_json_path).joinpath("analysis.json")
-            if not analysis_json_path_file.exists() or self.eager_analysis:
-                # If the analysis file does not exist, we'll run the analysis. Alternately, if the eager_analysis
-                # flag is set, we'll run the analysis every time the object is created. This will happen regradless
-                # of the existence of the analysis file.
-                # Create the executable command for codeanalyzer.
+            # If target file is provided, the input is merged into a single string and passed to codeanalyzer
+            if self.target_files:
+                target_file_options = ' -t '.join([s.strip() for s in self.target_files])
                 codeanalyzer_args = codeanalyzer_exec + shlex.split(
-                    f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -o {self.analysis_json_path}")
+                    f"-i {Path(self.project_dir)} --analysis-level={analysis_level}"
+                    f" -o {self.analysis_json_path} -t {target_file_options}"
+                )
+                is_run_code_analyzer = True
+            else:
+                if not analysis_json_path_file.exists() or self.eager_analysis:
+                    # If the analysis file does not exist, we'll run the analysis. Alternately, if the eager_analysis
+                    # flag is set, we'll run the analysis every time the object is created. This will happen regradless
+                    # of the existence of the analysis file.
+                    # Create the executable command for codeanalyzer.
+                    codeanalyzer_args = codeanalyzer_exec + shlex.split(
+                        f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -o {self.analysis_json_path}"
+                    )
+                    is_run_code_analyzer = True
 
+            if is_run_code_analyzer:
                 try:
                     logger.info(f"Running codeanalyzer subprocess with args {codeanalyzer_args}")
                     subprocess.run(
@@ -254,7 +283,6 @@ class JCodeanalyzer:
 
                 except Exception as e:
                     raise CodeanalyzerExecutionException(str(e)) from e
-
             with open(analysis_json_path_file) as f:
                 data = json.load(f)
                 return JApplication(**data)
@@ -265,7 +293,6 @@ class JCodeanalyzer:
         Returns:
             JApplication: The application view of the Java code with the analysis results.
         """
-        # self.source_code: str = re.sub(r"[\r\n\t\f\v]+", lambda x: " " if x.group() in "\t\f\v" else " ", self.source_code)
         codeanalyzer_exec = self._get_codeanalyzer_exec()
         codeanalyzer_args = ["--source-analysis", self.source_code]
         codeanalyzer_cmd = codeanalyzer_exec + codeanalyzer_args
@@ -410,8 +437,9 @@ class JCodeanalyzer:
         caller_detail_dict = {}
         call_graph = None
         if using_symbol_table:
-            call_graph = self.__raw_call_graph_using_symbol_table_target_method(target_class_name=target_class_name,
-                                                              target_method_signature=target_method_signature)
+            call_graph = self.__call_graph_using_symbol_table(qualified_class_name=target_class_name,
+                                                              method_signature=target_method_signature,
+                                                              is_target_method=True)
         else:
             call_graph = self.call_graph
         if (target_method_signature, target_class_name) not in call_graph.nodes():
@@ -703,10 +731,11 @@ class JCodeanalyzer:
         cg = nx.DiGraph()
         sdg = None
         if is_target_method:
-            sdg = None
+            sdg = self.__raw_call_graph_using_symbol_table_target_method(target_class_name=qualified_class_name,
+                                                                         target_method_signature=method_signature)
         else:
             sdg = self.__raw_call_graph_using_symbol_table(qualified_class_name=qualified_class_name,
-                                                       method_signature=method_signature)
+                                                           method_signature=method_signature)
         tsu = JavaSitter()
         edge_list = [
             (
@@ -733,8 +762,8 @@ class JCodeanalyzer:
         return cg
 
     def __raw_call_graph_using_symbol_table_target_method(self,
-                                            target_class_name: str,
-                                            target_method_signature: str,
+                                                          target_class_name: str,
+                                                          target_method_signature: str,
                                                           cg=None) -> list[JGraphEdgesST]:
         """ Generates call graph using symbol table information given the target method and target class
         Args:
@@ -752,7 +781,7 @@ class JCodeanalyzer:
         for class_name in self.get_all_classes():
             for method in self.get_all_methods_in_class(qualified_class_name=class_name):
                 method_details = self.get_method(qualified_class_name=class_name,
-                                                method_signature=method)
+                                                 method_signature=method)
                 for call_site in method_details.call_sites:
                     source_method_details = None
                     source_class = ''
@@ -776,9 +805,9 @@ class JCodeanalyzer:
                     if call_site.receiver_type != "":
                         # call to any class
                         if self.get_class(qualified_class_name=call_site.receiver_type):
-                            if callee_signature==target_method_signature and call_site.receiver_type == target_class_name:
+                            if callee_signature == target_method_signature and call_site.receiver_type == target_class_name:
                                 source_method_details = self.get_method(method_signature=method,
-                                                  qualified_class_name=class_name)
+                                                                        qualified_class_name=class_name)
                                 source_class = class_name
                     else:
                         # check if any method exists with the signature in the class even if the receiver type is blank

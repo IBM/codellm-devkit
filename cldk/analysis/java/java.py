@@ -15,16 +15,18 @@ from cldk.utils.analysis_engine import AnalysisEngine
 class JavaAnalysis(SymbolTable, CallGraph):
 
     def __init__(
-        self,
-        project_dir: str | Path | None,
-        source_code: str | None,
-        analysis_backend: str,
-        analysis_backend_path: str | None,
-        analysis_json_path: str | Path | None,
-        analysis_level: str,
-        use_graalvm_binary: bool,
-        eager_analysis: bool,
+            self,
+            project_dir: str | Path | None,
+            source_code: str | None,
+            analysis_backend: str,
+            analysis_backend_path: str | None,
+            analysis_json_path: str | Path | None,
+            analysis_level: str,
+            target_files: List[str] | None,
+            use_graalvm_binary: bool,
+            eager_analysis: bool,
     ) -> None:
+
         """ Initialization method for Java Analysis backend.
 
         Args:
@@ -39,8 +41,12 @@ class JavaAnalysis(SymbolTable, CallGraph):
 
         Raises:
             NotImplementedError: Raised when anaysis backend is not supported.
+            
+        Attributes:
+            application (JApplication): The application view of the Java code.
 
         """        
+
         self.project_dir = project_dir
         self.source_code = source_code
         self.analysis_level = analysis_level
@@ -48,7 +54,8 @@ class JavaAnalysis(SymbolTable, CallGraph):
         self.analysis_backend_path = analysis_backend_path
         self.eager_analysis = eager_analysis
         self.use_graalvm_binary = use_graalvm_binary
-        self.analysis_backend =  analysis_backend
+        self.analysis_backend = analysis_backend
+        self.target_files = target_files
         # Initialize the analysis analysis_backend
         if analysis_backend.lower() == "codeql":
             self.analysis_backend: JCodeQL = JCodeQL(self.project_dir, self.analysis_json_path)
@@ -61,6 +68,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
                 analysis_json_path=self.analysis_json_path,
                 use_graalvm_binary=self.use_graalvm_binary,
                 analysis_backend_path=self.analysis_backend_path,
+                target_files=self.target_files
             )
         else:
             raise NotImplementedError(f"Support for {analysis_backend} has not been implemented yet.")
@@ -189,12 +197,14 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError("Generating all callers over a single file is not implemented yet.")
         return self.backend.get_all_callers(target_class_name, target_method_declaration, using_symbol_table)
 
-    def get_callees(self, source_class_name: str, source_method_declaration: str) ->Dict:
+
+    def get_callees(self, source_class_name: str, source_method_declaration: str, using_symbol_table: bool = False) ->Dict:
         """ Returns a dictionary of callees by the given method in the given class.
 
         Args:
             source_class_name (str): Qualified class name where the given method is.
             source_method_declaration (str): Given method 
+            using_symbol_table (bool): Whether to use symbol table.  Defaults to false.
 
         Raises:
             NotImplementedError: Raised when this functionality is not suported.
@@ -204,7 +214,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         """        
         if self.source_code:
             raise NotImplementedError("Generating all callees over a single file is not implemented yet.")
-        return self.backend.get_all_callees(source_class_name, source_method_declaration)
+        return self.backend.get_all_callees(source_class_name, source_method_declaration, using_symbol_table)
 
     def get_methods(self) -> Dict[str, Dict[str, JCallable]]:
         """ Returns all methods in the Java code.
@@ -442,6 +452,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
 
     def __get_class_call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
         """A call graph using symbol table for a given class and a given method.
+
         Args:
             qualified_class_name (str): The qualified name of the class.
             method_signature (str | None, optional): The signature of the method in the class.. Defaults to None.
@@ -473,7 +484,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         """        
         if using_symbol_table:
             return self.__get_class_call_graph_using_symbol_table(qualified_class_name=qualified_class_name,
-                                                                method_signature=method_signature)
+                                                                  method_signature=method_signature)
         if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph(qualified_class_name, method_signature)

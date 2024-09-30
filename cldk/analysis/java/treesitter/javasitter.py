@@ -33,6 +33,73 @@ class JavaSitter:
 
         return method_name not in {method.node.text.decode() for method in methods_in_class}
 
+    def get_all_imports(self, source_code: str) -> Set[str]:
+        """Get a list of all the imports in a class.
+
+        Args:
+            source_code (str): The source code to process.
+
+        Returns:
+            Set[str]: A set of all the imports in the class.
+        """
+        import_declerations: Captures = self.frame_query_and_capture_output(query="(import_declaration (scoped_identifier) @name)", code_to_process=source_code)
+        return {capture.node.text.decode() for capture in import_declerations}
+
+    def get_pacakge_name(self, source_code: str) -> str:
+        """Get the package name from the source code.
+
+        Args:
+            source_code (str): The source code to process.
+
+        Returns:
+            str: The package name.
+        """
+        package_name: Captures = self.frame_query_and_capture_output(query="((package_declaration) @name)", code_to_process=source_code)
+        if package_name:
+            return package_name[0].node.text.decode().replace("package ", "").replace(";", "")
+        return None
+
+    def get_class_name(self, source_code: str) -> str:
+        """Get the class name from the source code.
+
+        Args:
+            source_code (str): The source code to process.
+
+        Returns:
+            str: The class name.
+        """
+        class_name = self.frame_query_and_capture_output("(class_declaration name: (identifier) @name)", source_code)
+        return class_name[0].node.text.decode()
+
+    def get_superclass(self, source_code: str) -> str:
+        """Get a list of all the superclasses in a class.
+
+        Args:
+            source_code (str): The source code to process.
+
+        Returns:
+            Set[str]: A set of all the superclasses in the class.
+        """
+        superclass: Captures = self.frame_query_and_capture_output(query="(class_declaration (superclass (type_identifier) @superclass))", code_to_process=source_code)
+
+        if len(superclass) == 0:
+            return ""
+
+        return superclass[0].node.text.decode()
+
+    def get_all_interfaces(self, source_code: str) -> Set[str]:
+        """Get a set of interfaces implemented by a class.
+
+        Args:
+            source_code (str): The source code to process.
+
+        Returns:
+            Set[str]: A set of all the interfaces implemented by the class.
+        """
+
+        interfaces = self.frame_query_and_capture_output("(class_declaration (super_interfaces (type_list (type_identifier) @interface)))", code_to_process=source_code)
+        return {interface.node.text.decode() for interface in interfaces}
+
     def frame_query_and_capture_output(self, query: str, code_to_process: str) -> Captures:
         """Frame a query for the tree-sitter parser.
 
@@ -232,79 +299,6 @@ class JavaSitter:
                         annotation_method_dict[annotation] = [method]
         return annotation_method_dict
 
-    def get_fields_with_annotations(self, source_class_code: str) -> Dict[str, Dict]:
-        """
-        Returns a dictionary of field names and field bodies.
-
-        Parameters:
-        -----------
-        source_class_code : str
-            String containing code for a java class.
-        Returns:
-        --------
-        Dict[str,Dict]
-            Dictionary with field names as keys and a dictionary of annotation and body as values.
-        """
-        query = """
-                    (field_declaration 
-                        (variable_declarator
-                            name: (identifier) @field_name
-                        )
-                    )
-                """
-        captures: Captures = self.frame_query_and_capture_output(query, source_class_code)
-        field_dict = {}
-        for capture in captures:
-            if capture.name == "field_name":
-                field_name = capture.node.text.decode()
-                inner_dict = {}
-                annotation = None
-                field_node = self.safe_ascend(capture.node, 2)
-                body = field_node.text.decode()
-                for fc in field_node.children:
-                    if fc.type == "modifiers":
-                        for mc in fc.children:
-                            if mc.type == "marker_annotation":
-                                annotation = mc.text.decode()
-                inner_dict["annotation"] = annotation
-                inner_dict["body"] = body
-                field_dict[field_name] = inner_dict
-        return field_dict
-
-    def get_field_accesses(self, source_class_code: str) -> Dict[str, list[list[int]]]:
-        """
-        Returns a dictionary of field names with start and end positions of field accesses.
-
-        Parameters:
-        -----------
-        source_class_code : str
-            String containing code for a java class.
-        Returns:
-        --------
-        Dict[str, [[int, int], [int, int]]]
-            Dictionary with field names as keys and a list of starting and ending line, and starting and ending column.
-        """
-        query = """
-                    (field_access 
-                        field:(identifier) @field_name
-                        )
-                """
-        captures: Captures = self.frame_query_and_capture_output(query, source_class_code)
-        field_dict = {}
-        for capture in captures:
-            if capture.name == "field_name":
-                field_name = capture.node.text.decode()
-                field_node = self.safe_ascend(capture.node, 2)
-                start_line = field_node.start_point[0]
-                start_column = field_node.start_point[1]
-                end_line = field_node.end_point[0]
-                end_column = field_node.end_point[1]
-                start_list = [start_line, start_column]
-                end_list = [end_line, end_column]
-                position = [start_list, end_list]
-                field_dict[field_name] = position
-        return field_dict
-
     def get_all_type_invocations(self, source_code: str) -> Set[str]:
         """
         Given the source code, get all the type invocations in the source code.
@@ -321,6 +315,24 @@ class JavaSitter:
         """
         type_references: Captures = self.frame_query_and_capture_output("(type_identifier) @type_id", source_code)
         return {type_id.node.text.decode() for type_id in type_references}
+
+    def get_method_return_type(self, source_code: str) -> str:
+        """Get the return type of a method.
+
+        Parameters
+        ----------
+        source_code : str
+            The source code to process.
+
+        Returns
+        -------
+        str
+            The return type of the method.
+        """
+
+        type_references: Captures = self.frame_query_and_capture_output("(method_declaration type: ((type_identifier) @type_id))", source_code)
+
+        return type_references[0].node.text.decode()
 
     def get_lexical_tokens(self, code: str, filter_by_node_type: List[str] | None = None) -> List[str]:
         """

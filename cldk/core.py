@@ -1,8 +1,9 @@
 from pathlib import Path
 
-
 import logging
+from typing import List
 
+from cldk.analysis import AnalysisLevel
 from cldk.analysis.java import JavaAnalysis
 from cldk.analysis.java.treesitter import JavaSitter
 from cldk.utils.exceptions import CldkInitializationException
@@ -30,15 +31,16 @@ class CLDK:
         self.language: str = language
 
     def analysis(
-        self,
-        project_path: str | Path | None = None,
-        source_code: str | None = None,
-        eager: bool = False,
-        analysis_backend: str | None = "codeanalyzer",
-        analysis_level: str = "symbol_table",
-        analysis_backend_path: str | None = None,
-        analysis_json_path: str | Path = '.',
-        use_graalvm_binary: bool = False,
+            self,
+            project_path: str | Path | None = None,
+            source_code: str | None = None,
+            eager: bool = False,
+            analysis_backend: str | None = "codeanalyzer",
+            analysis_level: str = AnalysisLevel.symbol_table,
+            target_files: List[str] | None = None,
+            analysis_backend_path: str | None = None,
+            analysis_json_path: str | Path = None,
+            use_graalvm_binary: bool = False,
     ) -> JavaAnalysis:
         """
         Initialize the preprocessor based on the specified language and analysis_backend.
@@ -65,7 +67,11 @@ class CLDK:
         eager : bool, optional
             A flag indicating whether to perform eager analysis, defaults to False. If True, the analysis is performed
             eagerly. That is, the analysis.json file is created during analysis every time even if it already exists.
-
+        analysis_level: str, optional
+            Analysis levels. Refer to AnalysisLevel.
+        target_files: List[str] | None, optional
+            The target files (paths) for which the analysis will run or get modified. Currently, this feature only supported
+            with symbol table analysis. In the future, we will add this feature to other analysis levels.
         Returns
         -------
         JavaAnalysis
@@ -77,13 +83,19 @@ class CLDK:
             If neither project_path nor source_code is provided.
         NotImplementedError
             If the specified language is not implemented yet.
+
+        Args:
+            analysis_level:
+            target_files:
+            analysis_level:
         """
 
         if project_path is None and source_code is None:
             raise CldkInitializationException("Either project_path or source_code must be provided.")
 
         if project_path is not None and source_code is not None:
-            raise CldkInitializationException("Both project_path and source_code are provided. Please provide " "only one.")
+            raise CldkInitializationException(
+                "Both project_path and source_code are provided. Please provide " "only one.")
 
         if self.language == "java":
             return JavaAnalysis(
@@ -94,6 +106,7 @@ class CLDK:
                 analysis_backend_path=analysis_backend_path,
                 analysis_json_path=analysis_json_path,
                 use_graalvm_binary=use_graalvm_binary,
+                target_files=target_files,
                 eager_analysis=eager,
             )
         else:
@@ -114,7 +127,7 @@ class CLDK:
         else:
             raise NotImplementedError(f"Treesitter parser for {self.language} is not implemented yet.")
 
-    def tree_sitter_utils(self, source_code: str) -> [TreesitterSanitizer| NotImplementedError]:
+    def tree_sitter_utils(self, source_code: str) -> [TreesitterSanitizer | NotImplementedError]:
         """
         Parse the project using treesitter.
 
