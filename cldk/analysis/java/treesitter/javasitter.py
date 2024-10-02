@@ -33,6 +33,32 @@ class JavaSitter:
 
         return method_name not in {method.node.text.decode() for method in methods_in_class}
 
+    def is_parsable(self, code: str) -> bool:
+        """
+        Check if the code is parsable
+        Args:
+            code: source code
+
+        Returns:
+            True if the code is parsable, False otherwise
+        """
+        def syntax_error(node):
+            if node.type == "ERROR":
+                return True
+            try:
+                for child in node.children:
+                    if syntax_error(child):
+                        return True
+            except RecursionError as err:
+                return True
+
+            return False
+
+        tree = self.parser.parse(bytes(code, "utf-8"))
+        if tree is not None:
+            return not syntax_error(tree.root_node)
+        return False
+
     def get_all_imports(self, source_code: str) -> Set[str]:
         """Get a list of all the imports in a class.
 

@@ -21,6 +21,33 @@ class PythonSitter:
         self.parser: Parser = Parser(self.language)
         self.utils: TreeSitterUtils = TreeSitterUtils()
 
+    def is_parsable(self, code: str) -> bool:
+        """
+        Check if the code is parsable
+        Args:
+            code: source code
+
+        Returns:
+            True if the code is parsable, False otherwise
+        """
+        def syntax_error(node):
+            if node.type == "ERROR":
+                return True
+            try:
+                for child in node.children:
+                    if syntax_error(child):
+                        return True
+            except RecursionError as err:
+                print(err)
+                return True
+
+            return False
+
+        tree = self.parser.parse(bytes(code, "utf-8"))
+        if tree is not None:
+            return not syntax_error(tree.root_node)
+        return False
+
     def get_all_methods(self, module: str) -> List[PyMethod]:
         """
         Get all the methods in the specific module.

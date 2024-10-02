@@ -10,6 +10,13 @@ class SymbolTable(ABC):
     '''
 
     @abstractmethod
+    def is_parsable(self, **kwargs):
+        """
+        Given a full code or a snippet, returns whether code is in right structure or hence parsable
+        """
+        pass
+
+    @abstractmethod
     def get_methods(self, **kwargs):
         """
         Given an application or a source code, get all the methods
