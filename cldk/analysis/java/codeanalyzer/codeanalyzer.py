@@ -28,26 +28,51 @@ logger = logging.getLogger(__name__)
 
 
 class JCodeanalyzer:
-    """A class for building the application view of a Java application using Codeanalyzer.
+    """ A class for building the application view of a Java application using Codeanalyzer.
 
-    Parameters
-    ----------
-    project_dir : str or Path
-        The path to the root of the Java project.
-    analysis_json_path : str or Path or None
-        The path to save the intermediate codeanalysis ouputs. If None, we'll read from the pipe.
-    sdg : bool
-        If True, the system dependency graph will be generated with a more indepth analysis. Default is False.
-    eager_analysis : bool
-        If True, the analysis will be done eagerly, i.e., a new analysis will be done every time the object is created.
-        Default is False.
-    use_graalvm_binary : bool
-        If True, the codeanalyzer binary from GraalVM will be used. By default, the codeanalyzer jar from the latest
-        release on GitHub will be used.
-    Methods
-    -------
-    _init_codeanalyzer(project_dir, analysis_json_path)
-        Initializes the codeanalyzer database.
+    Args:
+        project_dir (str or Path): The path to the root of the Java project.
+        source_code (str, optional): The source code of a single Java file to analyze. Defaults to None.
+        analysis_backend_path (str or Path, optional): The path to the analysis backend. Defaults to None.
+        analysis_json_path (str or Path, optional): The path to save the intermediate code analysis outputs. 
+            If None, the analysis will be read from the pipe.
+        analysis_level (str): The level of analysis ('symbol_table' or 'call_graph').
+        use_graalvm_binary (bool): If True, the GraalVM binary will be used instead of the codeanalyzer jar.
+        eager_analysis (bool): If True, the analysis will be performed every time the object is created.
+
+    Methods:
+        _init_codeanalyzer(analysis_level=1):
+            Initializes the codeanalyzer database.
+
+        _download_or_update_code_analyzer(filepath: Path) -> str:
+            Downloads the codeanalyzer jar from the latest release on GitHub.
+
+        _get_application() -> JApplication:
+            Returns the application view of the Java code.
+
+        _get_codeanalyzer_exec() -> List[str]:
+            Returns the executable command for codeanalyzer.
+
+        _codeanalyzer_single_file() -> JApplication:
+            Invokes codeanalyzer in a single file mode.
+
+        get_symbol_table() -> Dict[str, JCompilationUnit]:
+            Returns the symbol table of the Java code.
+
+        get_application_view() -> JApplication:
+            Returns the application view of the Java code.
+
+        get_system_dependency_graph() -> list[JGraphEdges]:
+            Runs the codeanalyzer to get the system dependency graph.
+
+        _generate_call_graph(using_symbol_table: bool) -> DiGraph:
+            Generates the call graph of the Java code.
+
+        get_class_hierarchy() -> DiGraph:
+            Returns the class hierarchy of the Java code.
+
+        get_call_graph() -> DiGraph:
+            Returns the call graph of the Java code.
     """
 
     def __init__(
@@ -79,18 +104,13 @@ class JCodeanalyzer:
 
     @staticmethod
     def _download_or_update_code_analyzer(filepath: Path) -> str:
-        """
-        Downloads the codeanalyzer jar from the latest release on GitHub.
+        """ Downloads the codeanalyzer jar from the latest release on GitHub.
 
-        Parameters
-        ----------
-        filepath : str
-            The path to save the codeanalyzer jar.
+        Args:
+            filepath (Path): The path to save the codeanalyzer jar.
 
-        Returns
-        -------
-        str
-            The path to the downloaded codeanalyzer jar file.
+        Returns:
+            str: The path to the downloaded codeanalyzer jar file.
         """
         url = "https://api.github.com/repos/IBM/codenet-minerva-code-analyzer/releases/latest"
         response = requests.get(url)
@@ -139,33 +159,25 @@ class JCodeanalyzer:
             raise Exception(f"Failed to fetch release warn: {response.status_code} {response.text}")
 
     def _get_application(self) -> JApplication:
-        """
-        Returns the application view of the Java code.
+        """ Returns the application view of the Java code.
 
-        Returns
-        -------
-        JApplication
-            The application view of the Java code.
+        Returns:
+            JApplication: The application view of the Java code.
         """
         if self.application is None:
             self.application = self._init_codeanalyzer()
         return self.application
 
     def _get_codeanalyzer_exec(self) -> List[str]:
-        """
-        Returns the executable command for codeanalyzer.
+        """ Returns the executable command for codeanalyzer.
 
-        Returns
-        -------
-        List[str]
-            The executable command for codeanalyzer.
+        Returns:
+            List[str]: The executable command for codeanalyzer.
 
-        Notes
-        -----
-        Some selection criteria for the codeanalyzer analysis_backend:
-        1. If the use_graalvm_binary flag is set, the codeanalyzer binary from GraalVM will be used.
-        2. If the analysis_backend_path is provided by the user, the codeanalyzer.jar from the analysis_backend_path will be used.
-        3. If the analysis_backend_path is not provided, the latest codeanalyzer.jar from the GitHub release will be first downloaded.
+        Notes:
+            - If the use_graalvm_binary flag is set, the codeanalyzer binary from GraalVM will be used.
+            - If the analysis_backend_path is provided, the codeanalyzer jar from that path will be used.
+            - If not provided, the latest codeanalyzer jar from GitHub will be downloaded.
         """
 
         if self.use_graalvm_binary:
@@ -197,17 +209,17 @@ class JCodeanalyzer:
         return JApplication(**json.loads(data))
         
     def _init_codeanalyzer(self, analysis_level=1) -> JApplication:
-        """Initializes the Codeanalyzer.
-        Returns
-        -------
-        JApplication
-            The application view of the Java code with the analysis results.
-        Raises
-        ------
-        CodeanalyzerExecutionException
-            If there is an error running Codeanalyzer.
-        """
+        """ Initializes the Codeanalyzer.
 
+        Args:
+            analysis_level (int): The level of analysis to be performed (1 for symbol table, 2 for call graph).
+
+        Returns:
+            JApplication: The application view of the Java code with the analysis results.
+
+        Raises:
+            CodeanalyzerExecutionException: If there is an error running Codeanalyzer.
+        """
         codeanalyzer_exec = self._get_codeanalyzer_exec()
         codeanalyzer_args = ''
         if self.analysis_json_path is None:
@@ -276,13 +288,10 @@ class JCodeanalyzer:
                 return JApplication(**data)
 
     def _codeanalyzer_single_file(self):
-        """
-        Invokes codeanalyzer in a single file mode.
+        """ Invokes codeanalyzer in a single file mode.
 
-        Returns
-        -------
-        JApplication
-            The application view of the Java code with the analysis results.
+        Returns:
+            JApplication: The application view of the Java code with the analysis results.
         """
         codeanalyzer_exec = self._get_codeanalyzer_exec()
         codeanalyzer_args = ["--source-analysis", self.source_code]
@@ -299,26 +308,20 @@ class JCodeanalyzer:
             raise CodeanalyzerExecutionException(str(e)) from e
 
     def get_symbol_table(self) -> Dict[str, JCompilationUnit]:
-        """
-        Returns the symbol table of the Java code.
+        """ Returns the symbol table of the Java code.
 
-        Returns
-        -------
-        Dict[str, JCompilationUnit]
-            The symbol table of the Java code.
+        Returns:
+            Dict[str, JCompilationUnit]: The symbol table of the Java code.
         """
         if self.application is None:
             self.application = self._init_codeanalyzer()
         return self.application.symbol_table
 
     def get_application_view(self) -> JApplication:
-        """
-        Returns the application view of the Java code.
+        """ Returns the application view of the Java code.
 
         Returns:
-        --------
-        JApplication
-            The application view of the Java code.
+            JApplication: The application view of the Java code.
         """
         if self.source_code:
             # This branch is triggered when a single file is being analyzed.
@@ -330,13 +333,10 @@ class JCodeanalyzer:
             return self.application
 
     def get_system_dependency_graph(self) -> list[JGraphEdges]:
-        """
-        Run the codeanalyzer to get the system dependency graph.
+        """ Runs the codeanalyzer to get the system dependency graph.
 
-        Returns
-        -------
-        list[JGraphEdges]
-            The system dependency graph.
+        Returns:
+            list[JGraphEdges]: The system dependency graph.
         """
         if self.application.system_dependency_graph is None:
             self.application = self._init_codeanalyzer(analysis_level=2)
@@ -344,13 +344,13 @@ class JCodeanalyzer:
         return self.application.system_dependency_graph
 
     def _generate_call_graph(self, using_symbol_table) -> DiGraph:
-        """
-        Generates the call graph of the Java code.
+        """ Generates the call graph of the Java code.
+
+        Args:
+            using_symbol_table (bool): Whether to use the symbol table for generating the call graph.
 
         Returns:
-        --------
-        DiGraph
-            The call graph of the Java code.
+            DiGraph: The call graph of the Java code.
         """
         cg = nx.DiGraph()
         if using_symbol_table:
@@ -384,23 +384,17 @@ class JCodeanalyzer:
         return cg
 
     def get_class_hierarchy(self) -> DiGraph:
-        """
-        Returns the class hierarchy of the Java code.
+        """ Returns the class hierarchy of the Java code.
 
         Returns:
-        --------
-        DiGraph
-            The class hierarchy of the Java code.
+            DiGraph: The class hierarchy of the Java code.
         """
 
     def get_call_graph(self) -> DiGraph:
-        """
-        Get call graph of the Java code.
+        """ Returns the call graph of the Java code.
 
         Returns:
-        --------
-        DiGraph
-            The call graph of the Java code.
+            DiGraph: The call graph of the Java code.
         """
         if self.analysis_level == "symbol_table":
             self.call_graph = self._generate_call_graph(using_symbol_table=True)
@@ -409,9 +403,11 @@ class JCodeanalyzer:
         return self.call_graph
 
     def get_call_graph_json(self) -> str:
-        """
-        serialize callgraph to json
-        """
+        """ Get call graph in serialized json format.
+
+        Returns:
+            str: Call graph in json.
+        """        
         callgraph_list = []
         edges = list(self.call_graph.edges.data("calling_lines"))
         for edge in edges:
@@ -427,13 +423,15 @@ class JCodeanalyzer:
         return json.dumps(callgraph_list)
 
     def get_all_callers(self, target_class_name: str, target_method_signature: str, using_symbol_table: bool) -> Dict:
-        """
-        Get all the caller details for a given java method.
+        """ Get all the caller details for a given Java method.
+
+        Args:
+            target_class_name (str): The qualified class name of the target method.
+            target_method_signature (str): The signature of the target method.
+            using_symbol_table (bool): Whether to use the symbol table to generate the call graph.
 
         Returns:
-        --------
-        Dict
-            Caller details in a dictionary.
+            Dict: A dictionary containing caller details.
         """
 
         caller_detail_dict = {}
@@ -465,13 +463,15 @@ class JCodeanalyzer:
         return caller_detail_dict
 
     def get_all_callees(self, source_class_name: str, source_method_signature: str, using_symbol_table: bool) -> Dict:
-        """
-        Get all the callee details for a given java method.
+        """ Get all the callee details for a given Java method.
+
+        Args:
+            source_class_name (str): The qualified class name of the source method.
+            source_method_signature (str): The signature of the source method.
+            using_symbol_table (bool): Whether to use the symbol table to generate the call graph.
 
         Returns:
-        --------
-        Dict
-            Callee details in a dictionary.
+            Dict: A dictionary containing callee details.
         """
         callee_detail_dict = {}
         call_graph = None
@@ -495,15 +495,11 @@ class JCodeanalyzer:
         return callee_detail_dict
 
     def get_all_methods_in_application(self) -> Dict[str, Dict[str, JCallable]]:
-        """
-        Returns a dictionary of all methods in the Java code with
-          qualified class name as key and dictionary of methods in that class
-          as value
+        """ Returns a dictionary of all methods in the Java code with qualified class name as the key
+            and a dictionary of methods in that class as the value.
 
         Returns:
-        --------
-        Dict[str, Dict[str, JCallable]]:
-            A dictionary of dictionaries of all methods in the Java code.
+            Dict[str, Dict[str, JCallable]]: A dictionary of dictionaries of all methods in the Java code.
         """
 
         class_method_dict = {}
@@ -513,13 +509,10 @@ class JCodeanalyzer:
         return class_method_dict
 
     def get_all_classes(self) -> Dict[str, JType]:
-        """
-        Returns a dictionary of all classes in the Java code.
+        """ Returns a dictionary of all classes in the Java code.
 
         Returns:
-        --------
-        Dict[str, JType]
-            A dict of all classes in the Java code, with qualified class names as keys
+            Dict[str, JType]: A dictionary of all classes in the Java code, with qualified class names as keys.
         """
 
         class_dict = {}
@@ -529,39 +522,28 @@ class JCodeanalyzer:
         return class_dict
 
     def get_class(self, qualified_class_name) -> JType:
-        """
-        Returns a class given qualified class name.
+        """ Returns a class given the qualified class name.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
 
         Returns:
-        --------
-        JClassOrInterface
-            A class for the given qualified class name.
-        """
+            JType: A class for the given qualified class name.
+        """ 
         symtab = self.get_symbol_table()
         for _, v in symtab.items():
             if qualified_class_name in v.type_declarations.keys():
                 return v.type_declarations.get(qualified_class_name)
 
     def get_method(self, qualified_class_name, method_signature) -> JCallable:
-        """
-        Returns a method given qualified method name.
+        """ Returns a method given the qualified method name.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
-        method_signature : str
-            The signature of the method.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
+            method_signature (str): The signature of the method.
 
         Returns:
-        --------
-        JCallable
-            A method for the given qualified method name.
+            JCallable: A method for the given qualified method name.
         """
         symtab = self.get_symbol_table()
         for v in symtab.values():
@@ -572,18 +554,13 @@ class JCodeanalyzer:
                         return ci.callable_declarations[cd]
 
     def get_java_file(self, qualified_class_name) -> str:
-        """
-        Returns a class given qualified class name.
+        """ Returns java file name given the qualified class name.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
 
         Returns:
-        --------
-        str
-            Java file name containing the given qualified class.
+            str: Java file name containing the given qualified class.
         """
         symtab = self.get_symbol_table()
         for k, v in symtab.items():
@@ -591,18 +568,13 @@ class JCodeanalyzer:
                 return k
 
     def get_java_compilation_unit(self, file_path: str) -> JCompilationUnit:
-        """
-        Given the path of a Java source file, returns the compilation unit object from the symbol table.
+        """ Given the path of a Java source file, returns the compilation unit object from the symbol table.
 
-        Parameters
-        ----------
-        file_path : str
-            Absolute path to Java source file
+        Args:
+            file_path (str): Absolute path to the Java source file.
 
-        Returns
-        -------
-        JCompilationUnit
-            Compilation unit object for Java source file
+        Returns:
+            JCompilationUnit: Compilation unit object for the Java source file.
         """
 
         if self.application is None:
@@ -610,18 +582,13 @@ class JCodeanalyzer:
         return self.application.symbol_table[file_path]
 
     def get_all_methods_in_class(self, qualified_class_name) -> Dict[str, JCallable]:
-        """
-        Returns a dictionary of all methods in the given class.
+        """ Returns a dictionary of all methods in the given class.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
 
         Returns:
-        --------
-        Dict[str, JCallable]
-            A dictionary of all methods in the given class.
+            Dict[str, JCallable]: A dictionary of all methods in the given class.
         """
         ci = self.get_class(qualified_class_name)
         if ci is None:
@@ -630,18 +597,13 @@ class JCodeanalyzer:
         return methods
 
     def get_all_constructors(self, qualified_class_name) -> Dict[str, JCallable]:
-        """
-        Returns a dictionary of all constructors of the given class.
+        """ Returns a dictionary of all constructors of the given class.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
 
         Returns:
-        --------
-        Dict[str, JCallable]
-            A dictionary of all constructors of the given class.
+            Dict[str, JCallable]: A dictionary of all constructors of the given class.
         """
         ci = self.get_class(qualified_class_name)
         if ci is None:
@@ -650,16 +612,15 @@ class JCodeanalyzer:
         return constructors
 
     def get_all_sub_classes(self, qualified_class_name) -> Dict[str, JType]:
-        """
-        Returns a dictionary of all sub-classes of the given class
-        Parameters
-        ----------
-        qualified_class_name
+        """ Returns a dictionary of all sub-classes of the given class.
 
-        Returns
-        -------
-            Dict[str, JType]: A dictionary of all sub-classes of the given class, and class details
+        Args:
+            qualified_class_name (str): The qualified name of the class.
+
+        Returns:
+            Dict[str, JType]: A dictionary of all sub-classes of the given class, and class details.
         """
+
         all_classes = self.get_all_classes()
         sub_classes = {}
         for cls in all_classes:
@@ -669,18 +630,13 @@ class JCodeanalyzer:
         return sub_classes
 
     def get_all_fields(self, qualified_class_name) -> List[JField]:
-        """
-        Returns a list of all fields of the given class.
+        """ Returns a list of all fields of the given class.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
 
         Returns:
-        --------
-        List[JField]
-            A list of all fields of the given class.
+            List[JField]: A list of all fields of the given class.
         """
         ci = self.get_class(qualified_class_name)
         if ci is None:
@@ -689,18 +645,13 @@ class JCodeanalyzer:
         return ci.field_declarations
 
     def get_all_nested_classes(self, qualified_class_name) -> List[JType]:
-        """
-        Returns a list of all nested classes for the given class.
+        """ Returns a list of all nested classes for the given class.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
 
         Returns:
-        --------
-        List[JType]
-            A list of nested classes for the given class.
+            List[JType]: A list of nested classes for the given class.
         """
         ci = self.get_class(qualified_class_name)
         if ci is None:
@@ -710,18 +661,13 @@ class JCodeanalyzer:
         return [self.get_class(c) for c in nested_classes]  # Assuming qualified nested class names
 
     def get_extended_classes(self, qualified_class_name) -> List[str]:
-        """
-        Returns a list of all extended classes for the given class.
+        """ Returns a list of all extended classes for the given class.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
 
         Returns:
-        --------
-        List[str]
-            A list of extended classes for the given class.
+            List[str]: A list of extended classes for the given class.
         """
         ci = self.get_class(qualified_class_name)
         if ci is None:
@@ -730,18 +676,13 @@ class JCodeanalyzer:
         return ci.extends_list
 
     def get_implemented_interfaces(self, qualified_class_name) -> List[str]:
-        """
-        Returns a list of all implemented interfaces for the given class.
+        """ Returns a list of all implemented interfaces for the given class.
 
-        Parameters:
-        -----------
-        qualified_class_name : str
-            The qualified name of the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
 
         Returns:
-        --------
-        List[JType]
-            A list of implemented interfaces for the given class.
+            List[str]: A list of implemented interfaces for the given class.
         """
         ci = self.get_class(qualified_class_name)
         if ci is None:
@@ -752,8 +693,7 @@ class JCodeanalyzer:
     def get_class_call_graph_using_symbol_table(self, qualified_class_name: str,
                                                 method_signature: str | None = None) -> (
             List)[Tuple[JMethodDetail, JMethodDetail]]:
-        """
-        Returns call graph using symbol table. The analysis will not be
+        """ Returns call graph using symbol table. The analysis will not be
         complete as symbol table has known limitation of resolving types
         Args:
             qualified_class_name: qualified name of the class
@@ -778,9 +718,8 @@ class JCodeanalyzer:
 
     def __call_graph_using_symbol_table(self,
                                         qualified_class_name: str,
-                                        method_signature: str, is_target_method: bool = False) -> DiGraph:
-        """
-        Generate call graph using symbol table
+                                        method_signature: str, is_target_method: bool = False)-> DiGraph:
+        """ Generate call graph using symbol table
         Args:
             qualified_class_name: qualified class name
             method_signature: method signature
@@ -826,8 +765,7 @@ class JCodeanalyzer:
                                                           target_class_name: str,
                                                           target_method_signature: str,
                                                           cg=None) -> list[JGraphEdgesST]:
-        """
-        Generates call graph using symbol table information given the target method and target class
+        """ Generates call graph using symbol table information given the target method and target class
         Args:
             qualified_class_name: qualified class name
             method_signature: source method signature
@@ -900,15 +838,15 @@ class JCodeanalyzer:
                                             qualified_class_name: str,
                                             method_signature: str,
                                             cg=None) -> list[JGraphEdgesST]:
-        """
-        Generates call graph using symbol table information
+        """ Generates a call graph using symbol table information.
+
         Args:
-            qualified_class_name: qualified class name
-            method_signature: source method signature
-            cg: call graph
+            qualified_class_name (str): The qualified class name.
+            method_signature (str): The source method signature.
+            cg (list[JGraphEdgesST], optional): Existing call graph edges. Defaults to None.
 
         Returns:
-            list[JGraphEdgesST]: list of call edges
+            list[JGraphEdgesST]: A list of call edges.
         """
         if cg is None:
             cg = []
@@ -979,28 +917,18 @@ class JCodeanalyzer:
 
     def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None) -> List[
         Tuple[JMethodDetail, JMethodDetail]]:
-        """
-        A call graph for a given class and (optionally) filtered by a given method.
+        """ Generates a call graph for a given class and (optionally) filters by a given method.
 
-        Parameters
-        ----------
-        qualified_class_name : str
-            The qualified name of the class.
-        method_name : str, optional
-            The name of the method in the class.
+        Args:
+            qualified_class_name (str): The qualified name of the class.
+            method_name (str, optional): The name of the method in the class.
 
-        Returns
-        -------
-        List[Tuple[JMethodDetail, JMethodDetail]]
-            An edge list of the call graph for the given class and method.
+        Returns:
+            List[Tuple[JMethodDetail, JMethodDetail]]: An edge list of the call graph
+            for the given class and method.
 
-        Notes
-        -----
-        The class name must be fully qualified, e.g., "org.example.MyClass" and not "MyClass".
-
-        Likewise, the
-
-
+        Notes:
+            The class name must be fully qualified, e.g., "org.example.MyClass" and not "MyClass".
         """
         # If the method name is not provided, we'll get the call graph for the entire class.
 
@@ -1019,15 +947,12 @@ class JCodeanalyzer:
         return graph_edges
 
     def get_all_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
-        """
-        Returns a dictionary of all entry point methods in the Java code with
-          qualified class name as key and dictionary of methods in that class
-          as value
+        """ Returns a dictionary of all entry point methods in the Java code with
+            qualified class name as the key and a dictionary of methods in that class as the value.
 
         Returns:
-        --------
-        Dict[str, Dict[str, JCallable]]:
-            A dictionary of dictionaries of entry point methods in the Java code.
+            Dict[str, Dict[str, JCallable]]: A dictionary of dictionaries of entry point
+            methods in the Java code.
         """
 
         class_method_dict = {}
@@ -1039,13 +964,11 @@ class JCodeanalyzer:
         return class_method_dict
 
     def get_all_entry_point_classes(self) -> Dict[str, JType]:
-        """
-        Returns a dictionary of all entry point classes in the Java code.
+        """ Returns a dictionary of all entry point classes in the Java code.
 
         Returns:
-        --------
-        Dict[str, JType]
-            A dict of all entry point classes in the Java code, with qualified class names as keys
+            Dict[str, JType]: A dictionary of all entry point classes in the Java code,
+            with qualified class names as keys.
         """
 
         class_dict = {}
