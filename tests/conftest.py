@@ -7,6 +7,17 @@ from urllib.request import urlretrieve
 
 
 @pytest.fixture(scope="session", autouse=True)
+def analysis_json_fixture():
+    # Path to your pyproject.toml
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+
+    # Load the configuration
+    config = toml.load(pyproject_path)
+
+    return config["tool"]["cldk"]["testing"]["sample-application-analysis-json"]
+
+
+@pytest.fixture(scope="session", autouse=True)
 def test_fixture():
     """
     Returns the path to the test data directory.
