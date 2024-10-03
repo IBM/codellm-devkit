@@ -7,10 +7,11 @@ from .constants_namespace import ConstantsNamespace
 
 constants = ConstantsNamespace()
 context_concrete_class = ContextVar("context_concrete_class")  # context var to store class concreteness
+_CALLABLES_LOOKUP_TABLE = dict()
 
 
 class JField(BaseModel):
-    """ Represents a field in a Java class or interface.
+    """Represents a field in a Java class or interface.
 
     Attributes:
         comment (str): The comment associated with the field.
@@ -33,7 +34,7 @@ class JField(BaseModel):
 
 
 class JCallableParameter(BaseModel):
-    """ Represents a parameter of a Java callable.
+    """Represents a parameter of a Java callable.
 
     Attributes:
         name (str): The name of the parameter.
@@ -42,7 +43,6 @@ class JCallableParameter(BaseModel):
         modifiers (List[str]): The modifiers applied to the parameter.
     """
 
-
     name: str
     type: str
     annotations: List[str]
@@ -50,18 +50,19 @@ class JCallableParameter(BaseModel):
 
 
 class JEnumConstant(BaseModel):
-    """ Represents a constant in an enumeration.
+    """Represents a constant in an enumeration.
 
     Attributes:
         name (str): The name of the enum constant.
         arguments (List[str]): The arguments associated with the enum constant.
     """
+
     name: str
     arguments: List[str]
 
 
 class JCallSite(BaseModel):
-    """ Represents a call site.
+    """Represents a call site.
 
     Attributes:
         method_name (str): The name of the method called at the call site.
@@ -76,7 +77,6 @@ class JCallSite(BaseModel):
         end_line (int): The ending line number of the call site.
         end_column (int): The ending column of the call site.
     """
-
 
     method_name: str
     receiver_expr: str = ""
@@ -97,7 +97,7 @@ class JCallSite(BaseModel):
 
 
 class JVariableDeclaration(BaseModel):
-    """ Represents a variable declaration.
+    """Represents a variable declaration.
 
     Attributes:
         name (str): The name of the variable.
@@ -119,7 +119,7 @@ class JVariableDeclaration(BaseModel):
 
 
 class JCallable(BaseModel):
-    """ Represents a callable entity such as a method or constructor in Java.
+    """Represents a callable entity such as a method or constructor in Java.
 
     Attributes:
         signature (str): The signature of the callable.
@@ -170,35 +170,30 @@ class JCallable(BaseModel):
         # check first if the class in which this method exists is concrete or not, by looking at the context var
         if context_concrete_class.get():
             # convert annotations to the form GET, POST even if they are @GET or @GET('/ID') etc.
-            annotations_cleaned = [match for annotation in self.annotations for match in
-                                   re.findall(r'@(.*?)(?:\(|$)', annotation)]
+            annotations_cleaned = [match for annotation in self.annotations for match in re.findall(r"@(.*?)(?:\(|$)", annotation)]
 
             param_type_list = [val.type for val in self.parameters]
             # check the param types against known servlet param types
-            if any(substring in string for substring in param_type_list for string in
-                   constants.ENTRY_POINT_METHOD_SERVLET_PARAM_TYPES):
+            if any(substring in string for substring in param_type_list for string in constants.ENTRY_POINT_METHOD_SERVLET_PARAM_TYPES):
                 # check if this method is over-riding (only methods that override doGet / doPost etc. will be flagged as first level entry points)
-                if 'Override' in annotations_cleaned:
+                if "Override" in annotations_cleaned:
                     self.is_entry_point = True
                     return self
 
             # now check the cleaned annotations against known javax ws annotations
-            if any(substring in string for substring in annotations_cleaned for string in
-                   constants.ENTRY_POINT_METHOD_JAVAX_WS_ANNOTATIONS):
+            if any(substring in string for substring in annotations_cleaned for string in constants.ENTRY_POINT_METHOD_JAVAX_WS_ANNOTATIONS):
                 self.is_entry_point = True
                 return self
 
             # check the cleaned annotations against known spring rest method annotations
-            if any(substring in string for substring in annotations_cleaned for string in
-                   constants.ENTRY_POINT_METHOD_SPRING_ANNOTATIONS):
+            if any(substring in string for substring in annotations_cleaned for string in constants.ENTRY_POINT_METHOD_SPRING_ANNOTATIONS):
                 self.is_entry_point = True
                 return self
         return self
 
 
 class JType(BaseModel):
-    
-    """ Represents a Java class or interface.
+    """Represents a Java class or interface.
 
     Attributes:
         is_interface (bool): A flag indicating whether the object is an interface.
@@ -265,16 +260,13 @@ class JType(BaseModel):
     def check_concrete_entry_point(self):
         """Detects if the class is entry point based on its properties."""
         if self.is_concrete_class:
-            if any(substring in string for substring in (self.extends_list + self.implements_list)
-                   for string in constants.ENTRY_POINT_SERVLET_CLASSES):
+            if any(substring in string for substring in (self.extends_list + self.implements_list) for string in constants.ENTRY_POINT_SERVLET_CLASSES):
                 self.is_entry_point = True
                 return self
         # Handle spring classes
         # clean annotations - take out @ and any paranehesis along with info in them.
-        annotations_cleaned = [match for annotation in self.annotations for match in
-                               re.findall(r'@(.*?)(?:\(|$)', annotation)]
-        if any(substring in string for substring in annotations_cleaned
-               for string in constants.ENTRY_POINT_CLASS_SPRING_ANNOTATIONS):
+        annotations_cleaned = [match for annotation in self.annotations for match in re.findall(r"@(.*?)(?:\(|$)", annotation)]
+        if any(substring in string for substring in annotations_cleaned for string in constants.ENTRY_POINT_CLASS_SPRING_ANNOTATIONS):
             self.is_entry_point = True
             return self
         # context_concrete.reset()
@@ -282,7 +274,7 @@ class JType(BaseModel):
 
 
 class JCompilationUnit(BaseModel):
-    """ Represents a compilation unit in Java.
+    """Represents a compilation unit in Java.
 
     Attributes:
         comment (str): A comment associated with the compilation unit.
@@ -297,13 +289,14 @@ class JCompilationUnit(BaseModel):
 
 
 class JMethodDetail(BaseModel):
-    """ Represents details about a method in a Java class.
+    """Represents details about a method in a Java class.
 
     Attributes:
         method_declaration (str): The declaration string of the method.
         klass (str): The name of the class containing the method. 'class' is a reserved keyword in Python.
         method (JCallable): An instance of JCallable representing the callable details of the method.
     """
+
     method_declaration: str
     # class is a reserved keyword in python. we'll use klass.
     klass: str
@@ -317,7 +310,7 @@ class JMethodDetail(BaseModel):
 
 
 class JGraphEdgesST(BaseModel):
-    """ Represents an edge in a graph structure for method dependencies.
+    """Represents an edge in a graph structure for method dependencies.
 
     Attributes:
         source (JMethodDetail): The source method of the edge.
@@ -327,6 +320,7 @@ class JGraphEdgesST(BaseModel):
         source_kind (Optional[str]): The kind of the source method. Default is None.
         destination_kind (Optional[str]): The kind of the target method. Default is None.
     """
+
     source: JMethodDetail
     target: JMethodDetail
     type: str
@@ -336,16 +330,6 @@ class JGraphEdgesST(BaseModel):
 
 
 class JGraphEdges(BaseModel):
-    """ Represents an edge in a graph structure for method dependencies.
-
-    Attributes:
-        source (JMethodDetail): The source method of the edge.
-        target (JMethodDetail): The target method of the edge.
-        type (str): The type of the edge.
-        weight (str): The weight of the edge, indicating the strength or significance of the connection.
-        source_kind (Optional[str]): The kind of the source method. Default is None.
-        destination_kind (Optional[str]): The kind of the target method. Default is None.
-    """
     source: JMethodDetail
     target: JMethodDetail
     type: str
@@ -356,19 +340,18 @@ class JGraphEdges(BaseModel):
     @field_validator("source", "target", mode="before")
     @classmethod
     def validate_source(cls, value) -> JMethodDetail:
-        """ Validates the source and target methods by parsing the input JSON string.
-
-        Args:
-            value (str): A JSON string containing details about the method.
-
-        Returns:
-            JMethodDetail: An instance of JMethodDetail representing the method details.
-        """       
-        
-        callable_dict = json.loads(value)
-        j_callable = JCallable(**json.loads(callable_dict["callable"]))  # parse the value which is a quoted string
-        class_name = callable_dict["class_interface_declarations"]
-        method_decl = j_callable.declaration
+        if isinstance(value, str):
+            callable_dict = json.loads(value)
+            j_callable = JCallable(**json.loads(callable_dict["callable"]))  # parse the value which is a quoted string
+            class_name = callable_dict["class_interface_declarations"]
+            method_decl = j_callable.declaration
+        elif isinstance(value, dict):
+            file_path, type_declaration, callable_declaration = value["file_path"], value["type_declaration"], value["callable_declaration"]
+            j_callable = _CALLABLES_LOOKUP_TABLE.get((file_path, type_declaration, callable_declaration), None)
+            if j_callable is None:
+                raise ValueError(f"Callable not found in lookup table: {file_path}, {type_declaration}, {callable_declaration}")
+            class_name = type_declaration
+            method_decl = j_callable.declaration
         mc = JMethodDetail(method_declaration=method_decl, klass=class_name, method=j_callable)
         return mc
 
@@ -377,11 +360,27 @@ class JGraphEdges(BaseModel):
 
 
 class JApplication(BaseModel):
-    """Represents a Java application.
-
-    Attributes:
-        symbol_table (Dict[str, JCompilationUnit]): The symbol table representation containing compilation units.
-        system_dependency_graph (List[JGraphEdges], optional): The edges of the system dependency graph. Defaults to None.
     """
+    Represents a Java application.
+
+    Parameters
+    ----------
+    symbol_table : List[JCompilationUnit]
+        The symbol table representation
+    system_dependency : List[JGraphEdges]
+        The edges of the system dependency graph. Default None.
+    """
+
     symbol_table: Dict[str, JCompilationUnit]
     system_dependency_graph: List[JGraphEdges] = None
+
+    @field_validator("symbol_table", mode="after")
+    @classmethod
+    def validate_source(cls, symbol_table):
+        from ipdb import set_trace
+
+        # Populate the lookup table for callables
+        for file_path, j_compulation_unit in symbol_table.items():
+            for type_declaration, jtype in j_compulation_unit.type_declarations.items():
+                for callable_declaration, j_callable in jtype.callable_declarations.items():
+                    _CALLABLES_LOOKUP_TABLE[(file_path, type_declaration, callable_declaration)] = j_callable
