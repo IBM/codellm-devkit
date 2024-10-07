@@ -8,7 +8,6 @@ from pydantic import BaseModel, field_validator, model_validator
 
 constants = ConstantsNamespace()
 context_concrete_class = ContextVar("context_concrete_class")  # context var to store class concreteness
-_CALLABLES_LOOKUP_TABLE = dict()
 
 
 class JField(BaseModel):
@@ -345,7 +344,6 @@ class JGraphEdges(BaseModel):
         j_callable = JCallable(**json.loads(callable_dict["callable"]))  # parse the value which is a quoted string
         class_name = callable_dict["class_interface_declarations"]
         method_decl = j_callable.declaration
-
         mc = JMethodDetail(method_declaration=method_decl, klass=class_name, method=j_callable)
         return mc
 
