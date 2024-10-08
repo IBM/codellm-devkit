@@ -36,8 +36,6 @@ class PyMethod(BaseModel):
     class_signature: str
     start_line: int
     end_line: int
-    # incoming_calls: Optional[List["PyMethod"]] = None
-    # outgoing_calls: Optional[List["PyMethod"]] = None
 
 
 class PyClass(BaseModel):
@@ -54,7 +52,7 @@ class PyModule(BaseModel):
     functions: List[PyMethod]
     classes: List[PyClass]
     imports: List[PyImport]
-    #expressions: str
+    # expressions: str
 
 
 class PyBuildAttributes(BaseModel):
