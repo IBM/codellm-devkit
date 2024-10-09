@@ -1,6 +1,6 @@
 # CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs
 
-![image](https://github.com/IBM/codellm-devkit/docs/assets/cldk.png)
+![codellm-devkit logo](https://github.com/IBM/codellm-devkit/blob/main/docs/assets/cldk.png?raw=true)
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
