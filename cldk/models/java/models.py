@@ -1,13 +1,13 @@
-import json
 import re
-from typing import Dict, List, Optional
-from pydantic import BaseModel, field_validator, model_validator
+import json
+from ipdb import set_trace
 from contextvars import ContextVar
+from typing import Dict, List, Optional
 from .constants_namespace import ConstantsNamespace
+from pydantic import BaseModel, field_validator, model_validator
 
 constants = ConstantsNamespace()
 context_concrete_class = ContextVar("context_concrete_class")  # context var to store class concreteness
-_CALLABLES_LOOKUP_TABLE = dict()
 
 
 class JField(BaseModel):
@@ -340,18 +340,10 @@ class JGraphEdges(BaseModel):
     @field_validator("source", "target", mode="before")
     @classmethod
     def validate_source(cls, value) -> JMethodDetail:
-        if isinstance(value, str):
-            callable_dict = json.loads(value)
-            j_callable = JCallable(**json.loads(callable_dict["callable"]))  # parse the value which is a quoted string
-            class_name = callable_dict["class_interface_declarations"]
-            method_decl = j_callable.declaration
-        elif isinstance(value, dict):
-            file_path, type_declaration, callable_declaration = value["file_path"], value["type_declaration"], value["callable_declaration"]
-            j_callable = _CALLABLES_LOOKUP_TABLE.get((file_path, type_declaration, callable_declaration), None)
-            if j_callable is None:
-                raise ValueError(f"Callable not found in lookup table: {file_path}, {type_declaration}, {callable_declaration}")
-            class_name = type_declaration
-            method_decl = j_callable.declaration
+        callable_dict = json.loads(value)
+        j_callable = JCallable(**json.loads(callable_dict["callable"]))  # parse the value which is a quoted string
+        class_name = callable_dict["class_interface_declarations"]
+        method_decl = j_callable.declaration
         mc = JMethodDetail(method_declaration=method_decl, klass=class_name, method=j_callable)
         return mc
 
@@ -373,14 +365,3 @@ class JApplication(BaseModel):
 
     symbol_table: Dict[str, JCompilationUnit]
     system_dependency_graph: List[JGraphEdges] = None
-
-    @field_validator("symbol_table", mode="after")
-    @classmethod
-    def validate_source(cls, symbol_table):
-        from ipdb import set_trace
-
-        # Populate the lookup table for callables
-        for file_path, j_compulation_unit in symbol_table.items():
-            for type_declaration, jtype in j_compulation_unit.type_declarations.items():
-                for callable_declaration, j_callable in jtype.callable_declarations.items():
-                    _CALLABLES_LOOKUP_TABLE[(file_path, type_declaration, callable_declaration)] = j_callable
