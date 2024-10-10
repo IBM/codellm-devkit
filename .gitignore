@@ -45,3 +45,6 @@ __pycache__/
 *.py[cod]
 .python-version
 .venv/
+
+# Build files
+dist/
