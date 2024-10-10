@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cldk"
-version = "0.1.1"
+version = "0.2.0"
 description = "codellm-devkit: A python library for seamless integration with LLMs."
 authors = ["Rahul Krishna <i.m.ralk@gmail.com>", "Rangeet Pan <rangeet.pan@ibm.com>", "Saurabh Sinhas <sinhas@us.ibm.com>",
             "Raju Pavuluri <pavuluri@us.ibm.com>"]
@@ -64,5 +64,5 @@ line-length = 180
 
 [tool.cldk.testing]
 sample-application = "tests/resources/java/application/"
-sample-application-analysis-json = "tests/resources/java/analysis_db"
+sample-application-analysis-json = "tests/resources/java/analysis_json/slim"
 codeanalyzer-jar-path = "tests/resources/java/codeanalyzer/build/libs/"
