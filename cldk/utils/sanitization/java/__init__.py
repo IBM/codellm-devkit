@@ -17,3 +17,7 @@
 """
 Java package
 """
+
+from .treesitter_sanitizer import TreesitterSanitizer
+
+__all__ = ["TreesitterSanitizer"]

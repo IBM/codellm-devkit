@@ -27,7 +27,7 @@ from cldk.analysis import AnalysisLevel
 from cldk.analysis.java import JavaAnalysis
 from cldk.analysis.java.treesitter import JavaSitter
 from cldk.utils.exceptions import CldkInitializationException
-from cldk.utils.sanitization.java.TreesitterSanitizer import TreesitterSanitizer
+from cldk.utils.sanitization.java import TreesitterSanitizer
 
 logger = logging.getLogger(__name__)
 

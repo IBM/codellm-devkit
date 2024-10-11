@@ -18,12 +18,12 @@
 Treesitter Sanitizer module
 """
 
+import logging
 from copy import deepcopy
 from typing import Dict, List, Set
 
 from cldk.analysis.java.treesitter import JavaSitter
 from cldk.models.treesitter import Captures
-import logging
 
 log = logging.getLogger(__name__)
 
