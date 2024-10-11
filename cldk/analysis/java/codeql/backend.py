@@ -1,3 +1,23 @@
+################################################################################
+# Copyright IBM Corporation 2024
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+"""
+Backend module
+"""
+
 import subprocess
 import tempfile
 from pathlib import Path
@@ -107,7 +127,7 @@ class CodeQLQueryRunner:
         self.temp_file_path.write_text(query_string)
 
         # Construct and execute the CodeQL CLI command asking for a JSON output.
-        codeql_query_cmd = shlex.split(f"codeql query run {self.temp_file_path} --database={self.database_path} --output={self.temp_bqrs_file_path}",posix=False)
+        codeql_query_cmd = shlex.split(f"codeql query run {self.temp_file_path} --database={self.database_path} --output={self.temp_bqrs_file_path}", posix=False)
 
         call = subprocess.Popen(codeql_query_cmd, stdout=None, stderr=None)
         _, err = call.communicate()
@@ -115,7 +135,7 @@ class CodeQLQueryRunner:
             raise CodeQLQueryExecutionException(f"Error executing query: {err.stderr}")
 
         # Convert the bqrs file to a CSV file
-        bqrs2csv_command = shlex.split(f"codeql bqrs decode --format=csv --output={self.csv_output_file} {self.temp_bqrs_file_path}",posix=False)
+        bqrs2csv_command = shlex.split(f"codeql bqrs decode --format=csv --output={self.csv_output_file} {self.temp_bqrs_file_path}", posix=False)
 
         # Read the CSV file content and cast it to a DataFrame
 
