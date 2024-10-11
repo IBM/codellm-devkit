@@ -38,7 +38,7 @@ jobs:
 
       - name: Inject the latest Code Analyzer JAR
         run: |
-          CODE_ANALYZER_URL=$(curl -s https://api.github.com/repos/IBM/codenet-minerva-code-analyzer/releases/latest | grep "browser_download_url" | grep codeanalyzer.jar | cut -d '"' -f 4)
+          CODE_ANALYZER_URL=$(curl -s https://api.github.com/repos/IBM/codenet-minerva-code-analyzer/releases/latest | jq -r '.assets[] | .browser_download_url')
           echo "Downloading: " $CODE_ANALYZER_URL
           wget -q $CODE_ANALYZER_URL
           echo "Moving codeanalyzer.jar to:" ${{ github.workspace }}/cldk/analysis/java/codeanalyzer/jar/codeanalyzer.jar
