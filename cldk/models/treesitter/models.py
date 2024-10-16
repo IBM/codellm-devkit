@@ -19,8 +19,8 @@ Models module
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
-from ipdb import set_trace
+from typing import Dict, List
+
 from tree_sitter import Node
 
 
