@@ -18,11 +18,12 @@
 JavaSitter module
 """
 
-from ipdb import set_trace
 from itertools import groupby
 from typing import List, Set, Dict
 from tree_sitter import Language, Node, Parser, Query, Tree
 import tree_sitter_java as tsjava
+from tree_sitter import Language, Node, Parser, Query
+
 from cldk.models.treesitter import Captures
 
 
