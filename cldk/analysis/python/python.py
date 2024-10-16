@@ -78,6 +78,17 @@ class PythonAnalysis(SymbolTable):
         """
         return PythonSitter.is_parsable(self, source_code)
 
+    def get_raw_ast(self, source_code: str) -> str:
+        """
+        Get the raw AST
+        Args:
+            code: source code
+
+        Returns:
+            Tree: the raw AST
+        """
+        return PythonSitter.get_raw_ast(self, source_code)
+
     def get_imports(self) ->  List[PyImport]:
         """
         Given an application or a source code, get all the imports

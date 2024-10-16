@@ -146,14 +146,25 @@ class JavaAnalysis(SymbolTable, CallGraph):
 
     def is_parsable(self, source_code: str) -> bool:
         """
-                Check if the code is parsable
-                Args:
-                    source_code: source code
+        Check if the code is parsable
+        Args:
+            source_code: source code
 
-                Returns:
-                    True if the code is parsable, False otherwise
+        Returns:
+            True if the code is parsable, False otherwise
         """
         return JavaSitter.is_parsable(self, source_code)
+
+    def get_raw_ast(self, source_code: str) -> str:
+        """
+        Get the raw AST
+        Args:
+            code: source code
+
+        Returns:
+            Tree: the raw AST
+        """
+        return JavaSitter.get_raw_ast(self, source_code)
 
     def get_call_graph(self) -> DiGraph:
         """

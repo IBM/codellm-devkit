@@ -3,9 +3,8 @@ import os
 from pathlib import Path
 from typing import List
 
-from tree_sitter import Language, Parser, Query, Node
+from tree_sitter import Language, Parser, Query, Node, Tree
 import tree_sitter_python as tspython
-
 from cldk.models.python.models import PyMethod, PyClass, PyArg, PyImport, PyModule, PyCallSite
 from cldk.models.treesitter import Captures
 from cldk.utils.treesitter.tree_sitter_utils import TreeSitterUtils
@@ -47,6 +46,17 @@ class PythonSitter:
         if tree is not None:
             return not syntax_error(tree.root_node)
         return False
+
+    def get_raw_ast(self, code: str) -> Tree:
+        """
+        Get the raw AST
+        Args:
+            code: source code
+
+        Returns:
+            Tree: the raw AST
+        """
+        return self.parser.parse(bytes(code, "utf-8"))
 
     def get_all_methods(self, module: str) -> List[PyMethod]:
         """
