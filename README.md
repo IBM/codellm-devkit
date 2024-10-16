@@ -1,7 +1,11 @@
 # CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs
 
-![image](./docs/assets/cldk.png)
+![codellm-devkit logo](https://github.com/IBM/codellm-devkit/blob/main/docs/assets/cldk.png?raw=true)
+
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Documentation](https://img.shields.io/badge/GitHub%20Pages-Docs-blue)](https://ibm.github.io/codellm-devkit/)
+[![PyPI version](https://badge.fury.io/py/cldk.svg)](https://badge.fury.io/py/cldk)
 
 Codellm-devkit (CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). Codellm-devkit allows developers to streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.
 
@@ -43,6 +47,7 @@ For any questions, feedback, or suggestions, please contact the authors:
       - [Pull the latest version of Granite 8b instruct model from ollama](#pull-the-latest-version-of-granite-8b-instruct-model-from-ollama)
     - [Step 2:  Install CLDK](#step-2--install-cldk)
     - [Step 3:  Build a code summarization pipeline](#step-3--build-a-code-summarization-pipeline)
+    - [Publication (papers and blogs related to CLDK)](#publication-papers-and-blogs-related-to-cldk)
 
 ## Architectural and Design Overview
 
@@ -80,13 +85,11 @@ Each language comprises of two key components: data models and backends.
 
 1. **Data Models:** These are high level abstractions that represent the various language constructs and componentes in a structured format using pydantic. This confers a high degree of flexibility and extensibility to the models as well as allowing for easy accees of various data components via a simple dot notation. In addition, the data models are designed to be easily serializable and deserializable, making it easy to store and retrieve data from various sources.
 
-
 2. **Analysis Backends:** These are the components that are responsible for interfacing with the various program analysis tools. The core backends are Treesitter, Javaparse, WALA, LLVM, and CodeQL. The backends are responsible for handling the user requests and delegating them to the appropriate analysis tools. The analysis tools perfrom the requisite analysis and return the results to the user. The user merely calls one of several high-level API functions such as `get_method_body`, `get_method_signature`, `get_call_graph`, etc. and the backend takes care of the rest. 
 
     Some langugages may have multiple backends. For example, Java has WALA, Javaparser, Treesitter, and CodeQL backends. The user has freedom to choose the backend that best suits their needs. 
 
 We are currently working on implementing the retrieval and prompting components. The retrieval component will be responsible for retrieving the relevant code snippets from the codebase for RAG usecases. The prompting component will be responsible for generating the prompts for the CodeLLMs using popular prompting frameworks such as `PDL`, `Guidance`, or `LMQL`.  
-
 
 ## Quick Start: Example Walkthrough
 
@@ -101,7 +104,6 @@ Before we begin, make sure you have the following prerequisites installed:
 
   * Python 3.11 or later
   * Ollama v0.3.4 or later
-
 
 ### Step 1:  Set up an Ollama server
 
@@ -161,10 +163,10 @@ def say_hello():
 
 ### Step 2:  Install CLDK
 
-You may install the latest version of CLDK from our GitHub repository:
+You may install the latest version of CLDK from [PyPi](https://pypi.org/project/cldk/):
 
 ```python
-pip install git+https://github.com/IBM/codellm-devkit.git
+pip install cldk
 ```
 
 Once CLDK is installed, you can import it into your Python code:
@@ -187,7 +189,6 @@ Now that we have set up the ollama server and installed CLDK, we can build a sim
         ```bash
         export JAVA_APP_PATH=/path/to/commons-cli-1.7.0 
       ```
-
 
 Below is a simple code summarization pipeline for a Java application using CLDK. It does the following things:
 

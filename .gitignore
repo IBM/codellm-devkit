@@ -37,9 +37,7 @@ scratch*
 
 # log file
 *.json
-
-# Lock file
-*.lock
+!devcontainer.json
 
 
 # Python compiled files and env
@@ -47,3 +45,6 @@ __pycache__/
 *.py[cod]
 .python-version
 .venv/
+
+# Build files
+dist/

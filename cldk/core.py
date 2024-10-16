@@ -1,3 +1,23 @@
+################################################################################
+# Copyright IBM Corporation 2024
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+"""
+Core module
+"""
+
 from pathlib import Path
 
 import logging
@@ -7,7 +27,7 @@ from cldk.analysis import AnalysisLevel
 from cldk.analysis.java import JavaAnalysis
 from cldk.analysis.java.treesitter import JavaSitter
 from cldk.utils.exceptions import CldkInitializationException
-from cldk.utils.sanitization.java.TreesitterSanitizer import TreesitterSanitizer
+from cldk.utils.sanitization.java import TreesitterSanitizer
 
 logger = logging.getLogger(__name__)
 
@@ -31,16 +51,16 @@ class CLDK:
         self.language: str = language
 
     def analysis(
-            self,
-            project_path: str | Path | None = None,
-            source_code: str | None = None,
-            eager: bool = False,
-            analysis_backend: str | None = "codeanalyzer",
-            analysis_level: str = AnalysisLevel.symbol_table,
-            target_files: List[str] | None = None,
-            analysis_backend_path: str | None = None,
-            analysis_json_path: str | Path = None,
-            use_graalvm_binary: bool = False,
+        self,
+        project_path: str | Path | None = None,
+        source_code: str | None = None,
+        eager: bool = False,
+        analysis_backend: str | None = "codeanalyzer",
+        analysis_level: str = AnalysisLevel.symbol_table,
+        target_files: List[str] | None = None,
+        analysis_backend_path: str | None = None,
+        analysis_json_path: str | Path = None,
+        use_graalvm_binary: bool = False,
     ) -> JavaAnalysis:
         """
         Initialize the preprocessor based on the specified language and analysis_backend.
@@ -94,8 +114,7 @@ class CLDK:
             raise CldkInitializationException("Either project_path or source_code must be provided.")
 
         if project_path is not None and source_code is not None:
-            raise CldkInitializationException(
-                "Both project_path and source_code are provided. Please provide " "only one.")
+            raise CldkInitializationException("Both project_path and source_code are provided. Please provide " "only one.")
 
         if self.language == "java":
             return JavaAnalysis(

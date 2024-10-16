@@ -1,3 +1,23 @@
+################################################################################
+# Copyright IBM Corporation 2024
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+"""
+PythonSitter module
+"""
+
 import glob
 import os
 from pathlib import Path
@@ -107,8 +127,9 @@ class PythonSitter:
             method_details = self.__get_function_details(node=method_node.node)
             if method_details.full_signature not in method_signatures:
                 functions.append(method_details)
-            elif method_signatures[method_details.full_signature][0] != method_details.start_line \
-                    and method_signatures[method_details.full_signature][1] != method_details.end_line:
+            elif (
+                method_signatures[method_details.full_signature][0] != method_details.start_line and method_signatures[method_details.full_signature][1] != method_details.end_line
+            ):
                 functions.append(method_details)
         return functions
 
@@ -142,8 +163,7 @@ class PythonSitter:
             List[str]: List of imports
         """
         import_list = []
-        captures_from_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_from_statement) @imports))",
-                                                                               module)
+        captures_from_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_from_statement) @imports))", module)
         captures_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_statement) @imports))", module)
         for capture in captures_import:
             import_list.append(capture.node.text.decode())
@@ -152,10 +172,9 @@ class PythonSitter:
         return import_list
 
     def get_module_details(self, module: str) -> PyModule:
-        return PyModule(functions=self.get_all_functions(module=module),
-                        classes=self.get_all_classes(module=module),
-                        imports=self.get_all_imports_details(module=module),
-                        qualified_name='')
+        return PyModule(
+            functions=self.get_all_functions(module=module), classes=self.get_all_classes(module=module), imports=self.get_all_imports_details(module=module), qualified_name=""
+        )
 
     def get_all_imports_details(self, module: str) -> List[PyImport]:
         """
@@ -169,8 +188,7 @@ class PythonSitter:
             List[PyImport]: List of imports
         """
         import_list = []
-        captures_from_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_from_statement) @imports))",
-                                                                               module)
+        captures_from_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_from_statement) @imports))", module)
         captures_import: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((import_statement) @imports))", module)
         for capture in captures_import:
             imports = []
@@ -205,8 +223,7 @@ class PythonSitter:
             List[PyClass]: returns details of all classes in it
         """
         classes: List[PyClass] = []
-        all_class_details: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((class_definition) @class_name))",
-                                                                            module)
+        all_class_details: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((class_definition) @class_name))", module)
         for class_name in all_class_details:
             code_body = class_name.node.text.decode()
             class_full_signature = ""  # TODO: what to fill here
@@ -217,7 +234,7 @@ class PythonSitter:
             for child in class_name.node.children:
                 if child.type == "argument_list":
                     for arg in child.children:
-                        if 'unittest' in arg.text.decode() or 'TestCase' in arg.text.decode():
+                        if "unittest" in arg.text.decode() or "TestCase" in arg.text.decode():
                             is_test_class = True
                         super_classes.append(arg.text.decode())
                 if child.type == "block":
@@ -230,12 +247,9 @@ class PythonSitter:
                                 if decorated_def.type == "function_definition":
                                     method = self.__get_function_details(node=decorated_def, klass_name=klass_name)
                                     methods.append(method)
-            classes.append(PyClass(code_body=code_body,
-                                   full_signature=class_full_signature,
-                                   methods=methods,
-                                   super_classes=super_classes,
-                                   class_name=klass_name,
-                                   is_test_class=is_test_class))
+            classes.append(
+                PyClass(code_body=code_body, full_signature=class_full_signature, methods=methods, super_classes=super_classes, class_name=klass_name, is_test_class=is_test_class)
+            )
         return classes
 
     def get_all_modules(self, application_dir: Path) -> List[PyModule]:
@@ -250,26 +264,22 @@ class PythonSitter:
             List[PyModule]: returns a list of modules
         """
         modules: List[PyModule] = []
-        path_list = [os.path.join(dirpath, filename) for dirpath, _, filenames in os.walk(application_dir) for filename in filenames
-                     if filename.endswith('.py')]
+        path_list = [os.path.join(dirpath, filename) for dirpath, _, filenames in os.walk(application_dir) for filename in filenames if filename.endswith(".py")]
         for p in path_list:
             modules.append(self.__get_module(path=p))
         return modules
 
     def __get_module(self, path: Path):
         module_qualified_path = os.path.join(path)
-        module_qualified_name = str(module_qualified_path).replace(os.sep, '.')
-        with open(module_qualified_path, 'r') as file:
+        module_qualified_name = str(module_qualified_path).replace(os.sep, ".")
+        with open(module_qualified_path, "r") as file:
             py_module = self.get_module_details(module=file.read())
             qualified_name: str
             methods: List[PyMethod]
             functions: List[PyMethod]
             classes: List[PyClass]
             imports: List[PyImport]
-            return PyModule(qualified_name=module_qualified_name,
-                                    imports=py_module.imports,
-                                    functions=py_module.functions,
-                                    classes=py_module.classes)
+            return PyModule(qualified_name=module_qualified_name, imports=py_module.imports, functions=py_module.functions, classes=py_module.classes)
         return None
 
     @staticmethod
@@ -293,19 +303,21 @@ class PythonSitter:
             declaring_object = call_node.children[0].children[0].text.decode()
             arguments: List[str] = []
             for arg in call_node.children[1].children:
-                if arg.type not in ['(', ')', ',']:
+                if arg.type not in ["(", ")", ","]:
                     arguments.append(arg.text.decode())
         except Exception:
-            method_name = ''
-            declaring_object = ''
+            method_name = ""
+            declaring_object = ""
             arguments = []
-        return PyCallSite(method_name=method_name,
-                          declaring_object=declaring_object,
-                          arguments=arguments,
-                          start_line=start_line,
-                          start_column=start_column,
-                          end_line=end_line,
-                          end_column=end_column)
+        return PyCallSite(
+            method_name=method_name,
+            declaring_object=declaring_object,
+            arguments=arguments,
+            start_line=start_line,
+            start_column=start_column,
+            end_line=end_line,
+            end_column=end_column,
+        )
 
     def __get_function_details(self, node: Node, klass_name: str = "") -> PyMethod:
         code_body: str = node.text.decode()
@@ -353,8 +365,7 @@ class PythonSitter:
                     if parameter.type == "identifier":
                         formal_param = PyArg(arg_name=parameter.text.decode(), arg_type="")
                     elif parameter.type == "typed_parameter":
-                        formal_param = PyArg(arg_name=parameter.children[0].text.decode(),
-                                             arg_type=parameter.children[2].text.decode())
+                        formal_param = PyArg(arg_name=parameter.children[0].text.decode(), arg_type=parameter.children[2].text.decode())
                     elif parameter.type == "dictionary_splat_pattern":
                         formal_param = PyArg(arg_name=parameter.text.decode(), arg_type="")
                     if formal_param is not None:
@@ -374,11 +385,9 @@ class PythonSitter:
             end_line=end_line,
             is_static=is_static,
             is_constructor=is_constructor,
-            call_sites=call_sites
+            call_sites=call_sites,
         )
         return function
-
-
 
     def __get_class_nodes(self, module: str) -> Captures:
         captures: Captures = self.utils.frame_query_and_capture_output(self.parser, self.language, "(((class_definition) @class_name))", module)
