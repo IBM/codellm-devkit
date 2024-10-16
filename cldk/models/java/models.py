@@ -18,11 +18,12 @@
 Models module
 """
 
-import json
 import re
-from typing import Dict, List, Optional
-from pydantic import BaseModel, field_validator, model_validator
 from contextvars import ContextVar
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, field_validator, model_validator
+
 from .constants_namespace import ConstantsNamespace
 
 constants = ConstantsNamespace()
@@ -390,7 +391,6 @@ class JApplication(BaseModel):
     @field_validator("symbol_table", mode="after")
     @classmethod
     def validate_source(cls, symbol_table):
-        from ipdb import set_trace
 
         # Populate the lookup table for callables
         for file_path, j_compulation_unit in symbol_table.items():
