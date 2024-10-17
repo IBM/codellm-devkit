@@ -48,6 +48,7 @@ class Captures:
         name: str
 
     def __init__(self, captures: Dict[str, List[Node]]):
+        self.captures = []
         for capture_name, captures in captures.items():
             self.captures = [self.Capture(node=node, name=capture_name) for node in captures]
 
