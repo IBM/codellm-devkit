@@ -39,7 +39,7 @@ class JsParameter(BaseModel):
     name: str
     default_value: Optional[str] = None
     is_rest: bool = False
-    # type: Optional[str] - might be able to extract from JsDoc
+    # type Optional[str] - might be able to extract from JsDoc
 
 
 class JsCallable(BaseModel):

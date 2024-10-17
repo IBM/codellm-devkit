@@ -2,8 +2,8 @@ from typing import List
 
 from unittest import TestCase
 
-from cldk.treesitter.javascript import JavascriptSitter
-from cldkmodels.javascript.models import JsCallable
+from cldk.analysis.javascript.treesitter import JavascriptSitter
+from cldk.models.javascript.models import JsCallable
 
 
 class TestJavascriptTreeSitter(TestCase):

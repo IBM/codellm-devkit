@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from cldk.treesitter.c import CSitter
+from cldk.analysis.c.treesitter import CSitter
 
 
 class TestCTreeSitter(TestCase):

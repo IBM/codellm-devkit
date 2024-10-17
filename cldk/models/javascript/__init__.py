@@ -17,3 +17,7 @@
 """
 JavaScript package
 """
+
+from .models import JsParameter, JsCallable, JsClass, JsProgram
+
+__all__ = ["JsParameter", "JsCallable", "JsClass", "JsProgram"]
