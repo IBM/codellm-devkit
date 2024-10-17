@@ -59,10 +59,55 @@ mkdocstrings = "0.26.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-line-length = 180
+########################################
+# Tool configurations
+########################################
 
 [tool.cldk.testing]
 sample-application = "tests/resources/java/application/"
 sample-application-analysis-json = "tests/resources/java/analysis_json/slim"
 codeanalyzer-jar-path = "tests/resources/java/codeanalyzer/build/libs/"
+
+[tool.flake8]
+max-line-length = 180
+count = true
+
+[tool.black]
+line-length = 180
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = "no-member,protected-access,global-statement"
+
+[tool.pylint.FORMAT]
+max-line-length = 180
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--pspec --cov=cldk --cov-fail-under=50"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["cldk"]
+omit = [
+    "venv/*",
+    ".venv/*"
+]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "pragma: no branch",
+    "pass",
+    "subprocess.CalledProcessError",
+    "sys.exit",
+    "if __name__ == .__main__.:"
+]
+ignore_errors = true
+
+[tool.coverage.xml]
+output="./coverage.xml"
+
+[tool.coverage.html]
+title = "Test Coverage Report"
+directory = "coverage_html_report"
