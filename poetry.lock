@@ -2917,21 +2917,23 @@ tree-sitter = "*"
 
 [[package]]
 name = "tree-sitter-python"
-version = "0.21.0"
+version = "0.23.2"
 description = "Python grammar for tree-sitter"
 optional = false
-python-versions = ">=3.8"
-files = []
-develop = false
+python-versions = ">=3.9"
+files = [
+    {file = "tree_sitter_python-0.23.2-cp39-abi3-macosx_10_9_x86_64.whl", hash = "sha256:64d733c029db4356aeecd4b2160e793066490f07a9ce549b53aa8100d49d6083"},
+    {file = "tree_sitter_python-0.23.2-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:c7a75736b0b8704c7e1eb7edeff8c8d1dc17832de76a65ae375fd59c01b2fc84"},
+    {file = "tree_sitter_python-0.23.2-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ba8ddaf42ad390bda21c25f243b60f906a4c681b450400f689481f0e2b914028"},
+    {file = "tree_sitter_python-0.23.2-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fc14405a4e83c110939aafdf21b0c7814a1534e2e6a22599bc2f6b44abc72fdd"},
+    {file = "tree_sitter_python-0.23.2-cp39-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:d09c4d6074825c707414bc10c1e90dc5764281cc080bfb7a0ab7c04d0610dbca"},
+    {file = "tree_sitter_python-0.23.2-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:3ee327eaa85b61ea34f878c46fd55a8b1bcbc21d9683782b4f2e7ae9bb23ea51"},
+    {file = "tree_sitter_python-0.23.2-cp39-abi3-win_amd64.whl", hash = "sha256:a427c3e5b107febd9f0bfc8df4d91854bda110192d50d741d135f6d37b28fcbd"},
+    {file = "tree_sitter_python-0.23.2.tar.gz", hash = "sha256:da6abb90a8061d70651f170403e19aed1db4e6e5bcf4b9396245421899c94070"},
+]
 
 [package.extras]
 core = ["tree-sitter (>=0.21,<1.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/tree-sitter/tree-sitter-python"
-reference = "0f9047c"
-resolved_reference = "0f9047c857ed0990931b1f899c7d3bf403703147"
 
 [[package]]
 name = "types-python-dateutil"
@@ -3116,4 +3118,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11"
-content-hash = "8f056aa49bb9d6bf82792af8c4808fc9d624c2202902cac75b6701ce51530987"
+content-hash = "c7011dd7980fbf3c6578509d31f1fe718422c7d8fd0dba0cc5c45b8de8974952"
