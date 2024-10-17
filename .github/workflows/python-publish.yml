@@ -11,11 +11,10 @@ permissions:
 env:
   PYPI_USERNAME: __token__
   PYPI_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-  CODE_ANALYZER_VERSION: "20240923T182840"
 
 jobs:
   publish:
-    name: Publish
+    name: Publish to PyPi
     runs-on: ubuntu-latest
 
     steps:
@@ -32,14 +31,16 @@ jobs:
           curl -sSL https://install.python-poetry.org | python - -y
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install package dependencies
+      - name: Install Python package dependencies
         run: |
           poetry config virtualenvs.create false
           poetry install --sync --no-interaction
 
-      - name: Get Code Analyzer
+      - name: Inject the latest Code Analyzer JAR
         run: |
-          wget -q https://github.com/IBM/codenet-minerva-code-analyzer/releases/download/$CODE_ANALYZER_VERSION/codeanalyzer.jar
+          CODE_ANALYZER_URL=$(curl -s https://api.github.com/repos/IBM/codenet-minerva-code-analyzer/releases/latest | jq -r '.assets[] | .browser_download_url')
+          echo "Downloading: " $CODE_ANALYZER_URL
+          wget -q $CODE_ANALYZER_URL
           echo "Moving codeanalyzer.jar to:" ${{ github.workspace }}/cldk/analysis/java/codeanalyzer/jar/codeanalyzer.jar
           mv codeanalyzer.jar ${{ github.workspace }}/cldk/analysis/java/codeanalyzer/jar/codeanalyzer.jar
 
