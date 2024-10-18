@@ -20,7 +20,7 @@ JavaSitter module
 
 from itertools import groupby
 from typing import List, Set, Dict
-
+from tree_sitter import Language, Node, Parser, Query, Tree
 import tree_sitter_java as tsjava
 from tree_sitter import Language, Node, Parser, Query
 
@@ -51,9 +51,48 @@ class JavaSitter:
         bool
             True if the method is in the class, False otherwise.
         """
-        methods_in_class = self.frame_query_and_capture_output("(method_declaration name: (identifier) @name)", class_body)
+        methods_in_class = self.frame_query_and_capture_output("(method_declaration name: (identifier) @name)",
+                                                               class_body)
 
         return method_name not in {method.node.text.decode() for method in methods_in_class}
+
+    def is_parsable(self, code: str) -> bool:
+        """
+        Check if the code is parsable
+        Args:
+            code: source code
+
+        Returns:
+            True if the code is parsable, False otherwise
+        """
+
+        def syntax_error(node):
+            if node.type == "ERROR":
+                return True
+            try:
+                for child in node.children:
+                    if syntax_error(child):
+                        return True
+            except RecursionError as err:
+                return True
+
+            return False
+
+        tree = self.parser.parse(bytes(code, "utf-8"))
+        if tree is not None:
+            return not syntax_error(tree.root_node)
+        return False
+
+    def get_raw_ast(self, code: str) -> Tree:
+        """
+        Get the raw AST
+        Args:
+            code: source code
+
+        Returns:
+            Tree: the raw AST
+        """
+        return self.parser.parse(bytes(code, "utf-8"))
 
     def get_all_imports(self, source_code: str) -> Set[str]:
         """Get a list of all the imports in a class.
@@ -64,7 +103,8 @@ class JavaSitter:
         Returns:
             Set[str]: A set of all the imports in the class.
         """
-        import_declerations: Captures = self.frame_query_and_capture_output(query="(import_declaration (scoped_identifier) @name)", code_to_process=source_code)
+        import_declerations: Captures = self.frame_query_and_capture_output(
+            query="(import_declaration (scoped_identifier) @name)", code_to_process=source_code)
         return {capture.node.text.decode() for capture in import_declerations}
 
     def get_pacakge_name(self, source_code: str) -> str:
@@ -76,7 +116,8 @@ class JavaSitter:
         Returns:
             str: The package name.
         """
-        package_name: Captures = self.frame_query_and_capture_output(query="((package_declaration) @name)", code_to_process=source_code)
+        package_name: Captures = self.frame_query_and_capture_output(query="((package_declaration) @name)",
+                                                                     code_to_process=source_code)
         if package_name:
             return package_name[0].node.text.decode().replace("package ", "").replace(";", "")
         return None
@@ -102,7 +143,8 @@ class JavaSitter:
         Returns:
             Set[str]: A set of all the superclasses in the class.
         """
-        superclass: Captures = self.frame_query_and_capture_output(query="(class_declaration (superclass (type_identifier) @superclass))", code_to_process=source_code)
+        superclass: Captures = self.frame_query_and_capture_output(
+            query="(class_declaration (superclass (type_identifier) @superclass))", code_to_process=source_code)
 
         if len(superclass) == 0:
             return ""
@@ -119,7 +161,9 @@ class JavaSitter:
             Set[str]: A set of all the interfaces implemented by the class.
         """
 
-        interfaces = self.frame_query_and_capture_output("(class_declaration (super_interfaces (type_list (type_identifier) @interface)))", code_to_process=source_code)
+        interfaces = self.frame_query_and_capture_output(
+            "(class_declaration (super_interfaces (type_list (type_identifier) @interface)))",
+            code_to_process=source_code)
         return {interface.node.text.decode() for interface in interfaces}
 
     def frame_query_and_capture_output(self, query: str, code_to_process: str) -> Captures:
@@ -138,7 +182,8 @@ class JavaSitter:
 
     def get_method_name_from_declaration(self, method_name_string: str) -> str:
         """Get the method name from the method signature."""
-        captures: Captures = self.frame_query_and_capture_output("(method_declaration name: (identifier) @method_name)", method_name_string)
+        captures: Captures = self.frame_query_and_capture_output("(method_declaration name: (identifier) @method_name)",
+                                                                 method_name_string)
 
         return captures[0].node.text.decode()
 
@@ -147,7 +192,8 @@ class JavaSitter:
         Using the tree-sitter query, extract the method name from the method invocation.
         """
 
-        captures: Captures = self.frame_query_and_capture_output("(method_invocation object: (identifier) @class_name name: (identifier) @method_name)", method_invocation)
+        captures: Captures = self.frame_query_and_capture_output(
+            "(method_invocation object: (identifier) @class_name name: (identifier) @method_name)", method_invocation)
         return captures[0].node.text.decode()
 
     def safe_ascend(self, node: Node, ascend_count: int) -> Node:
@@ -352,7 +398,8 @@ class JavaSitter:
             The return type of the method.
         """
 
-        type_references: Captures = self.frame_query_and_capture_output("(method_declaration type: ((type_identifier) @type_id))", source_code)
+        type_references: Captures = self.frame_query_and_capture_output(
+            "(method_declaration type: ((type_identifier) @type_id))", source_code)
 
         return type_references[0].node.text.decode()
 
@@ -379,9 +426,9 @@ class JavaSitter:
             if len(node.children) == 0:
                 if filter_by_node_type is not None:
                     if node.type in filter_by_node_type:
-                        lexical_tokens.append(code[node.start_byte : node.end_byte])
+                        lexical_tokens.append(code[node.start_byte: node.end_byte])
                 else:
-                    lexical_tokens.append(code[node.start_byte : node.end_byte])
+                    lexical_tokens.append(code[node.start_byte: node.end_byte])
             else:
                 for child in node.children:
                     collect_leaf_token_values(child)
@@ -415,9 +462,11 @@ class JavaSitter:
         pruned_source_code = self.make_pruned_code_prettier(source_code)
 
         # Remove all comment lines: the comment lines start with / (for // and /*) or * (for multiline comments).
-        comment_blocks: Captures = self.frame_query_and_capture_output(query="((block_comment) @comment_block)", code_to_process=source_code)
+        comment_blocks: Captures = self.frame_query_and_capture_output(query="((block_comment) @comment_block)",
+                                                                       code_to_process=source_code)
 
-        comment_lines: Captures = self.frame_query_and_capture_output(query="((line_comment) @comment_line)", code_to_process=source_code)
+        comment_lines: Captures = self.frame_query_and_capture_output(query="((line_comment) @comment_line)",
+                                                                      code_to_process=source_code)
 
         for capture in comment_blocks:
             pruned_source_code = pruned_source_code.replace(capture.node.text.decode(), "")
@@ -441,7 +490,8 @@ class JavaSitter:
             The prettified pruned code.
         """
         # First remove remaining block comments
-        block_comments: Captures = self.frame_query_and_capture_output(query="((block_comment) @comment_block)", code_to_process=pruned_code)
+        block_comments: Captures = self.frame_query_and_capture_output(query="((block_comment) @comment_block)",
+                                                                       code_to_process=pruned_code)
 
         for capture in block_comments:
             pruned_code = pruned_code.replace(capture.node.text.decode(), "")

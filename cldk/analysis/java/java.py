@@ -24,6 +24,7 @@ from typing import Dict, List, Tuple, Set
 from networkx import DiGraph
 
 from cldk.analysis import SymbolTable, CallGraph, AnalysisLevel
+from cldk.analysis.java.treesitter import JavaSitter
 from cldk.models.java import JCallable
 from cldk.models.java import JApplication
 from cldk.models.java.models import JCompilationUnit, JMethodDetail, JType, JField
@@ -174,6 +175,28 @@ class JavaAnalysis(SymbolTable, CallGraph):
         if self.backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
             raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
         raise NotImplementedError("Class hierarchy is not implemented yet.")
+
+    def is_parsable(self, source_code: str) -> bool:
+        """
+        Check if the code is parsable
+        Args:
+            source_code: source code
+
+        Returns:
+            True if the code is parsable, False otherwise
+        """
+        return JavaSitter.is_parsable(self, source_code)
+
+    def get_raw_ast(self, source_code: str) -> str:
+        """
+        Get the raw AST
+        Args:
+            code: source code
+
+        Returns:
+            Tree: the raw AST
+        """
+        return JavaSitter.get_raw_ast(self, source_code)
 
     def get_call_graph(self) -> DiGraph:
         """Returns the call graph of the Java code.
