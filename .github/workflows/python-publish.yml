@@ -41,8 +41,8 @@ jobs:
           CODE_ANALYZER_URL=$(curl -s https://api.github.com/repos/IBM/codenet-minerva-code-analyzer/releases/latest | jq -r '.assets[] | .browser_download_url')
           echo "Downloading: " $CODE_ANALYZER_URL
           wget -q $CODE_ANALYZER_URL
-          echo "Moving codeanalyzer.jar to:" ${{ github.workspace }}/cldk/analysis/java/codeanalyzer/jar/codeanalyzer.jar
-          mv codeanalyzer.jar ${{ github.workspace }}/cldk/analysis/java/codeanalyzer/jar/codeanalyzer.jar
+          echo "Moving codeanalyzer jar to:" ${{ github.workspace }}/cldk/analysis/java/codeanalyzer/jar
+          mv codeanalyzer-*.jar ${{ github.workspace }}/cldk/analysis/java/codeanalyzer/jar/
 
       - name: Build package
         run: poetry build
