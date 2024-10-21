@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cldk"
-version = "0.1.3"
+version = "0.1.4"
 description = "codellm-devkit: A python library for seamless interation with LLMs."
 authors = ["Rahul Krishna <i.m.ralk@gmail.com>", "Rangeet Pan <rangeet.pan@ibm.com>", "Saurabh Sinhas <sinhas@us.ibm.com>",
             "Raju Pavuluri <pavuluri@us.ibm.com>"]

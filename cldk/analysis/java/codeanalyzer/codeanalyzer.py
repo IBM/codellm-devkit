@@ -130,13 +130,13 @@ class JCodeanalyzer:
             if self.analysis_backend_path:
                 analysis_backend_path = Path(self.analysis_backend_path)
                 logger.info(f"Using codeanalyzer.jar from {analysis_backend_path}")
-                codeanalyzer_jar_file = next(analysis_backend_path.glob("*.jar"), None)
+                codeanalyzer_jar_file = next(analysis_backend_path.rglob("codeanalyzer-*.jar"), None)
                 if codeanalyzer_jar_file is None:
                     raise CodeanalyzerExecutionException(f"No codeanalyzer jar found in {analysis_backend_path}")
                 codeanalyzer_exec = shlex.split(f"java -jar {analysis_backend_path / codeanalyzer_jar_file}")
             else:
                 with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.jar")) as codeanalyzer_jar_path:
-                    codeanalyzer_jar_file = next(codeanalyzer_jar_path / "*.jar", None)
+                    codeanalyzer_jar_file = next(codeanalyzer_jar_path.rglob("codeanalyzer-*.jar"), None)
                     codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
         return codeanalyzer_exec
 

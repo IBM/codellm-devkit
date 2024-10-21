@@ -45,6 +45,11 @@ def test_fixture():
     with zipfile.ZipFile(filename, "r") as zip_ref:
         zip_ref.extractall(test_data_path)
 
+    # Get the correct version of codeanalyzer to put in the resources folder for correct usage
+    url = "https://github.com/IBM/codenet-minerva-code-analyzer/releases/download/v1.0.1/codeanalyzer-1.0.1.jar"
+    codeanalyzer_jar_file = Path(__file__).parent.parent / "cldk" / "analysis" / "java" / "codeanalyzer" / "jar" / "codeanalyzer-1.0.1.jar"
+    urlretrieve(url, codeanalyzer_jar_file)
+
     # Remove the zip file
     filename.unlink()
     # --------------------------------------------------------------------------------
@@ -56,4 +61,6 @@ def test_fixture():
     for directory in Path(test_data_path).iterdir():
         if directory.exists() and directory.is_dir():
             shutil.rmtree(directory)
+    # Remove the downloaded codeanalyzer jar file
+    codeanalyzer_jar_file.unlink()
     # ---------------------------------------------------------------------------------
