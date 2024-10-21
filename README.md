@@ -6,6 +6,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Documentation](https://img.shields.io/badge/GitHub%20Pages-Docs-blue)](https://ibm.github.io/codellm-devkit/)
 [![PyPI version](https://badge.fury.io/py/cldk.svg)](https://badge.fury.io/py/cldk)
+[![arXiv](https://img.shields.io/badge/arXiv-2410.13007-b31b1b.svg)](https://arxiv.org/abs/2410.13007)
+
 
 Codellm-devkit (CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). Codellm-devkit allows developers to streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.
 
