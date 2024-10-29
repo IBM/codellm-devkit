@@ -42,7 +42,6 @@ tree-sitter-java = "0.23.2"
 tree-sitter-c = "0.23.1"
 tree-sitter-go = "0.23.1"
 tree-sitter-python = "0.23.2"
-ipdb = "^0.13.13"
 tree-sitter-javascript = "0.23.0"
 # Test dependencies
 

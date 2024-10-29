@@ -18,7 +18,6 @@
 Models module
 """
 import re
-from ipdb import set_trace
 from contextvars import ContextVar
 from typing import Dict, List, Optional
 
@@ -385,7 +384,6 @@ class JGraphEdges(BaseModel):
         else:
             j_callable = _CALLABLES_LOOKUP_TABLE.get((type_declaration, signature), None)
             if j_callable is None:
-                set_trace()
                 raise ValueError(f"Callable not found in lookup table: {file_path}, {type_declaration}, {signature}")
         class_name = type_declaration
         method_decl = j_callable.declaration
