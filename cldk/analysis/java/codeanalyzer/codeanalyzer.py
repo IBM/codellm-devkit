@@ -204,14 +204,15 @@ class JCodeanalyzer:
 
             if self.analysis_backend_path:
                 analysis_backend_path = Path(self.analysis_backend_path)
-                logger.info(f"Using codeanalyzer.jar from {analysis_backend_path}")
-                codeanalyzer_exec = shlex.split(f"java -jar {analysis_backend_path / 'codeanalyzer.jar'}")
+                logger.info(f"Using codeanalyzer jar from {analysis_backend_path}")
+                codeanalyzer_jar_file = next(analysis_backend_path.rglob("codeanalyzer-*.jar"), None)
+                codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
             else:
                 # Since the path to codeanalyzer.jar was not provided, we'll download the latest version from GitHub.
                 with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.jar")) as codeanalyzer_jar_path:
                     # Download the codeanalyzer jar if it doesn't exist, update if it's outdated,
                     # do nothing if it's up-to-date.
-                    codeanalyzer_jar_file = self._download_or_update_code_analyzer(codeanalyzer_jar_path)
+                    codeanalyzer_jar_file = next(codeanalyzer_jar_path.rglob("codeanalyzer-*.jar"), None)
                     codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
         return codeanalyzer_exec
 
@@ -372,11 +373,15 @@ class JCodeanalyzer:
                     {
                         "type": jge.type,
                         "weight": jge.weight,
-                        "calling_lines": tsu.get_calling_lines(jge.source.method.code, jge.target.method.signature),
+                        "calling_lines": (
+                            tsu.get_calling_lines(jge.source.method.code, jge.target.method.signature, jge.target.method.is_constructor)
+                            if not jge.source.method.is_implicit or not jge.target.method.is_implicit
+                            else []
+                        ),
                     },
                 )
                 for jge in sdg
-                if jge.type == "CONTROL_DEP" or jge.type == "CALL_DEP"
+                if jge.type == "CALL_DEP"  # or jge.type == "CONTROL_DEP"
             ]
             for jge in sdg:
                 cg.add_node(

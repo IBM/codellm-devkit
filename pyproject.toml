@@ -64,5 +64,5 @@ line-length = 180
 
 [tool.cldk.testing]
 sample-application = "tests/resources/java/application/"
-sample-application-analysis-json = "tests/resources/java/analysis_json/slim"
-codeanalyzer-jar-path = "tests/resources/java/codeanalyzer/build/libs/"
+sample-application-analysis-json = "tests/resources/java/analysis_json/"
+codeanalyzer-jar-path = "tests/resources/java/codeanalyzer_jars/"
