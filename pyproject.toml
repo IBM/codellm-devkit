@@ -49,6 +49,12 @@ tree-sitter-javascript = "0.23.0"
 [tool.poetry.group.dev.dependencies]
 toml = "^0.10.2"
 pytest = "8.3.3"
+pytest-pspec = "^0.0.4"
+pytest-cov = "^5.0.0"
+pylint = "^3.2.2"
+flake8 = "^7.0.0"
+black = "^24.4.2"
+coverage = "^7.5.3"
 jupyter = "^1.0.0"
 
 # Documentation
