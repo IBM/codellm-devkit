@@ -14,6 +14,19 @@ class TestPythonTreeSitter(TestCase):
 
     def tearDown(self):
         """Runs after each test case"""
+    def test_is_parasable(self):
+        module_str = """
+        @staticmethod
+        def foo() -> None:
+            pass
+        class Person:
+              def __init__(self, name: str, age: int):
+                self.name = name
+                self.age = age
+              @staticmethod
+              def __str__(self):"
+            """
+        self.assertFalse(self.python_tree_sitter.is_parsable(module_str))
 
     def test_get_all_methods(self):
         module_str = """
