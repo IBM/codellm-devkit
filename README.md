@@ -2,11 +2,11 @@
 
 ![codellm-devkit logo](https://github.com/IBM/codellm-devkit/blob/main/docs/assets/cldk.png?raw=true)
 
+[![arXiv](https://img.shields.io/badge/arXiv-2410.13007-b31b1b.svg)](https://arxiv.org/abs/2410.13007)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Documentation](https://img.shields.io/badge/GitHub%20Pages-Docs-blue)](https://ibm.github.io/codellm-devkit/)
 [![PyPI version](https://badge.fury.io/py/cldk.svg)](https://badge.fury.io/py/cldk)
-[![arXiv](https://img.shields.io/badge/arXiv-2410.13007-b31b1b.svg)](https://arxiv.org/abs/2410.13007)
 
 
 Codellm-devkit (CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). Codellm-devkit allows developers to streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.
@@ -34,7 +34,7 @@ For any questions, feedback, or suggestions, please contact the authors:
 
 | Name | Email |
 | ---- | ----- |
-| Rahul Krishna | [i.m.ralk@gmail.com](mailto:i.m.ralk@gmail.com) |
+| Rahul Krishna | [i.m.ralk@gmail.com](mailto:imralk+oss@gmail.com) |
 | Rangeet Pan | [rangeet.pan@ibm.com](mailto:rangeet.pan@gmail.com) |
 | Saurabh Sihna | [sinhas@us.ibm.com](mailto:sinhas@us.ibm.com) |
 ## Table of Contents
