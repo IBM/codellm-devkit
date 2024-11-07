@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<document>
+
+  <properties>
+    <title>Apache Commons CLI</title>
+    <author email="dev@commons.apache.org">commons-dev</author>
+  </properties>
+
+  <body>
+    <section name="Apache Commons CLI">
+      <p>
+        The Apache Commons CLI library provides an API for parsing command line options passed to programs.
+        It's also able to print help messages detailing the options available for a command line tool.
+      </p>
+      <p>
+        Commons CLI supports different types of options:
+      </p>
+      <ul>
+        <li>POSIX like options, for example <code>tar -zxvf foo.tar.gz</code></li>
+        <li>GNU like long options, for example <code>du --human-readable --max-depth=1</code></li>
+        <li>Java like properties, for example <code>java -Djava.awt.headless=true -Djava.net.useSystemProxies=true Foo</code></li>
+        <li>Short options with value attached, for example <code>gcc -O2 foo.c</code></li>
+        <li>long options with single hyphen, for example <code>ant -projecthelp</code></li>
+      </ul>
+      <p>
+        A typical help message displayed by Commons CLI looks like this:
+      </p>
+      <source>
+usage: ls
+ -A,--almost-all          do not list implied . and ..
+ -a,--all                 do not hide entries starting with .
+ -B,--ignore-backups      do not list implied entried ending with ~
+ -b,--escape              print octal escapes for nongraphic characters
+    --block-size &lt;SIZE>   use SIZE-byte blocks
+ -c                       with -lt: sort by, and show, ctime (time of last
+                          modification of file status information) with
+                          -l:show ctime and sort by name otherwise: sort
+                          by ctime
+ -C                       list entries by columns
+      </source>
+      <p>
+        Check out the <a href="introduction.html">introduction</a> page for a detailed presentation.
+      </p>
+    </section>
+
+    <section name="Documentation">
+      <p>
+        A full <a href="introduction.html">User's Guide</a> is available
+        as are various <a href="project-reports.html">project reports</a>.
+      </p>
+      <p>
+        The Javadoc API documents are available online:
+      </p>
+      <ul>
+        <li><a href="apidocs/index.html">Javadoc latest</a></li>
+        <li><a href="https://javadoc.io/doc/commons-cli/commons-cli/latest/index.html">Javadoc archives</a></li>
+      </ul>
+      <p>
+        The <a href="scm.html">source repository</a> can be
+        <a href="https://gitbox.apache.org/repos/asf?p=commons-cli.git">browsed</a>.
+      </p>
+    </section>
+
+    <section name="Releases">
+      <p>
+        <a href="https://commons.apache.org/cli/download_cli.cgi">Download</a> the latest version. 
+        <br/>
+        The <a href="changes-report.html">release notes</a> are also available.
+      </p>
+      <p>
+        For previous releases, see the <a href="https://archive.apache.org/dist/commons/cli/">Apache Archive</a>.
+      </p>
+    </section>
+
+    <section name="Support">
+      <p>
+        The <a href="mail-lists.html">commons mailing lists</a> act as the main support forum. The user list
+        is suitable for most library usage queries. The dev list is intended for the development discussion. Please
+        remember that the lists are shared between all commons components, so prefix your email subject by
+        <code>[cli]</code>.
+      </p>
+
+      <p>
+        Issues may be reported via the <a href="issue-tracking.html">ASF JIRA</a>.
+      </p>
+    </section>
+
+    <section name="CLI 2?">
+      <p>
+        Commons CLI 1.0 was formed from the merger of ideas and code from three different libraries -
+        Werken, Avalon and Optz. In dealing with the bugs and the feature requests a freshly designed and not
+        backwards compatible CLI 2 was created in 2004, but never finished or released.
+      </p>
+      <p>The current plan is to continue to maintain the 1.x line. The CLI2 work may be found in the Commons Sandbox. </p>
+    </section>
+
+  </body>
+
+</document>

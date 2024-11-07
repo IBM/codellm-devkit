@@ -1,0 +1,488 @@
+<?xml version="1.0"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/changes/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd">
+  <properties>
+    <title>Apache Commons CLI Release Notes</title>
+  </properties>
+  <body>
+    <release version="1.8.0" date="2024-05-18" description="This release contains new features and bug fixes and requires Java 8 or above.">
+      <!-- ADD -->
+      <action type="add" issue="CLI-332" dev="ggregory" due-to="Claude Warren, Gary Gregory">Add optional HelpFormatter Function to document Deprecated options #271.</action>
+      <action type="add" dev="ggregory" due-to="Gary Gregory">Add PMD check to default Maven goal.</action>
+      <!-- FIX -->
+      <action type="fix" issue="CLI-331" dev="ggregory" due-to="Claude Warren, Gary Gregory">Handle reporting of deprecated options when parameters are not String type. #270.</action>
+      <action type="fix" dev="ggregory" due-to="Claude Warren, Gary Gregory">Avoid throwing NullPointerException when calling CommandLineParser will null array elements.</action>
+      <action type="fix" dev="ggregory" due-to="Claude Warren">Cleanup deprecation issues #272.</action>
+      <action type="fix" dev="ggregory" due-to="Gary Gregory">Fix PMD UnnecessaryFullyQualifiedName issues.</action>
+      <!-- UPDATE -->
+      <action type="update" dev="ggregory" due-to="Gary Gregory">Bump commons-parent from 69 to 70.</action>
+    </release>
+    <release version="1.7.0" date="2024-04-13" description="This release contains new features and bug fixes and requires Java 8 or above.">
+      <!-- FIX -->
+      <action type="fix" issue="CLI-312" dev="ggregory" due-to="Claude Warren, Gary Gregory">Inconsistent behavior in key/value pairs (Java property style).</action>
+      <action type="fix" dev="ggregory" due-to="Gary Gregory">Avoid NullPointerException in Util.stripLeadingAndTrailingQuotes(String).</action>
+      <action type="fix" issue="CLI-320" dev="ggregory" due-to="Paul King, Claude Warren">Awkward behavior of Option.builder() for multiple optional args.</action>
+      <action type="fix" issue="CLI-325" dev="ggregory" due-to="Claude Warren">Properties from multiple arguments with value separator. #237.</action>
+      <action type="fix" issue="CLI-327" dev="ggregory" due-to="Claude Warren, Gary Gregory">Fix for expected textual date values. #244.</action>
+      <action type="fix" dev="ggregory" due-to="Gary Gregory">Option.Builder.option("") should throw IllegalArgumentException instead of ArrayIndexOutOfBoundsException.</action>
+      <action type="fix" dev="ggregory" due-to="Gary Gregory">Avoid NullPointerException in CommandLine.getOptionValues(Option|String).</action>
+      <!-- ADD -->
+      <action type="add" issue="CLI-321" dev="ggregory" due-to="Claude Warren, Gary Gregory">Add and use a Converter interface and implementations without using BeanUtils #216.</action>
+      <action type="add" dev="ggregory" due-to="Gary Gregory">Add Maven property project.build.outputTimestamp for build reproducibility.</action>
+      <action type="add" issue="CLI-322" dev="ggregory" due-to="Claude Warren, Gary Gregory">Add '-' as an option char and implemented extensive tests #217.</action>
+      <action type="add" issue="CLI-324" dev="ggregory" due-to="Claude Warren, Gary Gregory">Make adding OptionGroups and Options to existing Options easier #230.</action>
+      <action type="add" issue="CLI-323" dev="ggregory" due-to="Claude Warren, Gary Gregory">Added Supplier&lt;T&gt; defaults for getParsedOptionValue #229.</action>
+      <action type="add" issue="CLI-326" dev="ggregory" due-to="Claude Warren, Gary Gregory">Make Option.getKey() public #239.</action>
+      <action type="add" dev="ggregory" due-to="Claude Warren, Gary Gregory">Add builder factory CommandLine#builder().</action>
+      <!-- UPDATE -->
+      <action type="update" dev="ggregory" due-to="Gary Gregory">Bump commons-parent from 64 to 69 #256.</action>
+      <action type="update" dev="ggregory" due-to="Elric, Gary Gregory">Update the tests to JUnit 5 #238.</action>
+      <action type="update" dev="ggregory" due-to="Dependabot, Gary Gregory">Bump tests commons-io:commons-io from 2.16.0 to 2.16.1 #258.</action>
+    </release>
+    <release version="1.6.0" date="2023-10-23" description="This release contains new features and bug fixes and requires Java 8 or above.">
+      <!-- FIX -->
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Fix SpotBugs Error: Medium: Method intentionally throws RuntimeException. [org.apache.commons.cli.Option] At Option.java:[lines 417-423] THROWS_METHOD_THROWS_RUNTIMEEXCEPTION
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Fix SpotBugs Error: Medium: Method intentionally throws RuntimeException. [org.apache.commons.cli.Option] At Option.java:[lines 446-450] THROWS_METHOD_THROWS_RUNTIMEEXCEPTION
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Fix SpotBugs Error: Medium: Method intentionally throws RuntimeException. [org.apache.commons.cli.Option] At Option.java:[lines 474-478] THROWS_METHOD_THROWS_RUNTIMEEXCEPTION
+      </action>
+      <action type="update" dev="ggregory" due-to="Ken Dombeck">
+        Use EMPTY_STRING_ARRAY constant. #102.
+      </action>
+      <action type="update" dev="ggregory" due-to="Arturo Bernal">
+        Fix site links that are broken #155.
+      </action>
+      <action type="update" dev="ggregory" due-to="Arturo Bernal">
+        Use Math.max() #111. 
+        Delete unused assignment #112.
+      </action>
+      <action dev="ggregory" type="fix" due-to="step-security-bot, Gary Gregory">
+        [StepSecurity] ci: Harden GitHub Actions #176.
+      </action>
+      <action dev="ggregory" type="fix" due-to="Alexander Veit, Gary Gregory" issue="CLI-318">
+        Inconsistent date format in changes report.
+      </action>
+      <action dev="ggregory" type="fix" due-to="Dilraj Singh, Gary Gregory" issue="CLI-283">
+        Fix NPE in CommandLine.resolveOption(String).
+      </action>
+      <action dev="ggregory" type="fix" due-to="Dilraj Singh, Gary Gregory" issue="CLI-283">
+        CommandLine.addOption(Option) should not allow a null Option.
+      </action>
+      <action dev="ggregory" type="fix" due-to="Gary Gregory" issue="CLI-283">
+        CommandLine.addArgs(String) should not allow a null String.
+      </action>
+      <action dev="ggregory" type="fix" due-to="Julian Schilling, Gary Gregory" issue="CLI-303">
+        Site docs: "Usage Scenarios" refers to deprecated methods.
+      </action>
+      <action dev="ggregory" type="fix" due-to="Philippe Bastiani, Sruteesh Kumar Paramata, Gary Gregory" issue="CLI-317">
+        NullPointerException thrown by CommandLineParser.parse().
+      </action>
+      <action dev="ggregory" type="fix" due-to="Dominik Stadler, HUNG LU, Sruteesh Kumar Paramata" issue="CLI-313">
+        StringIndexOutOfBoundsException thrown by CommandLineParser.parse().
+      </action>
+      <!-- ADD -->
+      <action type="update" dev="ggregory" due-to="Dependabot, Gary Gregory">
+        Add github/codeql-action.
+      </action>
+      <!-- UPDATES -->
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump Java from 7 to 8.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot, Gary Gregory">
+        Bump actions/cache from 2.1.7 to 3.0.10 #97, #130, #132.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory, Dependabot">
+        Bump actions/checkout from 3 to 3.1.0 #133.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump actions/setup-java from 2 to 3.6.0 #136.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory, Dependabot">
+        Bump spotbugs from 4.5.3 to 4.7.3 #96, #107, #113, #125, #138.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump spotbugs-maven-plugin from 4.5.3.0 to 4.7.3.0 #98, #108, #115, #117, #126, #145.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot, Gary Gregory">
+        Bump commons-parent from 52 to 64 #100, #128, #151, #158.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump maven-antrun-plugin from 3.0.0 to 3.1.0 #103.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump maven-javadoc-plugin from 3.3.2 to 3.4.1 #105, #120.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump maven-pmd-plugin from 3.16.0 to 3.19.0 #110, #124.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump jacoco-maven-plugin from 0.8.7 to 0.8.8.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump maven-checkstyle-plugin from 3.1.2 to 3.2.0 #121.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump japicmp-maven-plugin from 0.15.4 to 0.16.0.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Update JUnit 4 to 5 vintage.
+      </action>
+    </release>
+    <release version="1.5.0" date="2021-10-23" description="This release contains new features and bug fixes and requires Java 7 or above.">
+      <!-- FIX -->
+      <action type="fix" dev="ggregory" due-to="Gary Gregory">
+        Fix NPE in DefaultParser.isLongOption(String).
+      </action>
+      <action type="fix" dev="britter" due-to="Krishna Mohan Rao Kandunoori" issue="CLI-279">
+        @param or @return lines should end with a period in CommandLine.java
+      </action>
+      <action type="fix" dev="ggregory" due-to="Gary Gregory">
+        Replace deprecated FindBugs with SpotBugs.
+      </action>
+      <action type="fix" dev="ggregory" due-to="Gary Gregory">
+        Replace CLIRR with JApiCmp.
+      </action>
+      <action type="fix" dev="ggregory" due-to="Elliotte Rusty Harold">
+        Option Javadocs grammar nits #55.
+      </action>
+      <action type="fix" dev="ggregory" due-to="Arturo Bernal, Gary Gregory">
+        Minor Improvements #57, #61.
+      </action>
+      <action type="fix" dev="ggregory" due-to="stoty" issue="CLI-254">
+        Input "test" gets parsed as test, quotes die #58.
+      </action>
+      <action type="fix" dev="ggregory" due-to="MrQubo, Gary Gregory" issue="CLI-287">
+        Allow whitespace-only header and footer #26.
+      </action>
+      <!-- ADD -->
+      <action type="add" dev="chtompki" due-to="Rubin Simons" issue="CLI-217">
+        Accommodate toggling partial matching in DefaultParser.
+      </action>
+      <action type="add" dev="britter" due-to="Béla Schaum" issue="CLI-274">
+        Option parser type EXISTING_FILE_VALUE not check file existing
+      </action>
+      <action type="add" dev="britter" due-to="Christoph Läubrich" issue="CLI-271">
+        CommandLine.getXXX and CommandLine.hasXXX should accept an Option as a parameter
+      </action>
+      <action type="add" dev="ggregory" due-to="Jason Dillon" issue="CLI-276">
+        Adjust access-modifier of checkRequiredOptions() to protected.
+      </action>
+      <action type="add" dev="ggregory" due-to="Alex Nordlund" issue="CLI-282">
+        TypeHandler should throw ParseException for an unsupported class.
+      </action>
+      <action type="add" dev="ggregory" due-to="Waldemar Sojka, Gary Gregory">
+        Added setter for Builder.option #33.
+      </action>
+      <action type="add" dev="ggregory" due-to="Waldemar Sojka, Gary Gregory">
+        Add Option unit tests #76.
+      </action>
+      <!-- UPDATE -->
+      <action type="update" dev="ggregory" issue="CLI-294">
+        Update Java from version 5 to 7.
+      </action>
+      <action type="update" dev="ggregory" due-to="Mincong Huang">
+        Docs: Replace OptionBuilder in usage page #30.
+      </action>
+      <action type="update" dev="ggregory" due-to="dengliming">
+        Remove deprecated sudo setting. #36.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory, Dependabot">
+        Bump junit:junit from 4.12 to 4.13.2, #53, #60.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump commons-parent from 48 to 52.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump maven-pmd-plugin from 3.12.0 to 3.16.0, #44, #54, #67, #92.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump actions/checkout from 2.3.1 to 3 #46, #72, #78, #93.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot, Gary Gregory">
+        Bump actions/setup-java from v1.4.2 to v2 #50.
+       </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump maven-antrun-plugin from 1.7 to 3.0.0 #43.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump maven-checkstyle-plugin from 2.15 to 3.1.2 #41.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump checkstyle to 9.3 #68, #86, #90.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump actions/cache from 2 to 2.1.7 #64, #65, #81.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump commons.animal-sniffer.version 1.19 -> 1.20.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump maven-bundle-plugin 5.1.1 -> 5.1.2.
+      </action>
+      <action type="update" dev="ggregory" due-to="Gary Gregory">
+        Bump biz.aQute.bndlib.version 5.1.2 -> 6.0.0.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump spotbugs from 4.4.1 to 4.5.3 #70, #88.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump spotbugs-maven-plugin from 4.4.1 to 4.5.3.0 #71, #85, #87.
+      </action>
+      <action type="update" dev="ggregory" due-to="Dependabot">
+        Bump maven-javadoc-plugin from 3.3.1 to 3.3.2, #91.
+      </action>
+    </release>
+    <release version="1.4" date="2017-03-09" description="This release contains new features and bug fixes and requires Java 5 or above.">
+      <action type="add" dev="rfscholte" issue="CLI-269">
+        Introduce CommandLine.Builder
+      </action>
+      <action type="fix" dev="britter" issue="CLI-265" due-to="Martin Sandiford">
+        Optional argument picking up next regular option as its argument
+      </action>
+      <action type="add" dev="britter" issue="CLI-267" due-to="Ricardo Ribeiro">
+        Add an addRequiredOption method to Options
+      </action>
+      <action type="fix" dev="britter" issue="CLI-266" due-to="Ravi Teja">
+        HelpFormatter.setOptionComparator(null) doesn't display the values in inserted order
+      </action>
+    </release>
+    <release version="1.3.1" date="2015-06-17" description="This release contains bug fixes and requires Java 5 or above.">
+      <action type="fix" dev="britter" issue="CLI-252" due-to="Simon Harrer">
+        LongOpt falsely detected as ambiguous
+      </action>
+    </release>
+    <release version="1.3" date="2015-05-09" description="This release contains new features and bug fixes and requires Java 5 or above..">
+      <action type="fix" dev="djones" issue="CLI-248">
+        Fixed broken Javadoc links on Introduction page.
+      </action>
+      <action type="fix" dev="tn" issue="CLI-234" due-to="Greg Thomas">
+        Fixed code example in javadoc of "Option#Builder#valueSeparator(char)".
+      </action>
+      <action type="fix" dev="tn" issue="CLI-241" due-to="Beluga Behr">
+        Clarified behavior of "OptionValidator#validateOption(String)" in case of null input.
+      </action>
+      <action type="update" dev="tn" issue="CLI-240" due-to="Beluga Behr">
+        Small cleanup of Option class.
+      </action>
+      <action type="update" dev="tn" issue="CLI-231" due-to="Duncan Jones">
+        Removed DoubleCheckedLocking test from checkstyle configuration.
+      </action>
+      <action type="update" dev="tn" issue="CLI-230">
+        Options.getRequiredOptions() now returns an unmodifiable list.
+      </action>
+      <action type="add" dev="tn" issue="CLI-224" due-to="Duncan Jones, Brian Blount">
+        Added new fluent API to create Option instances via builder class Option.Builder.
+        This replaces the now deprecated OptionBuilder.
+      </action>
+      <action type="update" dev="tn" issue="CLI-218" due-to="Sven">
+        Clarify javadoc for CommandLine.getOptionValue() that the first specified
+        argument will be returned.
+      </action>
+      <action type="add" dev="tn" issue="CLI-214" due-to="Alexandru Mocanu">
+        Added new method Options.addOption(String, String).
+      </action>
+      <action type="update" dev="tn" issue="CLI-227" due-to="Duncan Jones">
+        Changed unit tests to junit 4 annotation style.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-202">
+        Default options will now work correctly with required options that are missing.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-203">
+        Default options will now work correctly together with option groups.
+      </action>
+      <action type="update" dev="ebourg" issue="CLI-209" due-to="Thomas Herre">
+        The javadoc of OptionBuilder now states that the class is not thread-safe.
+      </action>
+      <action type="add" dev="ebourg" issue="CLI-169" due-to="J. Lewis Muir">
+        HelpFormatter now supports setting the displayed separator of long options.
+      </action>
+      <action type="update" dev="ebourg" issue="CLI-197" due-to="Anders Larsson">
+        Improve description of parameter "stopAtNonOption" in method
+        CommandLine.parse(Options, String[], boolean).
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-204">
+        Passing default values for not defined options to a parser will now trigger
+        a ParseException instead of a NullPointerException.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-205">
+        HelpFormatter.setArgName(String) now correctly sets the argument name.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-201">
+        Default properties provided as input to the Parser.parse() methods are now
+        correctly processed.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-215" due-to="Manuel Müller">
+        CommandLine.getParsedOptionValue() now returns a String object if no
+        option type has been explicitly set.
+      </action>
+      <action type="update" dev="ggregory" issue="CLI-200" due-to="Gerard Weatherby">
+        Fixed typo in javadoc of class CommandLine.
+      </action>
+      <action type="update" dev="ebourg" issue="CLI-223" due-to="Gerard Weatherby">
+        Source code now uses generic types instead of raw types where possible.
+      </action>
+      <action type="update" dev="ebourg" issue="CLI-220" due-to="Joe Casadonte">
+        Corrected javadoc for return type of MissingOptionException.getMissingOptions().
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-212" due-to="Per Cederberg">
+        HelpFormatter now prints command-line options in the same order as they
+        have been added.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-186" due-to="Kristoff Kiefer">
+        Standard help text now shows mandatory arguments also for the first option.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-207" due-to="Uri Moszkowicz">
+        HelpFormatter does not strip anymore leading whitespace in the footer text.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-185" due-to="Einar M R Rosenvinge">
+        Strip quotes contained in argument values only if there is exactly one at the
+        beginning and one at the end.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-184">
+        Negative numerical arguments take precedence over numerical options (only supported
+        by the new DefaultParser).
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-193" due-to="Travis McLeskey">
+        Fix possible StringIndexOutOfBoundsException in HelpFormatter.
+      </action>
+      <action type="add" dev="ebourg" issue="CLI-161,CLI-167,CLI-181">
+        A new parser is available: DefaultParser. It combines the features of the GnuParser and the PosixParser.
+        It also provides additional features like partial matching for the long options, and long options without
+        separator (i.e like the JVM memory settings: -Xmx512m). This new parser deprecates the previous ones.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-183">
+        OptionGroups no longer throw an AlreadySelectedException when reused for several parsings.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-182">
+        OptionGroup now selects properly an option with no short name.
+      </action>
+      <action type="add" dev="ebourg" issue="CLI-160">
+        PosixParser now supports partial long options (--ver instead of --version).
+      </action>
+    </release>
+    <release version="1.2" date="2009-03-19" description="This release contains new features and bug fixes and requires Java 5 or above.">
+      <action type="fix" dev="joehni" issue="CLI-177">
+        OptionBuilder is now reseted if an IllegalArgumentException occurs in create().
+      </action>
+      <action type="remove" dev="bayard">
+        Ant build system removed. 
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-154">
+        Incomplete usage documentation about Java property option.
+      </action>
+      <action type="fix" dev="bayard" issue="CLI-170">
+        TypeHandler prints messages to stderr.
+      </action>
+      <action type="fix" dev="bayard" issue="CLI-162">
+        Infinite loop in the wrapping code of HelpFormatter.
+      </action>
+      <action type="fix" dev="sgoeschl">
+        Fixing some minor javadoc issues.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-137">
+        The number of arguments defined for an option specifies the arguments per occurrence of the option
+        and not for all occurrences. This was a major regression in CLI 1.1 which prevented the use of repeated options.
+      </action>
+      <action type="add" dev="ebourg">
+        Added a getOptionProperties() method in the CommandLine class to retrieve easily the key/value pairs
+        specified with options like -Dkey1=value1 -Dkey2=value2.
+      </action>
+      <action type="update" dev="ebourg" issue="CLI-157">
+        GnuParser now supports long options with an '=' sign (ie. --foo=bar and -foo=bar)
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-164">
+        PosixParser no longer ignores unrecognized short options.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-163">
+        PosixParser no longer stops the bursting process of a token if stopAtNonOption is enabled and a non option
+        character is encountered.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-165">
+        PosixParser no longer keeps processing the tokens after an unrecognized long option
+        when stopAtNonOption is enabled.
+      </action>
+      <action type="fix" dev="ebourg" issue="CLI-156">
+        Required options are properly checked if an Options instance is used twice to parse a command line.
+      </action>
+      <action type="update" dev="bayard" issue="CLI-155">
+        The ordering of options can be defined in help messages.
+      </action>
+      <action type="fix" dev="bayard" issue="CLI-151" due-to="Dan Armbrust">
+        The line wrapping in HelpFormatter now works properly. This caused CLI-162, and thus there was a feature change 
+        for the HelpFormatter in that it is strict on width now rather than what seemed to be lenience before. Text without 
+        whitespace will be cut off to fit in the spacing, and an IllegalStateException will be thrown if it is impossible 
+        to output the information due to spacing constraints. 
+      </action>
+      <action type="fix" dev="bayard" issue="CLI-149">
+        The message of MissingOptionException has been improved.
+      </action>
+      <action type="update" dev="ebourg" issue="CLI-86">
+        The exceptions have been enhanced with methods to retrieve easily the related options.
+      </action>
+      <action type="fix" dev="bayard" issue="CLI-141" due-to="Henning Schmiedehausen, Bjorn Townsend">
+        Option.toString() now reports arguments properly.
+      </action>
+      <action type="update" dev="bayard" issue="CLI-142" due-to="Henning Schmiedehausen">
+        The Parser class has been changed to be more easily extendable.
+      </action>
+      <action type="update" dev="bayard" issue="CLI-140">
+        The following classes are now serializable: Option, OptionGroup, CommandLine and Options.
+      </action>
+      <action type="remove" dev="ebourg">
+        OptionValidator is no longer public, its methods were all private.
+      </action>
+    </release>
+    <release version="1.1" date="2007-07-08" description="This is a maintenance release containing bug fixes.">
+      <action type="fix" issue="CLI-2">Wrong usage summary. </action>
+      <action type="fix" issue="CLI-5">Dependecy on commons-lang-2.0 but commons-lang-1.0 is obtained. </action>
+      <action type="fix" issue="CLI-8">Line separator as first char for helpformatter (footer) throws exception. </action>
+      <action type="fix" issue="CLI-13">CommandLine.getOptionValue() behaves contrary to docs. </action>
+      <action type="fix" issue="CLI-21">clone method in Option should use super.clone(). </action>
+      <action type="fix" issue="CLI-23">Passing properties in Parser does not work for options with a single argument. </action>
+      <action type="fix" issue="CLI-26">Only long options without short option seems to be noticed. </action>
+      <action type="fix" issue="CLI-28">Infinite Loop in Command-Line processing. </action>
+      <action type="fix" issue="CLI-29">Options should not be able to be added more than once. </action>
+      <action type="fix" issue="CLI-35">HelpFormatter doesn't sort options properly. </action>
+      <action type="fix" issue="CLI-38">HelpFormatter doesn't function correctly for options with only LongOpt. </action>
+      <action type="fix" issue="CLI-44">Document enhancement. </action>
+      <action type="fix" issue="CLI-45">Documentation errors. </action>
+      <action type="fix" issue="CLI-51">Parameter value "-something" misinterpreted as a parameter. </action>
+      <action type="fix" issue="CLI-56">clone() method doesn't fully clone contents. </action>
+      <action type="fix" issue="CLI-59">No Javadoc for HelpFormatter!. </action>
+      <action type="fix" issue="CLI-65">Parser breaks up command line parms into single characters. </action>
+      <action type="fix" issue="CLI-67">Missing arguments in HelpFormatter.renderOptions(..). </action>
+      <action type="fix" issue="CLI-69">Error parsing option arguments. </action>
+      <action type="fix" issue="CLI-71">A weakness of parser. </action>
+      <action type="add" issue="CLI-78">Setting description of a Option. </action>
+      <action type="fix" issue="CLI-129">CLI_1_BRANCH build.xml doesn't work. </action>
+      <action type="fix" issue="CLI-130">Remove the Commons Lang dependency. </action>
+      <action type="fix" issue="CLI-131">Options class returns options in random order. </action>
+      <action type="fix" issue="CLI-132">MissingOptionException should contain a useful error message. </action>
+      <action type="fix" issue="CLI-133">NullPointerException in Util.stripLeadingHyphens when passed a null argument. </action>
+      <action type="fix" issue="CLI-134">1.1 is not backwards compatible because it adds methods to the CommandLineParser interface. </action>
+      <action type="fix" issue="CLI-135">Backwards compatibility between 1.1 and 1.0 broken due to Option.addValue removal. </action>
+    </release>
+    <release version="1.0" date="2002-11-06" description="Initial release"/>    
+  </body>
+</document>
