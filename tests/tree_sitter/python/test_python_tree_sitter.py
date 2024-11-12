@@ -14,6 +14,7 @@ class TestPythonTreeSitter(TestCase):
 
     def tearDown(self):
         """Runs after each test case"""
+
     def test_is_parasable(self):
         module_str = """
         @staticmethod
