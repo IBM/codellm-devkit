@@ -48,6 +48,12 @@ tree-sitter-javascript = "0.23.0"
 [tool.poetry.group.dev.dependencies]
 toml = "^0.10.2"
 pytest = "8.3.3"
+pytest-pspec = "^0.0.4"
+pytest-cov = "^5.0.0"
+pylint = "^3.2.2"
+flake8 = "^7.0.0"
+black = "^24.4.2"
+coverage = "^7.5.3"
 jupyter = "^1.0.0"
 
 # Documentation
@@ -58,8 +64,52 @@ mkdocstrings = "0.26.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+########################################
+# Tool configurations
+########################################
+[tool.flake8]
+max-line-length = 180
+count = true
+
 [tool.black]
 line-length = 180
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = "no-member,protected-access,global-statement"
+
+[tool.pylint.FORMAT]
+max-line-length = 180
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--pspec --cov=cldk --cov-fail-under=50"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["cldk"]
+omit = [
+    "venv/*",
+    ".venv/*"
+]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "pragma: no branch",
+    "pass",
+    "subprocess.CalledProcessError",
+    "sys.exit",
+    "if __name__ == .__main__.:"
+]
+ignore_errors = true
+
+[tool.coverage.xml]
+output="./coverage.xml"
+
+[tool.coverage.html]
+title = "Test Coverage Report"
+directory = "coverage_html_report"
 
 [tool.cldk.testing]
 sample-application = "tests/resources/java/application/"

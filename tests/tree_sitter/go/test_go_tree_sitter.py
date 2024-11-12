@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from cldk.treesitter.go import GoSitter
+from cldk.analysis.go.treesitter import GoSitter
 
 
 class TestGoTreeSitter(TestCase):
