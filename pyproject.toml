@@ -42,7 +42,6 @@ tree-sitter-java = "0.23.2"
 tree-sitter-c = "0.23.1"
 tree-sitter-go = "0.23.1"
 tree-sitter-python = "0.23.2"
-ipdb = "^0.13.13"
 tree-sitter-javascript = "0.23.0"
 # Test dependencies
 
@@ -64,5 +63,5 @@ line-length = 180
 
 [tool.cldk.testing]
 sample-application = "tests/resources/java/application/"
-sample-application-analysis-json = "tests/resources/java/analysis_json/slim"
-codeanalyzer-jar-path = "tests/resources/java/codeanalyzer/build/libs/"
+sample-application-analysis-json = "tests/resources/java/analysis_json/"
+codeanalyzer-jar-path = "tests/resources/java/codeanalyzer_jars/"

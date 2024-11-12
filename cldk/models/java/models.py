@@ -17,7 +17,6 @@
 """
 Models module
 """
-
 import re
 from contextvars import ContextVar
 from typing import Dict, List, Optional
@@ -64,7 +63,7 @@ class JCallableParameter(BaseModel):
         modifiers (List[str]): The modifiers applied to the parameter.
     """
 
-    name: str
+    name: str | None
     type: str
     annotations: List[str]
     modifiers: List[str]
@@ -361,10 +360,30 @@ class JGraphEdges(BaseModel):
     @field_validator("source", "target", mode="before")
     @classmethod
     def validate_source(cls, value) -> JMethodDetail:
-        file_path, type_declaration, callable_declaration = value["file_path"], value["type_declaration"], value["callable_declaration"]
-        j_callable = _CALLABLES_LOOKUP_TABLE.get((file_path, type_declaration, callable_declaration), None)
-        if j_callable is None:
-            raise ValueError(f"Callable not found in lookup table: {file_path}, {type_declaration}, {callable_declaration}")
+        _, type_declaration, signature = value["file_path"], value["type_declaration"], value["signature"]
+        j_callable = _CALLABLES_LOOKUP_TABLE.get(
+            (type_declaration, signature),
+            JCallable(
+                signature=signature,
+                is_implicit=True,
+                is_constructor="<init>" in value["callable_declaration"],
+                comment="",
+                annotations=[],
+                modifiers=[],
+                thrown_exceptions=[],
+                declaration="",
+                parameters=[JCallableParameter(name=None, type=t, annotations=[], modifiers=[]) for t in value["callable_declaration"].split("(")[1].split(")")[0].split(",")],
+                code="",
+                start_line=-1,
+                end_line=-1,
+                referenced_types=[],
+                accessed_fields=[],
+                call_sites=[],
+                variable_declarations=[],
+                cyclomatic_complexity=0,
+            ),
+        )
+        _CALLABLES_LOOKUP_TABLE[(type_declaration, signature)] = j_callable
         class_name = type_declaration
         method_decl = j_callable.declaration
         return JMethodDetail(method_declaration=method_decl, klass=class_name, method=j_callable)
@@ -391,9 +410,8 @@ class JApplication(BaseModel):
     @field_validator("symbol_table", mode="after")
     @classmethod
     def validate_source(cls, symbol_table):
-
         # Populate the lookup table for callables
-        for file_path, j_compulation_unit in symbol_table.items():
+        for _, j_compulation_unit in symbol_table.items():
             for type_declaration, jtype in j_compulation_unit.type_declarations.items():
-                for callable_declaration, j_callable in jtype.callable_declarations.items():
-                    _CALLABLES_LOOKUP_TABLE[(file_path, type_declaration, callable_declaration)] = j_callable
+                for __, j_callable in jtype.callable_declarations.items():
+                    _CALLABLES_LOOKUP_TABLE[(type_declaration, j_callable.signature)] = j_callable

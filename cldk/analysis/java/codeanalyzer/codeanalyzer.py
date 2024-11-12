@@ -14,10 +14,6 @@
 # limitations under the License.
 ################################################################################
 
-"""
-Codeanalyzer module
-"""
-
 import re
 import json
 import shlex
@@ -120,61 +116,6 @@ class JCodeanalyzer:
         else:
             self.call_graph: DiGraph | None = None
 
-    @staticmethod
-    def _download_or_update_code_analyzer(filepath: Path) -> str:
-        """Downloads the codeanalyzer jar from the latest release on GitHub.
-
-        Args:
-            filepath (Path): The path to save the codeanalyzer jar.
-
-        Returns:
-            str: The path to the downloaded codeanalyzer jar file.
-        """
-        url = "https://api.github.com/repos/IBM/codenet-minerva-code-analyzer/releases/latest"
-        response = requests.get(url)
-        date_format = "%Y%m%dT%H%M%S"
-        if response.status_code == 200:
-            for asset in response.json().get("assets", []):
-                if asset["name"] == "codeanalyzer.jar":
-                    download_url = asset["browser_download_url"]
-                    pattern = r"(\d{8}T\d{6})"
-                    match = re.search(pattern, download_url)
-                    if match:
-                        datetime_str = match.group(0)
-                    else:
-                        raise Exception(f"Release URL {download_url} does not contain a datetime pattern.")
-
-                    # Look for codeanalyzer.YYYYMMDDTHHMMSS.jar in the filepath
-                    current_codeanalyzer_jars = [jarfile for jarfile in filepath.glob("*.jar")]
-                    if not any(current_codeanalyzer_jars):
-                        logger.info(f"Codeanalzyer jar is not found. Downloading the latest version.")
-                        filename = filepath / f"codeanalyzer.{datetime_str}.jar"
-                        urlretrieve(download_url, filename)
-                        return filename.__str__()
-
-                    current_codeanalyzer_jar_name = current_codeanalyzer_jars[0]
-                    match = re.search(pattern, current_codeanalyzer_jar_name.__str__())
-                    if match:
-                        current_datetime_str = match.group(0)
-
-                        if datetime.strptime(datetime_str, date_format) > datetime.strptime(current_datetime_str, date_format):
-                            logger.info(f"Codeanalzyer jar is outdated. Downloading the latest version.")
-                            # Remove the older codeanalyzer jar
-                            for jarfile in current_codeanalyzer_jars:
-                                jarfile.unlink()
-                            # Download the newer codeanalyzer jar
-                            filename = filepath / f"codeanalyzer.{datetime_str}.jar"
-                            urlretrieve(download_url, filename)
-                        else:
-                            filename = current_codeanalyzer_jar_name
-                            logger.info(f"Codeanalzyer jar is already at the latest version.")
-                    else:
-                        filename = current_codeanalyzer_jar_name
-
-                    return filename.__str__()
-        else:
-            raise Exception(f"Failed to fetch release warn: {response.status_code} {response.text}")
-
     def _get_application(self) -> JApplication:
         """Returns the application view of the Java code.
 
@@ -204,14 +145,15 @@ class JCodeanalyzer:
 
             if self.analysis_backend_path:
                 analysis_backend_path = Path(self.analysis_backend_path)
-                logger.info(f"Using codeanalyzer.jar from {analysis_backend_path}")
-                codeanalyzer_exec = shlex.split(f"java -jar {analysis_backend_path / 'codeanalyzer.jar'}")
+                logger.info(f"Using codeanalyzer jar from {analysis_backend_path}")
+                codeanalyzer_jar_file = next(analysis_backend_path.rglob("codeanalyzer-*.jar"), None)
+                codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
             else:
                 # Since the path to codeanalyzer.jar was not provided, we'll download the latest version from GitHub.
                 with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.jar")) as codeanalyzer_jar_path:
                     # Download the codeanalyzer jar if it doesn't exist, update if it's outdated,
                     # do nothing if it's up-to-date.
-                    codeanalyzer_jar_file = self._download_or_update_code_analyzer(codeanalyzer_jar_path)
+                    codeanalyzer_jar_file = next(codeanalyzer_jar_path.rglob("codeanalyzer-*.jar"), None)
                     codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
         return codeanalyzer_exec
 
@@ -372,11 +314,15 @@ class JCodeanalyzer:
                     {
                         "type": jge.type,
                         "weight": jge.weight,
-                        "calling_lines": tsu.get_calling_lines(jge.source.method.code, jge.target.method.signature),
+                        "calling_lines": (
+                            tsu.get_calling_lines(jge.source.method.code, jge.target.method.signature, jge.target.method.is_constructor)
+                            if not jge.source.method.is_implicit or not jge.target.method.is_implicit
+                            else []
+                        ),
                     },
                 )
                 for jge in sdg
-                if jge.type == "CONTROL_DEP" or jge.type == "CALL_DEP"
+                if jge.type == "CALL_DEP"  # or jge.type == "CONTROL_DEP"
             ]
             for jge in sdg:
                 cg.add_node(
