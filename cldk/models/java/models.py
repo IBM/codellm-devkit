@@ -360,9 +360,10 @@ class JGraphEdges(BaseModel):
     @field_validator("source", "target", mode="before")
     @classmethod
     def validate_source(cls, value) -> JMethodDetail:
-        file_path, type_declaration, signature = value["file_path"], value["type_declaration"], value["signature"]
-        if file_path == "":
-            j_callable = JCallable(
+        _, type_declaration, signature = value["file_path"], value["type_declaration"], value["signature"]
+        j_callable = _CALLABLES_LOOKUP_TABLE.get(
+            (type_declaration, signature),
+            JCallable(
                 signature=signature,
                 is_implicit=True,
                 is_constructor="<init>" in value["callable_declaration"],
@@ -380,11 +381,9 @@ class JGraphEdges(BaseModel):
                 call_sites=[],
                 variable_declarations=[],
                 cyclomatic_complexity=0,
-            )
-        else:
-            j_callable = _CALLABLES_LOOKUP_TABLE.get((type_declaration, signature), None)
-            if j_callable is None:
-                raise ValueError(f"Callable not found in lookup table: {file_path}, {type_declaration}, {signature}")
+            ),
+        )
+        _CALLABLES_LOOKUP_TABLE[(type_declaration, signature)] = j_callable
         class_name = type_declaration
         method_decl = j_callable.declaration
         return JMethodDetail(method_declaration=method_decl, klass=class_name, method=j_callable)

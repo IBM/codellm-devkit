@@ -1,17 +1,3 @@
-# def test_specifiy_codeanalyzer_analysis_backend_manually(test_fixture):
-#     # Initialize the CLDK object with the project directory, language, and analysis_backend.
-#     ns = CLDK(
-#         project_dir=test_fixture[0],
-#         language="java",
-#         analysis_backend="codeanalyzer",
-#         analysis_backend_path=test_fixture[1],
-#         analysis_json_path="/tmp",
-#         sdg=True,
-#         use_graalvm_binary=False,
-#         eager=False,
-#     )
-#     assert ns.preprocessing.get_all_classes() is not None
-
 # def test_specifiy_codeanalyzer_backend_manually(test_fixture):
 #     # Initialize the CLDK object with the project directory, language, and backend.
 #     ns = CLDK(
