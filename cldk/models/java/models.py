@@ -184,6 +184,9 @@ class JCallable(BaseModel):
     cyclomatic_complexity: int | None
 
     def __hash__(self):
+        """
+        Returns the hash value of the declaration.
+        """
         return hash(self.declaration)
 
     @model_validator(mode="after")

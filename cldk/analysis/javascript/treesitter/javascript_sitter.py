@@ -184,7 +184,7 @@ class JavascriptSitter:
 
         query = """
         (program [
-            (function_declaration) @function 
+            (function_declaration) @function
             (export_statement (function_declaration) @function.export)
         ])
         """
@@ -210,7 +210,7 @@ class JavascriptSitter:
 
         query = """
         (program [
-            (generator_function_declaration) @generator 
+            (generator_function_declaration) @generator
             (export_statement (generator_function_declaration) @generator.export)
         ])
         """

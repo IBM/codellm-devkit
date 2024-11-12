@@ -5,6 +5,9 @@
 # Log file
 *.log
 
+# Code coverage files
+.coverage
+
 # Gradle files
 .gradle
 
