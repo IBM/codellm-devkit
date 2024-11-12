@@ -14,46 +14,57 @@ def analysis_json_fixture():
     # Load the configuration
     config = toml.load(pyproject_path)
 
-    return config["tool"]["cldk"]["testing"]["sample-application-analysis-json"]
+    return Path(config["tool"]["cldk"]["testing"]["sample-application-analysis-json"]) / "slim"
 
 
-# @pytest.fixture(scope="session", autouse=True)
-# def test_fixture():
-#     """
-#     Returns the path to the test data directory.
+@pytest.fixture(scope="session", autouse=True)
+def codeanalyzer_jar_path():
+    # Path to your pyproject.toml
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
 
-#     Yields:
-#         Path : The path to the test data directory.
-#     """
-#     # ----------------------------------[ SETUP ]----------------------------------
-#     # Path to your pyproject.toml
-#     pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+    # Load the configuration
+    config = toml.load(pyproject_path)
 
-#     # Load the configuration
-#     config = toml.load(pyproject_path)
+    return Path(config["tool"]["cldk"]["testing"]["codeanalyzer-jar-path"]) / "2.0.0"
 
-#     # Access the test data path
-#     test_data_path = config["tool"]["cldk"]["testing"]["sample-application"]
 
-#     if not Path(test_data_path).exists():
-#         Path(test_data_path).mkdir(parents=True)
-#     url = "https://github.com/OpenLiberty/sample.daytrader8/archive/refs/tags/v1.2.zip"
-#     filename = Path(test_data_path).absolute() / "v1.2.zip"
-#     urlretrieve(url, filename)
+@pytest.fixture(scope="session", autouse=True)
+def test_fixture():
+    """
+    Returns the path to the test data directory.
 
-#     # Extract the zip file to the test data path
-#     with zipfile.ZipFile(filename, "r") as zip_ref:
-#         zip_ref.extractall(test_data_path)
+    Yields:
+        Path : The path to the test data directory.
+    """
+    # ----------------------------------[ SETUP ]----------------------------------
+    # Path to your pyproject.toml
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
 
-#     # Remove the zip file
-#     filename.unlink()
-#     # --------------------------------------------------------------------------------
-#     # Daytrader8 sample application path
-#     yield Path(test_data_path) / "sample.daytrader8-1.2"
+    # Load the configuration
+    config = toml.load(pyproject_path)
 
-#     # -----------------------------------[ TEARDOWN ]----------------------------------
-#     # Remove the daytrader8 sample application that was downloaded for testing
-#     for directory in Path(test_data_path).iterdir():
-#         if directory.exists() and directory.is_dir():
-#             shutil.rmtree(directory)
-#     # ---------------------------------------------------------------------------------
+    # Access the test data path
+    test_data_path = config["tool"]["cldk"]["testing"]["sample-application"]
+
+    if not Path(test_data_path).exists():
+        Path(test_data_path).mkdir(parents=True)
+    url = "https://github.com/OpenLiberty/sample.daytrader8/archive/refs/tags/v1.2.zip"
+    filename = Path(test_data_path).absolute() / "v1.2.zip"
+    urlretrieve(url, filename)
+
+    # Extract the zip file to the test data path
+    with zipfile.ZipFile(filename, "r") as zip_ref:
+        zip_ref.extractall(test_data_path)
+
+    # Remove the zip file
+    filename.unlink()
+    # --------------------------------------------------------------------------------
+    # Daytrader8 sample application path
+    yield Path(test_data_path) / "sample.daytrader8-1.2"
+
+    # -----------------------------------[ TEARDOWN ]----------------------------------
+    # Remove the daytrader8 sample application that was downloaded for testing
+    for directory in Path(test_data_path).iterdir():
+        if directory.exists() and directory.is_dir():
+            shutil.rmtree(directory)
+    # ---------------------------------------------------------------------------------
