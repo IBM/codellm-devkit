@@ -49,4 +49,11 @@ refresh: ## Refresh code analyzer
 .PHONY: build
 build: ## Builds a new Python wheel
 	$(info Building artifacts...)
+
+	# Inject the latest Code Analyzer JAR
+	wget -q $(shell curl -s https://api.github.com/repos/IBM/codenet-minerva-code-analyzer/releases/latest | jq -r '.assets[] | .browser_download_url')
+	mkdir -p cldk/analysis/java/codeanalyzer/jar/
+	mv codeanalyzer-*.jar cldk/analysis/java/codeanalyzer/jar/
+
+	# Build the package
 	poetry build
