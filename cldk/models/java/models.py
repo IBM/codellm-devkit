@@ -20,7 +20,7 @@ Models module
 import re
 from contextvars import ContextVar
 from typing import Dict, List, Optional
-
+from pdb import set_trace
 from pydantic import BaseModel, field_validator, model_validator
 
 from .constants_namespace import ConstantsNamespace
@@ -412,9 +412,11 @@ class JApplication(BaseModel):
 
     @field_validator("symbol_table", mode="after")
     @classmethod
-    def validate_source(cls, symbol_table):
+    def validate_source(cls, symbol_table) -> Dict[str, JCompilationUnit]:
         # Populate the lookup table for callables
         for _, j_compulation_unit in symbol_table.items():
             for type_declaration, jtype in j_compulation_unit.type_declarations.items():
                 for __, j_callable in jtype.callable_declarations.items():
                     _CALLABLES_LOOKUP_TABLE[(type_declaration, j_callable.signature)] = j_callable
+
+        return symbol_table
