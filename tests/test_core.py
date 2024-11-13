@@ -1,28 +1,33 @@
-# def test_specifiy_codeanalyzer_backend_manually(test_fixture):
-#     # Initialize the CLDK object with the project directory, language, and backend.
-#     ns = CLDK(
-#         project_dir=test_fixture[0],
-#         language="java",
-#         backend="codeanalyzer",
-#         backend_path=test_fixture[1],
-#         analysis_db="/tmp",
-#         sdg=True,
-#         use_graalvm_binary=False,
-#         eager=True,
-#     )
-#     classes_dict = ns.preprocessing.get_all_classes()
-#     assert len(classes_dict) > 0
+"""Test core functionalities of the build process."""
+
+import glob
+from pdb import set_trace
+from pathlib import Path
+import re
+from subprocess import run
+import zipfile
+
+import pytest
 
 
-# def test_get_all_calsses(test_fixture):
-#     # Initialize the CLDK object with the project directory, language, and analysis_backend.
-#     ns = CLDK(
-#         project_dir=test_fixture[0],
-#         language="java",
-#         analysis_backend="codeanalyzer",
-#         analysis_json_path="/tmp",
-#         sdg=True,
-#         use_graalvm_binary=False,
-#     )
-#     classes_dict = ns.analysis.get_all_classes()
-#     assert len(classes_dict) == 148
+@pytest.fixture(scope="session")
+def build_project():
+    # Run the Poetry build command
+    result = run(["poetry", "build"], capture_output=True, text=True)
+    assert result.returncode == 0, f"Poetry build failed: {result.stderr}"
+
+    # Find the .whl file in the dist directory
+    wheel_files = glob.glob("dist/*.whl")
+    assert wheel_files, "No .whl file found in the dist directory"
+    return wheel_files[0]
+
+
+def test_codeanalyzer_jar_in_wheel(build_project):
+    wheel_path = build_project
+    jar_pattern = re.compile(r"cldk/analysis/java/codeanalyzer/jar/codeanalyzer-.*\.jar")
+
+    # Open the .whl file as a zip archive and check for the jar file
+    with zipfile.ZipFile(wheel_path, "r") as wheel_zip:
+        jar_files = [file for file in wheel_zip.namelist() if jar_pattern.match(file)]
+
+    assert jar_files, "codeanalyzer-*.jar file not found in the wheel package"

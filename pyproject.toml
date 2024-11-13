@@ -24,7 +24,7 @@ classifiers = [
 ]
 include = [
     "LICENSE",
-    "cldk/analysis/java/codeanalyzer/jar/codeanalyzer.jar"
+    "cldk/analysis/java/codeanalyzer/jar/*.jar"
 ]
 
 [tool.poetry.dependencies]
