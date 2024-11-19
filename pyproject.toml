@@ -30,7 +30,7 @@ include = [
 [tool.poetry.dependencies]
 python = ">=3.11"
 pydantic = "^2.6.1"
-pandas = "^2.2.0"
+pandas = "2.1.0"
 networkx = "^3.3"
 pyarrow = "17.0.0"
 tree-sitter-languages = "^1.10.2"
