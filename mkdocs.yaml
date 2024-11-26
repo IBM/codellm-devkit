@@ -8,13 +8,13 @@
 site_name: CodeLLM-Devkit
 repo_url: https://github.com/IBM/codellm-devkit
 repo_name: IBM/codellm-devkit
-# edit_uri: docs/
+edit_uri: docs/
 site_url: https://ibm.github.io/codellm-devkit/
 
 # This unusual configuration of docs/site directories
 # is due to GitHub not presenting /site/ as an option
 # when selecting the dir for Pages.
-# docs_dir: docs
+docs_dir: docs
 site_dir: _site
 
 copyright: Copyright &copy; 2024 IBM
@@ -80,3 +80,5 @@ markdown_extensions:
   - admonition
   - toc:
       toc_depth: 3
+
+- run: mkdocs gh-deploy --force
