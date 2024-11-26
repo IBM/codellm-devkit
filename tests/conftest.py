@@ -18,7 +18,7 @@ def analysis_json_fixture():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def test_fixture():
+def test_fixture_java():
     """
     Returns the path to the test data directory.
 
@@ -33,7 +33,7 @@ def test_fixture():
     config = toml.load(pyproject_path)
 
     # Access the test data path
-    test_data_path = config["tool"]["cldk"]["testing"]["sample-application"]
+    test_data_path = config["tool"]["cldk"]["testing"]["sample-application-java"]
 
     if not Path(test_data_path).exists():
         Path(test_data_path).mkdir(parents=True)
@@ -44,11 +44,6 @@ def test_fixture():
     # Extract the zip file to the test data path
     with zipfile.ZipFile(filename, "r") as zip_ref:
         zip_ref.extractall(test_data_path)
-
-    # Get the correct version of codeanalyzer to put in the resources folder for correct usage
-    url = "https://github.com/IBM/codenet-minerva-code-analyzer/releases/download/v1.0.1/codeanalyzer-1.0.1.jar"
-    codeanalyzer_jar_file = Path(__file__).parent.parent / "cldk" / "analysis" / "java" / "codeanalyzer" / "jar" / "codeanalyzer-1.0.1.jar"
-    urlretrieve(url, codeanalyzer_jar_file)
 
     # Remove the zip file
     filename.unlink()
@@ -61,6 +56,46 @@ def test_fixture():
     for directory in Path(test_data_path).iterdir():
         if directory.exists() and directory.is_dir():
             shutil.rmtree(directory)
-    # Remove the downloaded codeanalyzer jar file
-    codeanalyzer_jar_file.unlink()
+    # ---------------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="session", autouse=True)
+def test_fixture_python():
+    """
+    Returns the path to the test data directory.
+
+    Yields:
+        Path : The path to the test data directory.
+    """
+    # ----------------------------------[ SETUP ]----------------------------------
+    # Path to your pyproject.toml
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+
+    # Load the configuration
+    config = toml.load(pyproject_path)
+
+    # Access the test data path
+    test_data_path = config["tool"]["cldk"]["testing"]["sample-application-python"]
+
+    if not Path(test_data_path).exists():
+        Path(test_data_path).mkdir(parents=True)
+    url = "https://github.com/pallets/click/archive/refs/tags/8.1.7.zip"
+    filename = Path(test_data_path).absolute() / "8.1.7.zip"
+    urlretrieve(url, filename)
+
+    # Extract the zip file to the test data path
+    with zipfile.ZipFile(filename, "r") as zip_ref:
+        zip_ref.extractall(test_data_path)
+
+    # Remove the zip file
+    filename.unlink()
+    # --------------------------------------------------------------------------------
+    # Daytrader8 sample application path
+    yield Path(test_data_path) / "click-8.1.7"
+
+    # -----------------------------------[ TEARDOWN ]----------------------------------
+    # Remove the daytrader8 sample application that was downloaded for testing
+    for directory in Path(test_data_path).iterdir():
+        if directory.exists() and directory.is_dir():
+            shutil.rmtree(directory)
     # ---------------------------------------------------------------------------------

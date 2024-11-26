@@ -14,7 +14,7 @@ from urllib.request import urlretrieve
 
 
 @pytest.fixture(scope="session", autouse=True)
-def test_fixture(application: str = ''):
+def test_fixture_java(application: str = ""):
     """
     Returns the path to the test data directory.
 
@@ -62,17 +62,17 @@ def test_fixture(application: str = ''):
     # ---------------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize('test_fixture', ['daytrader'], indirect=['test_fixture'])
-def test_get_class_call_graph(test_fixture):
+@pytest.mark.parametrize("test_fixture_java", ["daytrader"], indirect=["test_fixture_java"])
+def test_get_class_call_graph(test_fixture_java):
     # Initialize the CLDK object with the project directory, language, and analysis_backend.
     cldk = CLDK(language="java")
 
     analysis = cldk.analysis(
-        project_path=test_fixture,
+        project_path=test_fixture_java,
         analysis_backend="codeanalyzer",
         analysis_json_path="../../../tests/resources/java/analysis_db",
         eager=True,
-        analysis_level=AnalysisLevel.call_graph
+        analysis_level=AnalysisLevel.call_graph,
     )
     class_call_graph: List[Tuple[JMethodDetail, JMethodDetail]] = analysis.get_class_call_graph(
         qualified_class_name="com.ibm.websphere.samples.daytrader.impl.direct.TradeDirectDBUtils"
@@ -81,22 +81,20 @@ def test_get_class_call_graph(test_fixture):
     assert class_call_graph is not None
 
 
-@pytest.mark.parametrize('test_fixture', ['CLI'], indirect=['test_fixture'])
-def test_get_class_call_graph_using_symbol_table(test_fixture):
+@pytest.mark.parametrize("test_fixture_java", ["CLI"], indirect=["test_fixture_java"])
+def test_get_class_call_graph_using_symbol_table(test_fixture_java):
     # Initialize the CLDK object with the project directory, language, and analysis_backend.
     cldk = CLDK(language="java")
 
     analysis = cldk.analysis(
-        project_path=test_fixture,
+        project_path=test_fixture_java,
         analysis_backend="codeanalyzer",
         analysis_json_path="../../../tests/resources/java/analysis_db",
         eager=False,
-        analysis_level=AnalysisLevel.symbol_table
+        analysis_level=AnalysisLevel.symbol_table,
     )
     class_call_graph: List[Tuple[JMethodDetail, JMethodDetail]] = analysis.get_class_call_graph(
-        qualified_class_name="org.apache.commons.cli.DefaultParser",
-        method_signature="handleConcatenatedOptions(String)",
-        using_symbol_table=True
+        qualified_class_name="org.apache.commons.cli.DefaultParser", method_signature="handleConcatenatedOptions(String)", using_symbol_table=True
     )
 
     assert class_call_graph is not None

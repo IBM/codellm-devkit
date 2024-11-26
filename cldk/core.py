@@ -4,8 +4,14 @@ import logging
 from typing import List
 
 from cldk.analysis import AnalysisLevel
+
+# Java
 from cldk.analysis.java import JavaAnalysis
 from cldk.analysis.java.treesitter import JavaSitter
+
+# Python
+from cldk.analysis.python import PythonAnalysis
+
 from cldk.utils.exceptions import CldkInitializationException
 from cldk.utils.sanitization.java.TreesitterSanitizer import TreesitterSanitizer
 
@@ -31,16 +37,16 @@ class CLDK:
         self.language: str = language
 
     def analysis(
-            self,
-            project_path: str | Path | None = None,
-            source_code: str | None = None,
-            eager: bool = False,
-            analysis_backend: str | None = "codeanalyzer",
-            analysis_level: str = AnalysisLevel.symbol_table,
-            target_files: List[str] | None = None,
-            analysis_backend_path: str | None = None,
-            analysis_json_path: str | Path = None,
-            use_graalvm_binary: bool = False,
+        self,
+        project_path: str | Path | None = None,
+        source_code: str | None = None,
+        eager: bool = False,
+        analysis_backend: str | None = "codeanalyzer",
+        analysis_level: str = AnalysisLevel.symbol_table,
+        target_files: List[str] | None = None,
+        analysis_backend_path: str | None = None,
+        analysis_json_path: str | Path = None,
+        use_graalvm_binary: bool = False,
     ) -> JavaAnalysis:
         """
         Initialize the preprocessor based on the specified language and analysis_backend.
@@ -94,8 +100,7 @@ class CLDK:
             raise CldkInitializationException("Either project_path or source_code must be provided.")
 
         if project_path is not None and source_code is not None:
-            raise CldkInitializationException(
-                "Both project_path and source_code are provided. Please provide " "only one.")
+            raise CldkInitializationException("Both project_path and source_code are provided. Please provide " "only one.")
 
         if self.language == "java":
             return JavaAnalysis(
@@ -108,6 +113,12 @@ class CLDK:
                 use_graalvm_binary=use_graalvm_binary,
                 target_files=target_files,
                 eager_analysis=eager,
+            )
+        elif self.language == "python":
+            return PythonAnalysis(
+                project_dir=project_path,
+                source_code=source_code,
+                analysis_backend="treesitter",
             )
         else:
             raise NotImplementedError(f"Analysis support for {self.language} is not implemented yet.")
@@ -127,7 +138,7 @@ class CLDK:
         else:
             raise NotImplementedError(f"Treesitter parser for {self.language} is not implemented yet.")
 
-    def tree_sitter_utils(self, source_code: str) -> [TreesitterSanitizer | NotImplementedError]:
+    def tree_sitter_utils(self, source_code: str) -> List[TreesitterSanitizer | NotImplementedError]:
         """
         Parse the project using treesitter.
 

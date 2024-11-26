@@ -10,21 +10,13 @@ from cldk.models.python.models import PyMethod, PyImport, PyModule, PyClass
 
 class PythonAnalysis(SymbolTable):
     def __init__(
-            self,
-            analysis_backend: str,
-            eager_analysis: bool,
-            project_dir: str | Path | None,
-            source_code: str | None,
-            analysis_backend_path: str | None,
-            analysis_json_path: str | Path | None,
-            use_graalvm_binary: bool = None,
+        self,
+        analysis_backend: str,
+        project_dir: str | Path | None,
+        source_code: str | None,
     ) -> None:
         self.project_dir = project_dir
         self.source_code = source_code
-        self.analysis_json_path = analysis_json_path
-        self.analysis_backend_path = analysis_backend_path
-        self.eager_analysis = eager_analysis
-        self.use_graalvm_binary = use_graalvm_binary
 
         # Initialize the analysis analysis_backend
         if analysis_backend.lower() == "codeql":
@@ -67,7 +59,7 @@ class PythonAnalysis(SymbolTable):
         """
         return self.analysis_backend.get_method_details(self.source_code, method_signature)
 
-    def get_imports(self) ->  List[PyImport]:
+    def get_imports(self) -> List[PyImport]:
         """
         Given an application or a source code, get all the imports
         """
