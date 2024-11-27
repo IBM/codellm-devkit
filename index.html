@@ -8,10 +8,14 @@
       
       
       
+        <link rel="canonical" href="https://ibm.github.io/codellm-devkit/">
       
       
       
-      <link rel="icon" href="/codellm-devkit/assets/images/favicon.png">
+        <link rel="next" href="walkthrough/">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
@@ -20,10 +24,10 @@
       
     
     
-      <link rel="stylesheet" href="/codellm-devkit/assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.6543a935.min.css">
       
         
-        <link rel="stylesheet" href="/codellm-devkit/assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -42,11 +46,11 @@
       
     
     
-      <link rel="stylesheet" href="/codellm-devkit/assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="/codellm-devkit/stylesheets/extra.css">
+      <link rel="stylesheet" href="stylesheets/extra.css">
     
-    <script>__md_scope=new URL("/codellm-devkit/",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -71,6 +75,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#codellm-devkit-a-python-library-for-seamless-interaction-with-codellms" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -81,9 +90,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/codellm-devkit/." title="CodeLLM-Devkit" class="md-header__button md-logo" aria-label="CodeLLM-Devkit" data-md-component="logo">
+    <a href="." title="CodeLLM-Devkit" class="md-header__button md-logo" aria-label="CodeLLM-Devkit" data-md-component="logo">
       
-  <img src="/codellm-devkit/assets/cldk.png" alt="logo">
+  <img src="assets/cldk.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -100,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Home
             
           </span>
         </div>
@@ -193,9 +202,11 @@
         
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="/codellm-devkit/." class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
         
   
     
@@ -212,7 +223,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/codellm-devkit/walkthrough/" class="md-tabs__link">
+      <a href="walkthrough/" class="md-tabs__link">
         
   
     
@@ -229,7 +240,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/codellm-devkit/api_reference/" class="md-tabs__link">
+      <a href="api_reference/" class="md-tabs__link">
         
   
     
@@ -246,7 +257,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/codellm-devkit/publications/" class="md-tabs__link">
+      <a href="publications/" class="md-tabs__link">
         
   
     
@@ -263,7 +274,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/codellm-devkit/contribute/" class="md-tabs__link">
+      <a href="contribute/" class="md-tabs__link">
         
   
     
@@ -299,9 +310,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/codellm-devkit/." title="CodeLLM-Devkit" class="md-nav__button md-logo" aria-label="CodeLLM-Devkit" data-md-component="logo">
+    <a href="." title="CodeLLM-Devkit" class="md-nav__button md-logo" aria-label="CodeLLM-Devkit" data-md-component="logo">
       
-  <img src="/codellm-devkit/assets/cldk.png" alt="logo">
+  <img src="assets/cldk.png" alt="logo">
 
     </a>
     CodeLLM-Devkit
@@ -325,10 +336,30 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/codellm-devkit/." class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -337,6 +368,44 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-and-design-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architectural and Design Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contact" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contact
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -348,7 +417,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/codellm-devkit/walkthrough/" class="md-nav__link">
+      <a href="walkthrough/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -368,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/codellm-devkit/api_reference/" class="md-nav__link">
+      <a href="api_reference/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -388,7 +457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/codellm-devkit/publications/" class="md-nav__link">
+      <a href="publications/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -408,7 +477,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/codellm-devkit/contribute/" class="md-nav__link">
+      <a href="contribute/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -433,8 +502,110 @@
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+  
+    <a href="https://github.com/IBM/codellm-devkit/docs/index.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
+    </a>
+  
+  
+
+
+<p><img alt="codellm-devkit logo" src="https://github.com/IBM/codellm-devkit/blob/main/docs/assets/cldk.png?raw=true" /></p>
+<p><a href="https://arxiv.org/abs/2410.13007"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2410.13007-b31b1b.svg" /></a>
+<a href="https://www.python.org/downloads/release/python-3110/"><img alt="Python 3.11" src="https://img.shields.io/badge/python-3.11-blue.svg" /></a>
+<a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-green.svg" /></a>
+<a href="https://ibm.github.io/codellm-devkit/"><img alt="Documentation" src="https://img.shields.io/badge/GitHub%20Pages-Docs-blue" /></a>
+<a href="https://badge.fury.io/py/cldk"><img alt="PyPI version" src="https://badge.fury.io/py/cldk.svg" /></a></p>
+<h1 id="codellm-devkit-a-python-library-for-seamless-interaction-with-codellms">CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs</h1>
+<p>Codellm-devkit (CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). Codellm-devkit allows developers to streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.</p>
+<p>Codellm-devkit simplifies the complex process of analyzing codebases that span multiple programming languages, making it easier to extract meaningful insights and drive LLM-based code analysis. <code>CLDK</code> achieves this through an open-source Python library that abstracts the intricacies of program analysis and LLM interactions. With this library, developer can streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.</p>
+<p><strong>The purpose of Codellm-devkit is to enable the development and experimentation of robust analysis pipelines that harness the power of both traditional program analysis tools and CodeLLMs.</strong>
+By providing a consistent and extensible framework, Codellm-devkit aims to reduce the friction associated with multi-language code analysis and ensure compatibility across different analysis tools and LLM platforms.</p>
+<p>Codellm-devkit is designed to integrate seamlessly with a variety of popular analysis tools, such as WALA, Tree-sitter, LLVM, and CodeQL, each implemented in different languages. Codellm-devkit acts as a crucial intermediary layer, enabling efficient and consistent communication between these tools and the CodeLLMs.</p>
+<p>Codellm-devkit is constantly evolving to include new tools and frameworks, ensuring it remains a versatile solution for code analysis and LLM integration.</p>
+<p>Codellm-devkit is:</p>
+<ul>
+<li><strong>Unified</strong>: Provides a single framework for integrating multiple analysis tools and CodeLLMs, regardless of the programming languages involved.</li>
+<li><strong>Extensible</strong>: Designed to support new analysis tools and LLM platforms, making it adaptable to the evolving landscape of code analysis.</li>
+<li><strong>Streamlined</strong>: Simplifies the process of transforming raw code into structured, LLM-ready inputs, reducing the overhead typically associated with multi-language analysis.</li>
+</ul>
+<h2 id="architectural-and-design-overview">Architectural and Design Overview</h2>
+<p>Below is a very high-level overview of the architectural of CLDK:</p>
+<pre><code class="language-mermaid">graph TD
+User &lt;--&gt; A[CLDK]
+    A --&gt; 15[Retrieval ‡]
+    A --&gt; 16[Prompting ‡]
+    A[CLDK] &lt;--&gt; B[Languages]
+        B --&gt; C[Java, Python, Go ‡, C ‡, JavaScript ‡, TypeScript ‡, Rust ‡]
+            C --&gt; D[Data Models]
+                D --&gt; 13{Pydantic}
+            13 --&gt; 7            
+            C --&gt; 7{backends}
+                7 &lt;--&gt; 9[WALA]
+                    9 &lt;--&gt; 14[Analysis]
+                7 &lt;--&gt; 10[Tree-sitter] 
+                    10 &lt;--&gt; 14[Analysis]
+                7 &lt;--&gt; 11[LLVM ‡]
+                    11 &lt;--&gt; 14[Analysis]
+                7 &lt;--&gt; 12[CodeQL ‡]
+                    12 &lt;--&gt; 14[Analysis]
+
+
+
+X[‡ Yet to be implemented]
+</code></pre>
+<p>The user interacts by invoking the CLDK API. The CLDK API is responsible for handling the user requests and delegating them to the appropriate language-specific modules. </p>
+<p>Each language comprises of two key components: data models and backends.</p>
+<ol>
+<li>
+<p><strong>Data Models:</strong> These are high level abstractions that represent the various language constructs and componentes in a structured format using pydantic. This confers a high degree of flexibility and extensibility to the models as well as allowing for easy accees of various data components via a simple dot notation. In addition, the data models are designed to be easily serializable and deserializable, making it easy to store and retrieve data from various sources.</p>
+</li>
+<li>
+<p><strong>Analysis Backends:</strong> These are the components that are responsible for interfacing with the various program analysis tools. The core backends are Treesitter, Javaparse, WALA, LLVM, and CodeQL. The backends are responsible for handling the user requests and delegating them to the appropriate analysis tools. The analysis tools perfrom the requisite analysis and return the results to the user. The user merely calls one of several high-level API functions such as <code>get_method_body</code>, <code>get_method_signature</code>, <code>get_call_graph</code>, etc. and the backend takes care of the rest. </p>
+<p>Some langugages may have multiple backends. For example, Java has WALA, Javaparser, Treesitter, and CodeQL backends. The user has freedom to choose the backend that best suits their needs. </p>
+</li>
+</ol>
+<p>We are currently working on implementing the retrieval and prompting components. The retrieval component will be responsible for retrieving the relevant code snippets from the codebase for RAG usecases. The prompting component will be responsible for generating the prompts for the CodeLLMs using popular prompting frameworks such as <code>PDL</code>, <code>Guidance</code>, or <code>LMQL</code>. </p>
+<h2 id="contact">Contact</h2>
+<p>For any questions, feedback, or suggestions, please contact the authors:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Email</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rahul Krishna</td>
+<td><a href="mailto:imralk+oss@gmail.com">i.m.ralk@gmail.com</a></td>
+</tr>
+<tr>
+<td>Rangeet Pan</td>
+<td><a href="mailto:rangeet.pan@gmail.com">rangeet.pan@ibm.com</a></td>
+</tr>
+<tr>
+<td>Saurabh Sihna</td>
+<td><a href="mailto:sinhas@us.ibm.com">sinhas@us.ibm.com</a></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -452,6 +623,28 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+        
+          
+          <a href="walkthrough/" class="md-footer__link md-footer__link--next" aria-label="Next: Walkthrough">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Walkthrough
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -480,10 +673,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "/codellm-devkit/", "features": ["search.highlight", "search.suggest", "navigation.sections", "navigation.path", "navigation.footer", "navigation.indexes", "navigation.top", "toc.follow", "toc.integrate", "navigation.tabs", "content.action.edit"], "search": "/codellm-devkit/assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": ["search.highlight", "search.suggest", "navigation.sections", "navigation.path", "navigation.footer", "navigation.indexes", "navigation.top", "toc.follow", "toc.integrate", "navigation.tabs", "content.action.edit"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="/codellm-devkit/assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="assets/javascripts/bundle.081f42fc.min.js"></script>
       
     
   </body>
