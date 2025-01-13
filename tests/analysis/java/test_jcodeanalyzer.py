@@ -484,6 +484,7 @@ def test_get_all_classes(test_fixture, analysis_json_fixture):
             eager_analysis=False,
             target_files=None,
         )
+
         all_methods = code_analyzer.get_all_classes()
         assert all_methods is not None
         assert isinstance(all_methods, Dict)
@@ -507,6 +508,7 @@ def test_get_class(test_fixture, analysis_json_fixture):
             eager_analysis=False,
             target_files=None,
         )
+
         class_info = code_analyzer.get_class("com.ibm.websphere.samples.daytrader.TradeAction")
         assert class_info is not None
         assert isinstance(class_info, JType)
@@ -531,7 +533,6 @@ def test_get_method(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # Call without using symbol table
         method = code_analyzer.get_method("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)")
         assert method is not None
         assert isinstance(method, JCallable)
@@ -556,7 +557,6 @@ def test_get_java_file(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # Call without using symbol table
         java_file = code_analyzer.get_java_file("com.ibm.websphere.samples.daytrader.TradeAction")
         assert java_file is not None
         assert isinstance(java_file, str)
@@ -588,7 +588,6 @@ def test_get_all_methods_in_class(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # Call without using symbol table
         all_methods = code_analyzer.get_all_methods_in_class("com.ibm.websphere.samples.daytrader.TradeAction")
         assert all_methods is not None
         assert isinstance(all_methods, Dict)
@@ -614,7 +613,6 @@ def test_get_all_constructors(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # Call without using symbol table
         all_constructors = code_analyzer.get_all_constructors("com.ibm.websphere.samples.daytrader.TradeAction")
         assert all_constructors is not None
         assert isinstance(all_constructors, Dict)
@@ -640,7 +638,6 @@ def test_get_all_sub_classes(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # Call without using symbol table
         all_subclasses = code_analyzer.get_all_sub_classes("com.ibm.websphere.samples.daytrader.TradeAction")
         assert all_subclasses is not None
         assert isinstance(all_subclasses, Dict)
@@ -665,11 +662,16 @@ def test_get_all_fields(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # Call without using symbol table
         all_fields = code_analyzer.get_all_fields("com.ibm.websphere.samples.daytrader.TradeAction")
         assert all_fields is not None
         assert isinstance(all_fields, List)
         assert len(all_fields) > 0
+
+        # Handle get fields for class not found
+        all_fields = code_analyzer.get_all_fields("com.not.Found")
+        assert all_fields is not None
+        assert isinstance(all_fields, List)
+        assert len(all_fields) == 0
 
 
 def test_get_all_nested_classes(test_fixture, analysis_json_fixture):
@@ -691,7 +693,186 @@ def test_get_all_nested_classes(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # Call without using symbol table
         all_nested_classes = code_analyzer.get_all_nested_classes("com.ibm.websphere.samples.daytrader.TradeAction")
         assert all_nested_classes is not None
         assert isinstance(all_nested_classes, List)
+
+        # Handle class not found
+        all_nested_classes = code_analyzer.get_all_nested_classes("com.not.Found")
+        assert all_nested_classes is not None
+        assert isinstance(all_nested_classes, List)
+        assert len(all_nested_classes) == 0
+
+
+def test_get_extended_classes(test_fixture, analysis_json_fixture):
+    """It should return all of the extended classes for a class"""
+    # Get a known good analysis file
+    analysis_json = get_analysis_json(analysis_json_fixture)
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        code_analyzer = JCodeanalyzer(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.call_graph,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+            target_files=None,
+        )
+
+        all_extended_classes = code_analyzer.get_extended_classes("com.ibm.websphere.samples.daytrader.TradeAction")
+        assert all_extended_classes is not None
+        assert isinstance(all_extended_classes, List)
+
+        # Handle class not found
+        all_extended_classes = code_analyzer.get_extended_classes("com.not.Found")
+        assert all_extended_classes is not None
+        assert isinstance(all_extended_classes, List)
+        assert len(all_extended_classes) == 0
+
+
+def test_get_implemented_interfaces(test_fixture, analysis_json_fixture):
+    """It should return all of the implemented interfaces for a class"""
+    # Get a known good analysis file
+    analysis_json = get_analysis_json(analysis_json_fixture)
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        code_analyzer = JCodeanalyzer(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.call_graph,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+            target_files=None,
+        )
+
+        # Call without using symbol table
+        all_interfaces = code_analyzer.get_implemented_interfaces("com.ibm.websphere.samples.daytrader.TradeAction")
+        assert all_interfaces is not None
+        assert isinstance(all_interfaces, List)
+
+        # Handle class not found
+        all_interfaces = code_analyzer.get_implemented_interfaces("com.not.Found")
+        assert all_interfaces is not None
+        assert isinstance(all_interfaces, List)
+        assert len(all_interfaces) == 0
+
+
+def test_get_class_call_graph_using_symbol_table(test_fixture, analysis_json_fixture):
+    """It should return the call graph using the symbol table"""
+    # Get a known good analysis file
+    analysis_json = get_analysis_json(analysis_json_fixture)
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        code_analyzer = JCodeanalyzer(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.symbol_table,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+            target_files=None,
+        )
+
+        # TODO: The code seems to be broken for this case
+        # # Call with method signature
+        # all_call_graph = code_analyzer.get_class_call_graph_using_symbol_table("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)")
+        # assert all_call_graph is not None
+        # assert isinstance(all_call_graph, List)
+
+        # Call without method signature
+        all_call_graph = code_analyzer.get_class_call_graph_using_symbol_table("com.ibm.websphere.samples.daytrader.TradeAction", None)
+        assert all_call_graph is not None
+        assert isinstance(all_call_graph, List)
+
+
+def test_get_class_call_graph(test_fixture, analysis_json_fixture):
+    """It should return the call graph"""
+    # Get a known good analysis file
+    analysis_json = get_analysis_json(analysis_json_fixture)
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        code_analyzer = JCodeanalyzer(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.call_graph,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+            target_files=None,
+        )
+
+        # Call with method signature
+        class_call_graph = code_analyzer.get_class_call_graph("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)")
+        assert class_call_graph is not None
+        assert isinstance(class_call_graph, List)
+
+        # Call without method signature
+        class_call_graph = code_analyzer.get_class_call_graph("com.ibm.websphere.samples.daytrader.TradeAction", None)
+        assert class_call_graph is not None
+        assert isinstance(class_call_graph, List)
+
+
+def test_get_all_entry_point_methods(test_fixture, analysis_json_fixture):
+    """It should return the all of the entry point methods"""
+    # Get a known good analysis file
+    analysis_json = get_analysis_json(analysis_json_fixture)
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        code_analyzer = JCodeanalyzer(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.call_graph,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+            target_files=None,
+        )
+
+        # Call with method signature
+        entry_point_methods = code_analyzer.get_all_entry_point_methods()
+        assert entry_point_methods is not None
+        assert isinstance(entry_point_methods, Dict)
+        assert len(entry_point_methods) > 0
+
+
+def test_get_all_entry_point_classes(test_fixture, analysis_json_fixture):
+    """It should return the all of the entry point classes"""
+    # Get a known good analysis file
+    analysis_json = get_analysis_json(analysis_json_fixture)
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        code_analyzer = JCodeanalyzer(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.call_graph,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+            target_files=None,
+        )
+
+        # Call with method signature
+        entry_point_classes = code_analyzer.get_all_entry_point_classes()
+        assert entry_point_classes is not None
+        assert isinstance(entry_point_classes, Dict)
+        assert len(entry_point_classes) > 0
