@@ -1,4 +1,7 @@
-from pdb import set_trace
+"""
+Java Tests
+"""
+
 from cldk import CLDK
 from typing import List, Tuple
 from cldk.analysis import AnalysisLevel
@@ -6,7 +9,8 @@ from cldk.models.java.models import JMethodDetail
 
 
 def test_get_symbol_table_is_not_null(test_fixture, codeanalyzer_jar_path):
-    # Initialize the CLDK object with the project directory, language, and analysis_backend.
+    """It should return a symbol table that is not null"""
+    # Initialize the CLDK object with the project directory, language, and analysis_backend
     cldk = CLDK(language="java")
     analysis = cldk.analysis(
         project_path=test_fixture,
@@ -19,6 +23,7 @@ def test_get_symbol_table_is_not_null(test_fixture, codeanalyzer_jar_path):
 
 
 def test_get_class_call_graph(test_fixture, codeanalyzer_jar_path):
+    """It should return the class call graph"""
     # Initialize the CLDK object with the project directory, language, and analysis_backend.
     cldk = CLDK(language="java")
 
