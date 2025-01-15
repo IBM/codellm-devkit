@@ -27,21 +27,28 @@ from networkx import DiGraph
 
 from cldk.analysis import AnalysisLevel
 from cldk.analysis.java.codeanalyzer import JCodeanalyzer
-from cldk.models.java.models import JApplication, JType, JCallable, JCompilationUnit
+from cldk.models.java.models import JApplication, JType, JCallable, JCompilationUnit, JMethodDetail
 from cldk.models.java import JGraphEdges
 
 
+ANALYSIS_JSON = {}
+
+
+# This might be another global test fixture but I didn't have time to work it out
 def get_analysis_json(base_path: str) -> str:
     """Opens the analysis.json file and returns the contents as a json string"""
-    # check if the folder exists
-    if not os.path.exists(base_path):
-        raise ValueError("Error: Folder '%s' does not exist", base_path)
+    global ANALYSIS_JSON
 
-    # Read the json file and return it a a json string
-    analysis_json = {}
-    with open(os.path.join(base_path, "analysis.json"), "r", encoding="utf-8") as json_data:
-        analysis_json = json.dumps(json.load(json_data))
-    return analysis_json
+    if not ANALYSIS_JSON:
+        # check if the folder exists
+        if not os.path.exists(base_path):
+            raise ValueError(f"Error: Folder '{base_path}' does not exist")
+
+        # Read the json file and return it as a json string
+        with open(os.path.join(base_path, "analysis.json"), "r", encoding="utf-8") as json_data:
+            ANALYSIS_JSON = json.dumps(json.load(json_data))
+
+    return ANALYSIS_JSON
 
 
 def test_init_japplication(test_fixture, codeanalyzer_jar_path, analysis_json_fixture):
@@ -396,18 +403,24 @@ def test_get_all_callers(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # TODO: This currently doesn't work. Code has bad call
-        # # Call using symbol table
-        # all_callers = code_analyzer.get_all_callers("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)", True)
-        # assert all_callers is not None
-        # assert isinstance(all_callers, Dict)
-        # assert "caller_details" in all_callers
-
         # Call without using symbol table
-        all_callers = code_analyzer.get_all_callers("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)", False)
+        all_callers = code_analyzer.get_all_callers("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", False)
         assert all_callers is not None
         assert isinstance(all_callers, Dict)
         assert "caller_details" in all_callers
+        assert len(all_callers["caller_details"]) == 18
+        for method in all_callers["caller_details"]:
+            assert isinstance(method["caller_method"], JMethodDetail)
+
+        # TODO: This currently doesn't work. Code has bad call as seen in this error message:
+        # TypeError: JavaSitter.get_calling_lines() missing 1 required positional argument: 'is_target_method_a_constructor'
+        # Uncomment when code is fixed.
+
+        # # Call using symbol table
+        # all_callers = code_analyzer.get_all_callers("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", True)
+        # assert all_callers is not None
+        # assert isinstance(all_callers, Dict)
+        # assert "caller_details" in all_callers
 
 
 def test_get_all_callees(test_fixture, analysis_json_fixture):
@@ -429,18 +442,21 @@ def test_get_all_callees(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # TODO: This currently doesn't work. Code has bad call
-        # # Call using symbol table
-        # all_callers = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)", True)
-        # assert all_callers is not None
-        # assert isinstance(all_callers, Dict)
-        # assert "caller_details" in all_callers
-
         # Call without using symbol table
-        all_callers = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)", False)
-        assert all_callers is not None
-        assert isinstance(all_callers, Dict)
-        assert "callee_details" in all_callers
+        all_callees = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", False)
+        assert all_callees is not None
+        assert isinstance(all_callees, Dict)
+        assert "callee_details" in all_callees
+        assert len(all_callees["callee_details"]) == 0
+
+        # Call using symbol table
+        all_callees = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", True)
+        assert all_callees is not None
+        assert isinstance(all_callees, Dict)
+        # TODO: Bug, the Dict is empty.
+        # need to uncomment when code is fixed
+        # assert "callee_details" in all_callees
+        # assert len(all_callees["callee_details"]) == 0
 
 
 def test_get_all_methods_in_application(test_fixture, analysis_json_fixture):
@@ -509,13 +525,13 @@ def test_get_class(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        class_info = code_analyzer.get_class("com.ibm.websphere.samples.daytrader.TradeAction")
+        class_info = code_analyzer.get_class("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect")
         assert class_info is not None
         assert isinstance(class_info, JType)
 
 
 def test_get_method(test_fixture, analysis_json_fixture):
-    """It should return all of the callees"""
+    """It should return the method"""
     # Get a known good analysis file
     analysis_json = get_analysis_json(analysis_json_fixture)
 
@@ -527,13 +543,13 @@ def test_get_method(test_fixture, analysis_json_fixture):
             source_code=None,
             analysis_backend_path=None,
             analysis_json_path=None,
-            analysis_level=AnalysisLevel.call_graph,
+            analysis_level=AnalysisLevel.symbol_table,
             use_graalvm_binary=False,
             eager_analysis=False,
             target_files=None,
         )
 
-        method = code_analyzer.get_method("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)")
+        method = code_analyzer.get_method("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect", "publishQuotePriceChange(QuoteDataBean, BigDecimal, BigDecimal, double)")
         assert method is not None
         assert isinstance(method, JCallable)
 
@@ -551,17 +567,16 @@ def test_get_java_file(test_fixture, analysis_json_fixture):
             source_code=None,
             analysis_backend_path=None,
             analysis_json_path=None,
-            analysis_level=AnalysisLevel.call_graph,
+            analysis_level=AnalysisLevel.symbol_table,
             use_graalvm_binary=False,
             eager_analysis=False,
             target_files=None,
         )
 
-        java_file = code_analyzer.get_java_file("com.ibm.websphere.samples.daytrader.TradeAction")
+        java_file = code_analyzer.get_java_file("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect")
         assert java_file is not None
         assert isinstance(java_file, str)
-        relative_filename = java_file.split("/src")[1]
-        assert relative_filename == "/main/java/com/ibm/websphere/samples/daytrader/TradeAction.java"
+        assert java_file == "/codellm-devkit/tests/resources/java/application/sample.daytrader8-1.2/src/main/java/com/ibm/websphere/samples/daytrader/impl/direct/TradeDirect.java"
 
         # Test compilation unit for this file
         comp_unit = code_analyzer.get_java_compilation_unit(java_file)
@@ -582,13 +597,13 @@ def test_get_all_methods_in_class(test_fixture, analysis_json_fixture):
             source_code=None,
             analysis_backend_path=None,
             analysis_json_path=None,
-            analysis_level=AnalysisLevel.call_graph,
+            analysis_level=AnalysisLevel.symbol_table,
             use_graalvm_binary=False,
             eager_analysis=False,
             target_files=None,
         )
 
-        all_methods = code_analyzer.get_all_methods_in_class("com.ibm.websphere.samples.daytrader.TradeAction")
+        all_methods = code_analyzer.get_all_methods_in_class("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect")
         assert all_methods is not None
         assert isinstance(all_methods, Dict)
         assert len(all_methods) > 0
@@ -613,10 +628,10 @@ def test_get_all_constructors(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        all_constructors = code_analyzer.get_all_constructors("com.ibm.websphere.samples.daytrader.TradeAction")
+        all_constructors = code_analyzer.get_all_constructors("com.ibm.websphere.samples.daytrader.entities.AccountDataBean")
         assert all_constructors is not None
         assert isinstance(all_constructors, Dict)
-        assert len(all_constructors) > 0
+        assert len(all_constructors) == 3
 
 
 def test_get_all_sub_classes(test_fixture, analysis_json_fixture):
@@ -656,16 +671,16 @@ def test_get_all_fields(test_fixture, analysis_json_fixture):
             source_code=None,
             analysis_backend_path=None,
             analysis_json_path=None,
-            analysis_level=AnalysisLevel.call_graph,
+            analysis_level=AnalysisLevel.symbol_table,
             use_graalvm_binary=False,
             eager_analysis=False,
             target_files=None,
         )
 
-        all_fields = code_analyzer.get_all_fields("com.ibm.websphere.samples.daytrader.TradeAction")
+        all_fields = code_analyzer.get_all_fields("com.ibm.websphere.samples.daytrader.entities.AccountDataBean")
         assert all_fields is not None
         assert isinstance(all_fields, List)
-        assert len(all_fields) > 0
+        assert len(all_fields) == 12
 
         # Handle get fields for class not found
         all_fields = code_analyzer.get_all_fields("com.not.Found")
