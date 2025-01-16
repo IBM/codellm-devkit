@@ -1,3 +1,23 @@
+################################################################################
+# Copyright IBM Corporation 2024
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+"""
+Global Test Fixtures
+"""
+
 import toml
 import shutil
 import pytest
@@ -8,6 +28,11 @@ from urllib.request import urlretrieve
 
 @pytest.fixture(scope="session", autouse=True)
 def analysis_json_fixture():
+    """Fixture to get the path of the analysis.json file for testing
+
+    Returns:
+        Path: The folder that contains the analysis.json file
+    """
     # Path to your pyproject.toml
     pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
 
@@ -19,6 +44,11 @@ def analysis_json_fixture():
 
 @pytest.fixture(scope="session", autouse=True)
 def codeanalyzer_jar_path():
+    """Fixture to get the path to the codeanalyzer.jar file
+
+    Returns:
+        Path: The path to the codeanalyzer.jar file
+    """
     # Path to your pyproject.toml
     pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
 
@@ -45,19 +75,22 @@ def test_fixture():
 
     # Access the test data path
     test_data_path = config["tool"]["cldk"]["testing"]["sample-application"]
+    filename = Path(test_data_path).absolute() / "daytrader8-1.2.zip"
 
-    if not Path(test_data_path).exists():
-        Path(test_data_path).mkdir(parents=True)
-    url = "https://github.com/OpenLiberty/sample.daytrader8/archive/refs/tags/v1.2.zip"
-    filename = Path(test_data_path).absolute() / "v1.2.zip"
-    urlretrieve(url, filename)
+    # If the file doesn't exist, download it
+    if not Path(filename).exists():
+        # If the path doesn't exist, create it
+        if not Path(test_data_path).exists():
+            Path(test_data_path).mkdir(parents=True)
+        url = "https://github.com/OpenLiberty/sample.daytrader8/archive/refs/tags/v1.2.zip"
+        urlretrieve(url, filename)
 
     # Extract the zip file to the test data path
     with zipfile.ZipFile(filename, "r") as zip_ref:
         zip_ref.extractall(test_data_path)
 
     # Remove the zip file
-    filename.unlink()
+    # filename.unlink()
     # --------------------------------------------------------------------------------
     # Daytrader8 sample application path
     yield Path(test_data_path) / "sample.daytrader8-1.2"
