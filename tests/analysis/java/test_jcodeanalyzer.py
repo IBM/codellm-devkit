@@ -20,7 +20,7 @@ Test Cases for JCodeanalyzer
 
 import os
 import json
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from unittest.mock import patch, MagicMock
 import networkx as nx
 from networkx import DiGraph
@@ -269,9 +269,11 @@ def test_get_symbol_table(test_fixture, analysis_json_fixture):
             target_files=None,
         )
         code_analyzer.application = None
-        comp_unit = code_analyzer.get_symbol_table()
-        assert comp_unit is not None
-        assert isinstance(comp_unit, Dict)
+        symbol_table = code_analyzer.get_symbol_table()
+        assert symbol_table is not None
+        assert isinstance(symbol_table, Dict)
+        for _, comp_unit in symbol_table.items():
+            assert isinstance(comp_unit, JCompilationUnit)
 
 
 def test_get_application_view(test_fixture, analysis_json_fixture):
@@ -298,7 +300,7 @@ def test_get_application_view(test_fixture, analysis_json_fixture):
         assert isinstance(app, JApplication)
 
         # Test with source file
-        code_analyzer.source_code = "dummy.java"
+        code_analyzer.source_code = "./tests/resources/java/application/sample.daytrader8-1.2/src/main/java/com/ibm/websphere/samples/daytrader/web/websocket/ActionMessage.java"
         app = code_analyzer.get_application_view()
         assert app is not None
         assert isinstance(app, JApplication)
@@ -326,6 +328,7 @@ def test_get_system_dependency_graph(test_fixture, analysis_json_fixture):
         graph = code_analyzer.get_system_dependency_graph()
         assert graph is not None
         assert isinstance(graph, list)
+        assert len(graph) > 0
         assert isinstance(graph[0], JGraphEdges)
 
 
@@ -342,7 +345,7 @@ def test_get_call_graph(test_fixture, analysis_json_fixture):
             source_code=None,
             analysis_backend_path=None,
             analysis_json_path=None,
-            analysis_level=AnalysisLevel.symbol_table,
+            analysis_level=AnalysisLevel.call_graph,
             use_graalvm_binary=False,
             eager_analysis=False,
             target_files=None,
@@ -352,7 +355,7 @@ def test_get_call_graph(test_fixture, analysis_json_fixture):
         assert isinstance(graph, DiGraph)
 
         # test for symbol table
-        code_analyzer.analysis_level = "symbol_table"
+        code_analyzer.analysis_level = AnalysisLevel.symbol_table
         graph = code_analyzer.get_call_graph()
         assert graph is not None
         assert isinstance(graph, DiGraph)
@@ -407,20 +410,20 @@ def test_get_all_callers(test_fixture, analysis_json_fixture):
         all_callers = code_analyzer.get_all_callers("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", False)
         assert all_callers is not None
         assert isinstance(all_callers, Dict)
+        assert len(all_callers) > 0
         assert "caller_details" in all_callers
         assert len(all_callers["caller_details"]) == 18
         for method in all_callers["caller_details"]:
             assert isinstance(method["caller_method"], JMethodDetail)
 
+        # Call using symbol table
+
         # TODO: This currently doesn't work. Code has bad call as seen in this error message:
         # TypeError: JavaSitter.get_calling_lines() missing 1 required positional argument: 'is_target_method_a_constructor'
-        # Uncomment when code is fixed.
-
-        # # Call using symbol table
-        # all_callers = code_analyzer.get_all_callers("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", True)
-        # assert all_callers is not None
-        # assert isinstance(all_callers, Dict)
-        # assert "caller_details" in all_callers
+        all_callers = code_analyzer.get_all_callers("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", True)
+        assert all_callers is not None
+        assert isinstance(all_callers, Dict)
+        assert "caller_details" in all_callers
 
 
 def test_get_all_callees(test_fixture, analysis_json_fixture):
@@ -443,20 +446,21 @@ def test_get_all_callees(test_fixture, analysis_json_fixture):
         )
 
         # Call without using symbol table
-        all_callees = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", False)
+        all_callees = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.util.Log", "printCollection(String, Collection)", False)
         assert all_callees is not None
         assert isinstance(all_callees, Dict)
         assert "callee_details" in all_callees
-        assert len(all_callees["callee_details"]) == 0
+        assert len(all_callees["callee_details"]) == 2
 
-        # Call using symbol table
-        all_callees = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", True)
+        # Call using the symbol table
+
+        # TODO: Throws the following exception
+        # TypeError: JavaSitter.get_calling_lines() missing 1 required positional argument: 'is_target_method_a_constructor'
+        all_callees = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.util.Log", "printCollection(String, Collection)", True)
         assert all_callees is not None
         assert isinstance(all_callees, Dict)
-        # TODO: Bug, the Dict is empty.
-        # need to uncomment when code is fixed
-        # assert "callee_details" in all_callees
-        # assert len(all_callees["callee_details"]) == 0
+        assert "callee_details" in all_callees
+        assert len(all_callees["callee_details"]) == 2
 
 
 def test_get_all_methods_in_application(test_fixture, analysis_json_fixture):
@@ -480,6 +484,14 @@ def test_get_all_methods_in_application(test_fixture, analysis_json_fixture):
         all_methods = code_analyzer.get_all_methods_in_application()
         assert all_methods is not None
         assert isinstance(all_methods, Dict)
+        assert len(all_methods) > 0
+        # Validate structure
+        for _, method in all_methods.items():
+            assert method is not None
+            assert isinstance(method, Dict)
+            for _, callable in method.items():
+                assert callable is not None
+                assert isinstance(callable, JCallable)
 
 
 def test_get_all_classes(test_fixture, analysis_json_fixture):
@@ -501,9 +513,14 @@ def test_get_all_classes(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        all_methods = code_analyzer.get_all_classes()
-        assert all_methods is not None
-        assert isinstance(all_methods, Dict)
+        all_classes = code_analyzer.get_all_classes()
+        assert all_classes is not None
+        assert isinstance(all_classes, Dict)
+        assert len(all_classes) > 0
+        # Validate structure
+        for _, a_class in all_classes.items():
+            assert a_class is not None
+            assert isinstance(a_class, JType)
 
 
 def test_get_class(test_fixture, analysis_json_fixture):
@@ -608,6 +625,10 @@ def test_get_all_methods_in_class(test_fixture, analysis_json_fixture):
         assert all_methods is not None
         assert isinstance(all_methods, Dict)
         assert len(all_methods) > 0
+        # Validate structure
+        for _, method in all_methods.items():
+            assert method is not None
+            assert isinstance(method, JCallable)
 
 
 def test_get_all_constructors(test_fixture, analysis_json_fixture):
@@ -629,10 +650,21 @@ def test_get_all_constructors(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
+        # Test if it finds the 3 constructors in AccountDataBean
         all_constructors = code_analyzer.get_all_constructors("com.ibm.websphere.samples.daytrader.entities.AccountDataBean")
         assert all_constructors is not None
         assert isinstance(all_constructors, Dict)
         assert len(all_constructors) == 3
+        # Validate structure
+        for _, constructor in all_constructors.items():
+            assert constructor is not None
+            assert isinstance(constructor, JCallable)
+
+        # Test class with no constructors
+        all_constructors = code_analyzer.get_all_constructors("com.ibm.websphere.samples.daytrader.util.FinancialUtils")
+        assert all_constructors is not None
+        assert isinstance(all_constructors, Dict)
+        assert len(all_constructors) == 0
 
 
 def test_get_all_sub_classes(test_fixture, analysis_json_fixture):
@@ -648,15 +680,17 @@ def test_get_all_sub_classes(test_fixture, analysis_json_fixture):
             source_code=None,
             analysis_backend_path=None,
             analysis_json_path=None,
-            analysis_level=AnalysisLevel.call_graph,
+            analysis_level=AnalysisLevel.symbol_table,
             use_graalvm_binary=False,
             eager_analysis=False,
             target_files=None,
         )
 
-        all_subclasses = code_analyzer.get_all_sub_classes("com.ibm.websphere.samples.daytrader.TradeAction")
+        all_subclasses = code_analyzer.get_all_sub_classes("javax.ws.rs.core.Application")
         assert all_subclasses is not None
         assert isinstance(all_subclasses, Dict)
+        assert len(all_subclasses) == 1
+        assert "com.ibm.websphere.samples.daytrader.jaxrs.JAXRSApplication" in all_subclasses
 
 
 def test_get_all_fields(test_fixture, analysis_json_fixture):
@@ -709,9 +743,13 @@ def test_get_all_nested_classes(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        all_nested_classes = code_analyzer.get_all_nested_classes("com.ibm.websphere.samples.daytrader.TradeAction")
+        # TODO: This should return 1 but return 0
+
+        # Test with a KeyBlock that has nested KeyBlockIterator
+        all_nested_classes = code_analyzer.get_all_nested_classes("com.ibm.websphere.samples.daytrader.util.KeyBlock")
         assert all_nested_classes is not None
         assert isinstance(all_nested_classes, List)
+        assert len(all_nested_classes) == 1
 
         # Handle class not found
         all_nested_classes = code_analyzer.get_all_nested_classes("com.not.Found")
@@ -739,12 +777,14 @@ def test_get_extended_classes(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        all_extended_classes = code_analyzer.get_extended_classes("com.ibm.websphere.samples.daytrader.TradeAction")
+        all_extended_classes = code_analyzer.get_extended_classes("com.ibm.websphere.samples.daytrader.util.TradeRunTimeModeLiteral")
         assert all_extended_classes is not None
         assert isinstance(all_extended_classes, List)
+        assert len(all_extended_classes) == 1
+        assert "javax.enterprise.util.AnnotationLiteral<com.ibm.websphere.samples.daytrader.interfaces.RuntimeMode>" in all_extended_classes
 
-        # Handle class not found
-        all_extended_classes = code_analyzer.get_extended_classes("com.not.Found")
+        # Test with class that is not extended
+        all_extended_classes = code_analyzer.get_extended_classes("com.ibm.websphere.samples.daytrader.entities.HoldingDataBean")
         assert all_extended_classes is not None
         assert isinstance(all_extended_classes, List)
         assert len(all_extended_classes) == 0
@@ -769,13 +809,16 @@ def test_get_implemented_interfaces(test_fixture, analysis_json_fixture):
             target_files=None,
         )
 
-        # Call without using symbol table
-        all_interfaces = code_analyzer.get_implemented_interfaces("com.ibm.websphere.samples.daytrader.TradeAction")
+        # Call class that implements 2 interfaces
+        all_interfaces = code_analyzer.get_implemented_interfaces("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect")
         assert all_interfaces is not None
         assert isinstance(all_interfaces, List)
+        assert len(all_interfaces) == 2
+        assert "com.ibm.websphere.samples.daytrader.interfaces.TradeServices" in all_interfaces
+        assert "java.io.Serializable" in all_interfaces
 
-        # Handle class not found
-        all_interfaces = code_analyzer.get_implemented_interfaces("com.not.Found")
+        # Call class that implements no interfaces
+        all_interfaces = code_analyzer.get_implemented_interfaces("com.ibm.websphere.samples.daytrader.util.TradeConfig")
         assert all_interfaces is not None
         assert isinstance(all_interfaces, List)
         assert len(all_interfaces) == 0
@@ -800,16 +843,19 @@ def test_get_class_call_graph_using_symbol_table(test_fixture, analysis_json_fix
             target_files=None,
         )
 
-        # TODO: The code seems to be broken for this case
-        # # Call with method signature
-        # all_call_graph = code_analyzer.get_class_call_graph_using_symbol_table("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)")
-        # assert all_call_graph is not None
-        # assert isinstance(all_call_graph, List)
+        # TODO: I could be wrong but I think these should not be zero?
 
-        # Call without method signature
-        all_call_graph = code_analyzer.get_class_call_graph_using_symbol_table("com.ibm.websphere.samples.daytrader.TradeAction", None)
+        # Call with method signature
+        all_call_graph = code_analyzer.get_class_call_graph_using_symbol_table("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect", "getStatement(Connection, String)")
         assert all_call_graph is not None
         assert isinstance(all_call_graph, List)
+        assert len(all_call_graph) == 0
+
+        # Call without method signature
+        all_call_graph = code_analyzer.get_class_call_graph_using_symbol_table("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect", None)
+        assert all_call_graph is not None
+        assert isinstance(all_call_graph, List)
+        assert len(all_call_graph) == 0
 
 
 def test_get_class_call_graph(test_fixture, analysis_json_fixture):
@@ -832,14 +878,22 @@ def test_get_class_call_graph(test_fixture, analysis_json_fixture):
         )
 
         # Call with method signature
-        class_call_graph = code_analyzer.get_class_call_graph("com.ibm.websphere.samples.daytrader.TradeAction", "getQuote(String)")
+        class_call_graph = code_analyzer.get_class_call_graph(
+            "com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect", "createHolding(Connection, int, String, double, BigDecimal)"
+        )
         assert class_call_graph is not None
         assert isinstance(class_call_graph, List)
+        assert len(class_call_graph) == 4
+        for method in class_call_graph:
+            assert isinstance(method, Tuple)
+            assert isinstance(method[0], JMethodDetail)
+            assert isinstance(method[1], JMethodDetail)
 
         # Call without method signature
-        class_call_graph = code_analyzer.get_class_call_graph("com.ibm.websphere.samples.daytrader.TradeAction", None)
+        class_call_graph = code_analyzer.get_class_call_graph("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect", None)
         assert class_call_graph is not None
         assert isinstance(class_call_graph, List)
+        assert len(class_call_graph) > 0
 
 
 def test_get_all_entry_point_methods(test_fixture, analysis_json_fixture):
@@ -866,6 +920,11 @@ def test_get_all_entry_point_methods(test_fixture, analysis_json_fixture):
         assert entry_point_methods is not None
         assert isinstance(entry_point_methods, Dict)
         assert len(entry_point_methods) > 0
+        # Validate structure
+        for _, entry_point in entry_point_methods.items():
+            assert isinstance(entry_point, Dict)
+            for _, method in entry_point.items():
+                assert isinstance(method, JCallable)
 
 
 def test_get_all_entry_point_classes(test_fixture, analysis_json_fixture):
@@ -892,3 +951,6 @@ def test_get_all_entry_point_classes(test_fixture, analysis_json_fixture):
         assert entry_point_classes is not None
         assert isinstance(entry_point_classes, Dict)
         assert len(entry_point_classes) > 0
+        # Validate structure
+        for _, entry_point in entry_point_classes.items():
+            assert isinstance(entry_point, JType)
