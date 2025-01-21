@@ -576,7 +576,8 @@ def test_get_java_file(test_fixture, analysis_json_fixture):
         java_file = code_analyzer.get_java_file("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirect")
         assert java_file is not None
         assert isinstance(java_file, str)
-        assert java_file == "/codellm-devkit/tests/resources/java/application/sample.daytrader8-1.2/src/main/java/com/ibm/websphere/samples/daytrader/impl/direct/TradeDirect.java"
+        relative_file = java_file.split("/src/")[1]
+        assert relative_file == "main/java/com/ibm/websphere/samples/daytrader/impl/direct/TradeDirect.java"
 
         # Test compilation unit for this file
         comp_unit = code_analyzer.get_java_compilation_unit(java_file)

@@ -17,19 +17,17 @@
 """
 JavaSitter module
 """
+import logging
 from itertools import groupby
 from typing import List, Set, Dict
 from tree_sitter import Language, Node, Parser, Query, Tree
 import tree_sitter_java as tsjava
-from tree_sitter import Language, Node, Parser, Query
-
 from cldk.models.treesitter import Captures
-
-import logging
 
 logger = logging.getLogger(__name__)
 
 
+# pylint: disable=too-many-public-methods
 class JavaSitter:
     """
     Treesitter for Java usecases.
@@ -75,7 +73,7 @@ class JavaSitter:
                 for child in node.children:
                     if syntax_error(child):
                         return True
-            except RecursionError as err:
+            except RecursionError:
                 return True
 
             return False
