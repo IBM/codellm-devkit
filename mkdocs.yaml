@@ -42,11 +42,11 @@ theme:
   palette:
     - primary: custom
 nav:
-  - Home: docs/README.md
-  - Walkthrough: docs/walkthrough.md
-  - API Reference: docs/api_reference.md
-  - Publications: docs/publications.md
-  - Contribute: docs/contribute.md
+  - Home: README.md
+  - Walkthrough: walkthrough.md
+  - API Reference: api_reference.md
+  - Publications: publications.md
+  - Contribute: contribute.md
 
 # Define some IBM colors
 extra_css:
