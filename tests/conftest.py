@@ -18,12 +18,16 @@
 Global Test Fixtures
 """
 
-import toml
+import os
+import json
 import shutil
-import pytest
 import zipfile
 from pathlib import Path
 from urllib.request import urlretrieve
+
+# third part imports
+import toml
+import pytest
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -40,6 +44,17 @@ def analysis_json_fixture():
     config = toml.load(pyproject_path)
 
     return Path(config["tool"]["cldk"]["testing"]["sample-application-analysis-json"]) / "slim"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def analysis_json(analysis_json_fixture) -> str:
+    """Opens the analysis.json file and returns the contents as a json string"""
+    json_file = {}
+    # Read the json file and return it as a json string
+    with open(os.path.join(analysis_json_fixture, "analysis.json"), "r", encoding="utf-8") as json_data:
+        json_file = json.dumps(json.load(json_data))
+
+    return json_file
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -89,8 +104,6 @@ def test_fixture():
     with zipfile.ZipFile(filename, "r") as zip_ref:
         zip_ref.extractall(test_data_path)
 
-    # Remove the zip file
-    # filename.unlink()
     # --------------------------------------------------------------------------------
     # Daytrader8 sample application path
     yield Path(test_data_path) / "sample.daytrader8-1.2"

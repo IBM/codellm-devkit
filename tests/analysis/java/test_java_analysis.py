@@ -20,10 +20,10 @@ Java Tests
 
 import os
 import json
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
+from unittest.mock import patch, MagicMock
 from networkx import DiGraph
 from tree_sitter import Tree
-from unittest.mock import patch, MagicMock
 import pytest
 
 from cldk import CLDK
@@ -32,30 +32,9 @@ from cldk.analysis.java import JavaAnalysis
 from cldk.models.java.models import JCallable, JCompilationUnit, JField, JMethodDetail, JApplication, JType
 from cldk.utils.analysis_engine import AnalysisEngine
 
-ANALYSIS_JSON = {}
 
-
-# This might be another global test fixture but I didn't have time to work it out
-def get_analysis_json(base_path: str) -> str:
-    """Opens the analysis.json file and returns the contents as a json string"""
-    global ANALYSIS_JSON
-
-    if not ANALYSIS_JSON:
-        # check if the folder exists
-        if not os.path.exists(base_path):
-            raise ValueError(f"Error: Folder '{base_path}' does not exist")
-
-        # Read the json file and return it as a json string
-        with open(os.path.join(base_path, "analysis.json"), "r", encoding="utf-8") as json_data:
-            ANALYSIS_JSON = json.dumps(json.load(json_data))
-
-    return ANALYSIS_JSON
-
-
-def test_get_symbol_table_is_not_null(test_fixture, analysis_json_fixture):
+def test_get_symbol_table_is_not_null(test_fixture, analysis_json):
     """It should return a symbol table that is not null"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -73,11 +52,8 @@ def test_get_symbol_table_is_not_null(test_fixture, analysis_json_fixture):
         assert analysis.get_symbol_table() is not None
 
 
-# def test_get_class_call_graph(test_fixture, analysis_json_fixture):
+# def test_get_class_call_graph(test_fixture, analysis_json):
 #     """It should return the class call graph"""
-#     # Get a known good analysis file
-#     analysis_json = get_analysis_json(analysis_json_fixture)
-
 #     # Patch subprocess so that it does not run codeanalyzer
 #     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
 #         run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
@@ -98,10 +74,8 @@ def test_get_symbol_table_is_not_null(test_fixture, analysis_json_fixture):
 #         assert class_call_graph is not None
 
 
-def test_get_imports(test_fixture, analysis_json_fixture):
+def test_get_imports(test_fixture, analysis_json):
     """It should return NotImplemented for get_imports()"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -124,10 +98,8 @@ def test_get_imports(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_variables(test_fixture, analysis_json_fixture):
+def test_get_variables(test_fixture, analysis_json):
     """It should return NotImplemented for get_variables()"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -150,10 +122,8 @@ def test_get_variables(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_service_entry_point_classes(test_fixture, analysis_json_fixture):
+def test_get_service_entry_point_classes(test_fixture, analysis_json):
     """It should return NotImplemented for get_service_entry_point_classes()"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -176,10 +146,8 @@ def test_get_service_entry_point_classes(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_service_entry_point_methods(test_fixture, analysis_json_fixture):
+def test_get_service_entry_point_methods(test_fixture, analysis_json):
     """It should return NotImplemented for get_service_entry_point_methods()"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -202,10 +170,8 @@ def test_get_service_entry_point_methods(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_application_view(test_fixture, analysis_json_fixture):
+def test_get_application_view(test_fixture, analysis_json):
     """It should return the application view"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -225,6 +191,9 @@ def test_get_application_view(test_fixture, analysis_json_fixture):
         app = java_analysis.get_application_view()
         assert app is not None
         assert isinstance(app, JApplication)
+        assert isinstance(app.symbol_table, Dict)
+        for _, compilation_unit in app.symbol_table.items():
+            assert isinstance(compilation_unit, JCompilationUnit)
 
         # Test that with source code is not implemented yet
         java_analysis.source_code = "TradeAction.java"
@@ -233,10 +202,8 @@ def test_get_application_view(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_symbol_table(test_fixture, analysis_json_fixture):
+def test_get_symbol_table(test_fixture, analysis_json):
     """It should return the symbol table"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -253,15 +220,15 @@ def test_get_symbol_table(test_fixture, analysis_json_fixture):
             eager_analysis=False,
         )
 
-        app = java_analysis.get_symbol_table()
-        assert app is not None
-        assert isinstance(app, Dict)
+        symbol_table = java_analysis.get_symbol_table()
+        assert symbol_table is not None
+        assert isinstance(symbol_table, Dict)
+        for _, compilation_unit in symbol_table.items():
+            assert isinstance(compilation_unit, JCompilationUnit)
 
 
-def test_get_compilation_units(test_fixture, analysis_json_fixture):
+def test_get_compilation_units(test_fixture, analysis_json):
     """It should return the compilation units"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -284,10 +251,8 @@ def test_get_compilation_units(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_class_hierarchy(test_fixture, analysis_json_fixture):
+def test_get_class_hierarchy(test_fixture, analysis_json):
     """It should return the class hierarchy"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -310,10 +275,8 @@ def test_get_class_hierarchy(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_is_parsable(test_fixture, analysis_json_fixture):
+def test_is_parsable(test_fixture, analysis_json):
     """It should be parsable"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -338,10 +301,8 @@ def test_is_parsable(test_fixture, analysis_json_fixture):
             assert yes is True
 
 
-def test_get_raw_ast(test_fixture, analysis_json_fixture):
+def test_get_raw_ast(test_fixture, analysis_json):
     """It should return the raw AST"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -369,10 +330,8 @@ def test_get_raw_ast(test_fixture, analysis_json_fixture):
         assert raw_ast.root_node is not None
 
 
-def test_get_call_graph(test_fixture, analysis_json_fixture):
+def test_get_call_graph(test_fixture, analysis_json):
     """It should return the Call Graph"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -392,14 +351,13 @@ def test_get_call_graph(test_fixture, analysis_json_fixture):
         call_graph = java_analysis.get_call_graph()
         assert call_graph is not None
         assert isinstance(call_graph, DiGraph)
+        # check that the call graph is not empty
         assert len(call_graph.nodes) > 0
         assert len(call_graph.edges) > 0
 
 
-def test_get_call_graph_json(test_fixture, analysis_json_fixture):
+def test_get_call_graph_json(test_fixture, analysis_json):
     """It should return the Call Graph as JSON"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -426,10 +384,8 @@ def test_get_call_graph_json(test_fixture, analysis_json_fixture):
         assert isinstance(call_graph[0], dict)
 
 
-def test_get_callers(test_fixture, analysis_json_fixture):
+def test_get_callers(test_fixture, analysis_json):
     """It should return the callers"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -460,13 +416,13 @@ def test_get_callers(test_fixture, analysis_json_fixture):
         # Uncomment this next test section when fixed
 
         # Test using symbol table
-        # callers = java_analysis.get_callers("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", True)
-        # assert callers is not None
-        # assert isinstance(callers, Dict)
-        # assert "caller_details" in callers
-        # assert len(callers["caller_details"]) == 18
-        # for method in callers["caller_details"]:
-        #     assert isinstance(method["caller_method"], JMethodDetail)
+        callers = java_analysis.get_callers("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", True)
+        assert callers is not None
+        assert isinstance(callers, Dict)
+        assert "caller_details" in callers
+        assert len(callers["caller_details"]) == 18
+        for method in callers["caller_details"]:
+            assert isinstance(method["caller_method"], JMethodDetail)
 
         # Test using code parameter
         java_analysis.source_code = "dummy code"
@@ -475,10 +431,8 @@ def test_get_callers(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_callees(test_fixture, analysis_json_fixture):
+def test_get_callees(test_fixture, analysis_json):
     """It should return the callees"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -516,11 +470,11 @@ def test_get_callees(test_fixture, analysis_json_fixture):
         # Uncomment this next test section when fixed
 
         # # Test using symbol table
-        # callees = java_analysis.get_callees("com.ibm.websphere.samples.daytrader.web.websocket.ActionMessage", "doDecoding(String)", True)
-        # assert callees is not None
-        # assert isinstance(callees, Dict)
-        # assert "callee_details" in callees
-        # assert len(callees["callee_details"]) == 2
+        callees = java_analysis.get_callees("com.ibm.websphere.samples.daytrader.web.websocket.ActionMessage", "doDecoding(String)", True)
+        assert callees is not None
+        assert isinstance(callees, Dict)
+        assert "callee_details" in callees
+        assert len(callees["callee_details"]) == 2
 
         # Test using code parameter
         java_analysis.source_code = "dummy code"
@@ -529,10 +483,8 @@ def test_get_callees(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_methods(test_fixture, analysis_json_fixture):
+def test_get_methods(test_fixture, analysis_json):
     """It should return the methods"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -553,6 +505,8 @@ def test_get_methods(test_fixture, analysis_json_fixture):
         assert methods is not None
         assert isinstance(methods, Dict)
         assert len(methods) > 0
+        for _, method in methods.items():
+            assert isinstance(method, Dict)
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
@@ -561,10 +515,8 @@ def test_get_methods(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_classes(test_fixture, analysis_json_fixture):
+def test_get_classes(test_fixture, analysis_json):
     """It should return the classes"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -585,6 +537,8 @@ def test_get_classes(test_fixture, analysis_json_fixture):
         assert classes is not None
         assert isinstance(classes, Dict)
         assert len(classes) > 0
+        for _, a_class in classes.items():
+            assert isinstance(a_class, JType)
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
@@ -593,10 +547,8 @@ def test_get_classes(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_classes_by_criteria(test_fixture, analysis_json_fixture):
+def test_get_classes_by_criteria(test_fixture, analysis_json):
     """It should return the classes by criteria"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -642,10 +594,8 @@ def test_get_classes_by_criteria(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_class(test_fixture, analysis_json_fixture):
+def test_get_class(test_fixture, analysis_json):
     """It should return a single class"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -673,10 +623,8 @@ def test_get_class(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_method(test_fixture, analysis_json_fixture):
+def test_get_method(test_fixture, analysis_json):
     """It should return a single method"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -696,6 +644,7 @@ def test_get_method(test_fixture, analysis_json_fixture):
         the_method = java_analysis.get_method("com.ibm.websphere.samples.daytrader.util.Log", "trace(String)")
         assert the_method is not None
         assert isinstance(the_method, JCallable)
+        assert the_method.declaration == "public static void trace(String message)"
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
@@ -704,10 +653,8 @@ def test_get_method(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_java_file(test_fixture, analysis_json_fixture):
+def test_get_java_file(test_fixture, analysis_json):
     """It should return the java file and compilation unit"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -743,10 +690,8 @@ def test_get_java_file(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_methods_in_class(test_fixture, analysis_json_fixture):
+def test_get_methods_in_class(test_fixture, analysis_json):
     """It should return the methods in a class"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -778,10 +723,8 @@ def test_get_methods_in_class(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_constructors(test_fixture, analysis_json_fixture):
+def test_get_constructors(test_fixture, analysis_json):
     """It should return the constructors for a class"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -813,10 +756,8 @@ def test_get_constructors(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_fields(test_fixture, analysis_json_fixture):
+def test_get_fields(test_fixture, analysis_json):
     """It should return the fields for a class"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -848,10 +789,8 @@ def test_get_fields(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_nested_classes(test_fixture, analysis_json_fixture):
+def test_get_nested_classes(test_fixture, analysis_json):
     """It should return the nested classes for a class"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -874,6 +813,8 @@ def test_get_nested_classes(test_fixture, analysis_json_fixture):
         assert isinstance(nested, List)
         assert len(nested) == 0
 
+        # TODO: This should return a nested class but it doesn't
+
         # Test that there is 1 nested classes in the KeyBlock class
         nested = java_analysis.get_nested_classes("com.ibm.websphere.samples.daytrader.util.KeyBlock")
         assert nested is not None
@@ -889,10 +830,8 @@ def test_get_nested_classes(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_sub_classes(test_fixture, analysis_json_fixture):
+def test_get_sub_classes(test_fixture, analysis_json):
     """It should return the subclasses for a class"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -924,10 +863,8 @@ def test_get_sub_classes(test_fixture, analysis_json_fixture):
             assert isinstance(subclass, JType)
 
 
-def test_get_extended_classes(test_fixture, analysis_json_fixture):
+def test_get_extended_classes(test_fixture, analysis_json):
     """It should return the extended classes for a class"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -965,10 +902,8 @@ def test_get_extended_classes(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_implemented_interfaces(test_fixture, analysis_json_fixture):
+def test_get_implemented_interfaces(test_fixture, analysis_json):
     """It should return the implemented interfaces classes for a class"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1006,10 +941,8 @@ def test_get_implemented_interfaces(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_class_call_graph(test_fixture, analysis_json_fixture):
+def test_get_class_call_graph(test_fixture, analysis_json):
     """It should return the class call graph"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1037,13 +970,13 @@ def test_get_class_call_graph(test_fixture, analysis_json_fixture):
         # TODO: This needs to be fixed. The code give as error:
         # TypeError: JavaSitter.get_calling_lines() missing 1 required positional argument: 'is_target_method_a_constructor'
 
-        # # Call using symbol table
-        # call_graph = java_analysis.get_class_call_graph("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirectDBUtils", "buildDB(java.io.PrintWriter, InputStream)", True)
-        # assert call_graph is not None
-        # assert isinstance(call_graph, List)
-        # assert len(call_graph) == 26
-        # for graph in call_graph:
-        #     assert isinstance(graph, Tuple)
+        # Call using symbol table
+        call_graph = java_analysis.get_class_call_graph("com.ibm.websphere.samples.daytrader.impl.direct.TradeDirectDBUtils", "buildDB(java.io.PrintWriter, InputStream)", True)
+        assert call_graph is not None
+        assert isinstance(call_graph, List)
+        assert len(call_graph) == 26
+        for graph in call_graph:
+            assert isinstance(graph, Tuple)
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
@@ -1052,10 +985,8 @@ def test_get_class_call_graph(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_entry_point_classes(test_fixture, analysis_json_fixture):
+def test_get_entry_point_classes(test_fixture, analysis_json):
     """It should return the entry point classes"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1086,10 +1017,8 @@ def test_get_entry_point_classes(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_entry_point_methods(test_fixture, analysis_json_fixture):
+def test_get_entry_point_methods(test_fixture, analysis_json):
     """It should return the entry point methods"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1122,10 +1051,8 @@ def test_get_entry_point_methods(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_remove_all_comments(test_fixture, analysis_json_fixture):
+def test_remove_all_comments(test_fixture, analysis_json):
     """It should remove all comments"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1156,10 +1083,8 @@ def test_remove_all_comments(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_methods_with_annotations(test_fixture, analysis_json_fixture):
+def test_get_methods_with_annotations(test_fixture, analysis_json):
     """It should return methods with annotations"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1193,10 +1118,8 @@ def test_get_methods_with_annotations(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_test_methods(test_fixture, analysis_json_fixture):
+def test_get_test_methods(test_fixture, analysis_json):
     """It should return test methods"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1227,10 +1150,8 @@ def test_get_test_methods(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_calling_lines(test_fixture, analysis_json_fixture):
+def test_get_calling_lines(test_fixture, analysis_json):
     """It should return calling lines"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1261,10 +1182,8 @@ def test_get_calling_lines(test_fixture, analysis_json_fixture):
         assert except_info.type == NotImplementedError
 
 
-def test_get_call_targets(test_fixture, analysis_json_fixture):
+def test_get_call_targets(test_fixture, analysis_json):
     """It should return calling targets"""
-    # Get a known good analysis file
-    analysis_json = get_analysis_json(analysis_json_fixture)
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
