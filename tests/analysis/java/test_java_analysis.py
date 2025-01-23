@@ -1071,10 +1071,10 @@ def test_remove_all_comments(test_fixture, analysis_json):
 
         # TODO: The code is broken. It requires Treesitter but JCodeanalyzer does not!
 
-        # code = java_analysis.remove_all_comments()
-        # assert code is not None
-        # assert isinstance(code, str)
-        # assert len(code) > 0
+        code = java_analysis.remove_all_comments()
+        assert code is not None
+        assert isinstance(code, str)
+        assert len(code) > 0
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
@@ -1103,13 +1103,13 @@ def test_get_methods_with_annotations(test_fixture, analysis_json):
 
         # TODO: The code is broken. It requires Treesitter but JCodeanalyzer does not!
 
-        # annotations = ["WebServlet"]
-        # code_with_annotations = java_analysis.get_methods_with_annotations(annotations)
-        # assert code_with_annotations is not None
-        # assert isinstance(code_with_annotations, Dict)
-        # assert len(code_with_annotations) > 0
-        # for _, code in code_with_annotations.items():
-        #     assert isinstance(code, Dict)
+        annotations = ["WebServlet"]
+        code_with_annotations = java_analysis.get_methods_with_annotations(annotations)
+        assert code_with_annotations is not None
+        assert isinstance(code_with_annotations, Dict)
+        assert len(code_with_annotations) > 0
+        for _, code in code_with_annotations.items():
+            assert isinstance(code, Dict)
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
@@ -1138,10 +1138,10 @@ def test_get_test_methods(test_fixture, analysis_json):
 
         # TODO: The code is broken. It requires Treesitter but JCodeanalyzer does not!
 
-        # test_methods = java_analysis.get_test_methods()
-        # assert test_methods is not None
-        # assert isinstance(test_methods, Dict)
-        # assert len(test_methods) > 0
+        test_methods = java_analysis.get_test_methods()
+        assert test_methods is not None
+        assert isinstance(test_methods, Dict)
+        assert len(test_methods) > 0
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
@@ -1170,10 +1170,10 @@ def test_get_calling_lines(test_fixture, analysis_json):
 
         # TODO: The code is broken. It requires Treesitter but JCodeanalyzer does not!
 
-        # calling_lines = java_analysis.get_calling_lines("trace(String)")
-        # assert calling_lines is not None
-        # assert isinstance(calling_lines, List)
-        # assert len(calling_lines) > 0
+        calling_lines = java_analysis.get_calling_lines("trace(String)")
+        assert calling_lines is not None
+        assert isinstance(calling_lines, List)
+        assert len(calling_lines) > 0
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
@@ -1202,10 +1202,10 @@ def test_get_call_targets(test_fixture, analysis_json):
 
         # TODO: The code is broken. It requires Treesitter but JCodeanalyzer does not!
 
-        # call_targets = java_analysis.get_call_targets("trace(String)")
-        # assert call_targets is not None
-        # assert isinstance(call_targets, Set)
-        # assert len(call_targets) > 0
+        call_targets = java_analysis.get_call_targets("trace(String)")
+        assert call_targets is not None
+        assert isinstance(call_targets, Set)
+        assert len(call_targets) > 0
 
         # Test with unsupported backend
         java_analysis.analysis_backend = AnalysisEngine.CODEQL
