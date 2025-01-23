@@ -106,6 +106,7 @@ class JavaSitter:
         import_declerations: Captures = self.frame_query_and_capture_output(query="(import_declaration (scoped_identifier) @name)", code_to_process=source_code)
         return {capture.node.text.decode() for capture in import_declerations}
 
+    # TODO: This typo needs to be fixed (i.e., package not pacakge)
     def get_pacakge_name(self, source_code: str) -> str:
         """Get the package name from the source code.
 
@@ -226,7 +227,7 @@ class JavaSitter:
     def get_call_targets(self, method_body: str, declared_methods: dict) -> Set[str]:
         """Generate a list of call targets from the method body.
 
-        Uses simple name resolution for finding the call targets. Nothing sophiscticed here. Just a simple search
+        Uses simple name resolution for finding the call targets. Nothing sophisticated here. Just a simple search
         over the AST.
 
         Parameters
