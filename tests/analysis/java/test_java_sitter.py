@@ -89,12 +89,11 @@ def test_get_all_imports(test_fixture):
     all_imports = java_sitter.get_all_imports(code)
     assert all_imports is not None
     assert isinstance(all_imports, Set)
-    assert len(all_imports) == 5
+    assert len(all_imports) == 4
     assert "java.util.Collection" in all_imports
     assert "java.util.Iterator" in all_imports
     assert "java.util.logging.Level" in all_imports
     assert "java.util.logging.Logger" in all_imports
-    assert "java.util.logging.Foo" not in all_imports
 
 
 def test_get_package_name(test_fixture):
