@@ -18,6 +18,6 @@
 Java package
 """
 
-from .java import JavaAnalysis
+from .java_analysis import JavaAnalysis
 
 __all__ = ["JavaAnalysis"]

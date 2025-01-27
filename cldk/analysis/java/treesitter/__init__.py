@@ -18,6 +18,6 @@
 Treesitter package
 """
 
-from cldk.analysis.java.treesitter.javasitter import JavaSitter
+from cldk.analysis.java.treesitter.java_sitter import JavaSitter
 
 __all__ = ["JavaSitter"]

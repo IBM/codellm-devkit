@@ -237,7 +237,7 @@ class JCodeanalyzer:
                 data = json.load(f)
                 return JApplication(**data)
 
-    def _codeanalyzer_single_file(self):
+    def _codeanalyzer_single_file(self) -> JApplication:
         """Invokes codeanalyzer in a single file mode.
 
         Returns:
