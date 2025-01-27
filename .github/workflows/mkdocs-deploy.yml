@@ -22,8 +22,4 @@ jobs:
       - name: Install Dependencies
         run: pip install mkdocs-material mkdocs-autorefs mkdocs-get-deps mkdocs-material-extensions mkdocstrings mkdocstrings-python
       - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@master
-        # Or use mhausenblas/mkdocs-deploy-gh-pages@nomaterial to build without the mkdocs-material theme
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CONFIG_FILE: mkdocs.yaml
+        run: mkdocs gh-deploy --force --verbose
