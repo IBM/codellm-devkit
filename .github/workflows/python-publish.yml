@@ -49,3 +49,7 @@ jobs:
 
       - name: Publish package distributions to PyPI
         run: poetry publish --username $PYPI_USERNAME --password $PYPI_PASSWORD
+      
+      - name: Publish documentation
+        run: pip install mkdocs-material 
+        run: mkdocs gh-deploy --force
