@@ -182,22 +182,235 @@ class RustCallable(BaseModel):
         return reasons
 
 
+class RustStructKind(Enum):
+    """Represents different kinds of Rust structs."""
+
+    NORMAL = "normal"  # Regular struct with named fields
+    TUPLE = "tuple"  # Tuple struct
+    UNIT = "unit"  # Unit struct without fields
+
+
+class RustStructField(BaseModel):
+    """Represents a field in a Rust struct."""
+
+    name: str
+    type: RustType
+    visibility: RustVisibility = RustVisibility.PRIVATE
+    doc_comment: Optional[str] = None
+    attributes: List[RustAttribute] = Field(default_factory=list)
+
+
+class RustStruct(BaseModel):
+    """Represents a Rust struct definition."""
+
+    name: str
+    kind: RustStructKind = RustStructKind.NORMAL
+    visibility: RustVisibility = RustVisibility.PRIVATE
+    doc_comment: Optional[str] = None
+    attributes: List[RustAttribute] = Field(default_factory=list)
+    fields: List[RustStructField] = Field(default_factory=list)
+    generic_params: List[RustGenericParam] = Field(default_factory=list)
+    lifetime_params: List[RustLifetimeParam] = Field(default_factory=list)
+    where_clauses: List[str] = Field(default_factory=list)
+    derives: List[str] = Field(default_factory=list)
+    associated_items: Dict[str, RustCallable] = Field(default_factory=dict)
+    impl_traits: List[str] = Field(default_factory=list)
+    is_public: bool = False
+    contains_unsafe: bool = False
+    start_line: int
+    end_line: int
+
+    def get_field(self, name: str) -> Optional[RustStructField]:
+        """Get a field by name."""
+        for field in self.fields:
+            if field.name == name:
+                return field
+        return None
+
+    def has_field(self, name: str) -> bool:
+        """Check if the struct has a field with the given name."""
+        return any(field.name == name for field in self.fields)
+
+    def get_public_fields(self) -> List[RustStructField]:
+        """Get all public fields of the struct."""
+        return [
+            field for field in self.fields if field.visibility == RustVisibility.PUBLIC
+        ]
+
+    def get_private_fields(self) -> List[RustStructField]:
+        """Get all private fields of the struct."""
+        return [
+            field for field in self.fields if field.visibility == RustVisibility.PRIVATE
+        ]
+
+    def add_field(self, field: RustStructField) -> None:
+        """Add a new field to the struct."""
+        if self.kind == RustStructKind.UNIT:
+            raise ValueError("Cannot add fields to a unit struct")
+        if self.kind == RustStructKind.NORMAL and not field.name:
+            raise ValueError("Normal struct fields must have names")
+        self.fields.append(field)
+
+    def is_generic(self) -> bool:
+        """Check if the struct has any generic parameters."""
+        return bool(self.generic_params) or bool(self.lifetime_params)
+
+    def get_associated_functions(self) -> List[RustCallable]:
+        """Get all associated functions (not methods)."""
+        return [
+            func
+            for func in self.associated_items.values()
+            if not any(param.is_self for param in func.parameters)
+        ]
+
+    def get_methods(self) -> List[RustCallable]:
+        """Get all methods (functions that take self)."""
+        return [
+            func
+            for func in self.associated_items.values()
+            if any(param.is_self for param in func.parameters)
+        ]
+
+
+class RustTraitBound(BaseModel):
+    """Represents a trait bound in Rust."""
+
+    trait_name: str
+    generic_params: List[str] = Field(default_factory=list)
+    is_sized: bool = True
+    is_optional: bool = False  # For ?Sized etc.
+    lifetime_bounds: List[str] = Field(default_factory=list)
+
+
+class RustEnum(BaseModel):
+    """Represents a Rust enum."""
+
+    name: str
+    visibility: RustVisibility = RustVisibility.PRIVATE
+    doc_comment: Optional[str] = None
+    attributes: List[RustAttribute] = Field(default_factory=list)
+    variants: List["RustEnumVariant"] = Field(default_factory=list)
+    generic_params: List[RustGenericParam] = Field(default_factory=list)
+    lifetime_params: List[RustLifetimeParam] = Field(default_factory=list)
+    where_clauses: List[str] = Field(default_factory=list)
+    derives: List[str] = Field(default_factory=list)
+    associated_items: Dict[str, RustCallable] = Field(default_factory=dict)
+    impl_traits: List[str] = Field(default_factory=list)
+    is_public: bool = False
+    start_line: int
+    end_line: int
+
+
+class RustEnumVariant(BaseModel):
+    """Represents a variant in a Rust enum."""
+
+    name: str
+    fields: Optional[List[RustStructField]] = None  # For struct variants
+    tuple_types: Optional[List[RustType]] = None  # For tuple variants
+    discriminant: Optional[str] = None  # For explicit discriminants
+    doc_comment: Optional[str] = None
+    attributes: List[RustAttribute] = Field(default_factory=list)
+
+
+class RustTrait(BaseModel):
+    """Represents a Rust trait definition."""
+
+    name: str
+    visibility: RustVisibility = RustVisibility.PRIVATE
+    doc_comment: Optional[str] = None
+    attributes: List[RustAttribute] = Field(default_factory=list)
+    generic_params: List[RustGenericParam] = Field(default_factory=list)
+    lifetime_params: List[RustLifetimeParam] = Field(default_factory=list)
+    where_clauses: List[str] = Field(default_factory=list)
+    super_traits: List[RustTraitBound] = Field(default_factory=list)
+    associated_types: Dict[str, RustType] = Field(default_factory=dict)
+    associated_consts: Dict[str, str] = Field(default_factory=dict)
+    methods: Dict[str, RustCallable] = Field(default_factory=dict)
+    is_unsafe: bool = False
+    is_auto: bool = False
+    start_line: int
+    end_line: int
+
+
+class RustImpl(BaseModel):
+    """Represents a Rust impl block."""
+
+    type_name: str
+    trait_name: Optional[str] = None  # None for inherent impls
+    generic_params: List[RustGenericParam] = Field(default_factory=list)
+    lifetime_params: List[RustLifetimeParam] = Field(default_factory=list)
+    where_clauses: List[str] = Field(default_factory=list)
+    methods: Dict[str, RustCallable] = Field(default_factory=dict)
+    associated_types: Dict[str, RustType] = Field(default_factory=dict)
+    associated_consts: Dict[str, str] = Field(default_factory=dict)
+    is_unsafe: bool = False
+    is_negative: bool = False  # For negative impls (!Send etc.)
+    start_line: int
+    end_line: int
+
+
+class RustMacro(BaseModel):
+    """Represents a Rust macro definition."""
+
+    name: str
+    visibility: RustVisibility = RustVisibility.PRIVATE
+    doc_comment: Optional[str] = None
+    attributes: List[RustAttribute] = Field(default_factory=list)
+    rules: List[str] = Field(default_factory=list)
+    is_procedural: bool = False
+    is_derive: bool = False
+    is_attribute: bool = False
+    is_function_like: bool = True
+    exported_from_macro_use: bool = False
+    start_line: int
+    end_line: int
+
+
+class RustTypeAlias(BaseModel):
+    """Represents a Rust type alias."""
+
+    name: str
+    visibility: RustVisibility = RustVisibility.PRIVATE
+    doc_comment: Optional[str] = None
+    attributes: List[RustAttribute] = Field(default_factory=list)
+    generic_params: List[RustGenericParam] = Field(default_factory=list)
+    lifetime_params: List[RustLifetimeParam] = Field(default_factory=list)
+    where_clauses: List[str] = Field(default_factory=list)
+    target_type: RustType
+    start_line: int
+    end_line: int
+
+
+# Update RustModule to include new types
 class RustModule(BaseModel):
-    """Represents a Rust module."""
+    """Represents a Rust module with all possible items."""
 
     name: str
     doc_comment: Optional[str] = None
     attributes: List[RustAttribute] = Field(default_factory=list)
     visibility: RustVisibility = RustVisibility.PRIVATE
-    types: Dict[str, "RustType"] = Field(default_factory=dict)
+
+    # Type definitions
+    types: Dict[str, RustType] = Field(default_factory=dict)
+    structs: Dict[str, RustStruct] = Field(default_factory=dict)
+    enums: Dict[str, RustEnum] = Field(default_factory=dict)
+    traits: Dict[str, RustTrait] = Field(default_factory=dict)
+    impls: List[RustImpl] = Field(default_factory=list)
+    type_aliases: Dict[str, RustTypeAlias] = Field(default_factory=dict)
+
+    # Functions and macros
     functions: Dict[str, RustCallable] = Field(default_factory=dict)
     safe_functions: Dict[str, RustCallable] = Field(default_factory=dict)
     unsafe_functions: Dict[str, RustCallable] = Field(default_factory=dict)
+    macros: Dict[str, RustMacro] = Field(default_factory=dict)
+
+    # Module structure
     submodules: Dict[str, "RustModule"] = Field(default_factory=dict)
-    constants: List["RustVariableDeclaration"] = Field(default_factory=list)
-    macros: List[str] = Field(default_factory=list)
+    constants: List[RustVariableDeclaration] = Field(default_factory=list)
     use_declarations: List[str] = Field(default_factory=list)
     extern_crates: List[str] = Field(default_factory=list)
+
+    # Module properties
     is_unsafe: bool = False
     file_path: Optional[str] = None
     is_mod_rs: bool = False
