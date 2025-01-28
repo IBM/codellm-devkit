@@ -34,16 +34,6 @@ class UnsafeReason(Enum):
     CUSTOM = "custom"
 
 
-class UnsafeBlock(BaseModel):
-    """Represents an unsafe block within Rust code."""
-
-    start_line: int
-    end_line: int
-    reasons: List[UnsafeReason] = Field(default_factory=list)
-    explanation: Optional[str] = None  # Documentation explaining why unsafe is needed
-    containing_function: Optional[str] = None
-
-
 class RustType(BaseModel):
     """Represents a Rust type."""
 
@@ -64,6 +54,67 @@ class RustAttribute(BaseModel):
     name: str
     arguments: List[str] = Field(default_factory=list)
     is_inner: bool = False  # #![foo] vs #[foo]
+
+
+class RustGenericParam(BaseModel):
+    """Represents a generic type parameter in Rust."""
+
+    name: str
+    bounds: List[str] = Field(default_factory=list)  # Trait bounds
+    default_type: Optional[str] = None
+    is_const: bool = False  # For const generics
+
+
+class RustLifetimeParam(BaseModel):
+    """Represents a lifetime parameter in Rust."""
+
+    name: str
+    bounds: List[str] = Field(default_factory=list)  # Lifetime bounds
+
+
+class RustParameter(BaseModel):
+    """Represents a function parameter in Rust."""
+
+    name: str
+    type: RustType
+    is_self: bool = False  # For methods (self, &self, &mut self)
+    is_mut: bool = False  # For mutable bindings
+    default_value: Optional[str] = None
+
+
+class RustCallSite(BaseModel):
+    """Represents a location where a function is called."""
+
+    line_number: int
+    caller_function: Optional[str] = None
+    caller_module: Optional[str] = None
+    argument_types: List[RustType] = Field(default_factory=list)
+    is_unsafe_context: bool = False
+
+
+class RustVariableDeclaration(BaseModel):
+    """Represents a variable declaration in Rust."""
+
+    name: str
+    type: Optional[RustType] = None
+    is_mut: bool = False
+    is_static: bool = False
+    is_const: bool = False
+    initializer: Optional[str] = None
+    visibility: RustVisibility = RustVisibility.PRIVATE
+    doc_comment: Optional[str] = None
+    attributes: List[RustAttribute] = Field(default_factory=list)
+    line_number: int
+
+
+class UnsafeBlock(BaseModel):
+    """Represents an unsafe block within Rust code."""
+
+    start_line: int
+    end_line: int
+    reasons: List[UnsafeReason] = Field(default_factory=list)
+    explanation: Optional[str] = None  # Documentation explaining why unsafe is needed
+    containing_function: Optional[str] = None
 
 
 class SafetyAnalysis(BaseModel):
