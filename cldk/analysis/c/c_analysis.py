@@ -188,9 +188,7 @@ class CAnalysis:
         Returns:
             CTranslationUnit: Compilation unit object for C source file
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
-        return self.backend.get_C_compilation_unit(file_path)
+        return self.c_application.translation_units.get(file_path)
 
     def get_functions_in_file(self, file_name: str) -> List[CFunction]:
         """Returns a dictionary of all methods of the given class.

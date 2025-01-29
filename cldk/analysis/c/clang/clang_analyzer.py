@@ -81,61 +81,6 @@ class ClangAnalyzer:
         if compilation_database_path:
             self.compilation_database = CompilationDatabase.fromDirectory(str(compilation_database_path))
 
-    @staticmethod
-    def __find_libclang(self) -> str:
-        """
-        Find libclang library on the system. This function detects the operating system
-        and searches in platform-specific locations.
-
-        Returns:
-            str: Path to the libclang library
-
-        Raises:
-            RuntimeError: If libclang cannot be found in any of the expected locations
-        """
-        system = platform.system()
-
-        if system == "Darwin":  # macOS
-            possible_paths = [
-                # Apple Silicon Mac paths
-                "/opt/homebrew/opt/llvm/lib/libclang.dylib",
-                # Intel Mac paths
-                "/usr/local/opt/llvm/lib/libclang.dylib",
-                # Xcode path
-                "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib",
-            ]
-            install_instructions = (
-                "Could not find libclang. Please install LLVM using Homebrew:\n"
-                "  1. Run: brew install llvm\n"
-                "  2. Make sure the installation succeeded\n"
-                "  3. You might need to restart your terminal"
-            )
-        elif system == "Linux":
-            possible_paths = [
-                # Common Linux paths for different LLVM versions
-                "/usr/lib/llvm-14/lib/libclang.so",
-                "/usr/lib/llvm-13/lib/libclang.so",
-                "/usr/lib/llvm-12/lib/libclang.so",
-                "/usr/lib/x86_64-linux-gnu/libclang-14.so.1",
-                "/usr/lib/libclang.so",
-            ]
-            install_instructions = (
-                "Could not find libclang. Please install LLVM development libraries:\n"
-                "  Ubuntu/Debian: sudo apt-get install libclang-dev\n"
-                "  Fedora: sudo dnf install clang-devel\n"
-                "  Arch Linux: sudo pacman -S clang"
-            )
-        else:
-            raise RuntimeError(f"Unsupported operating system: {system}")
-
-        # Try to find the library in the possible locations
-        for path in possible_paths:
-            if os.path.exists(path):
-                logger.info(f"Found libclang at: {path}")
-                return path
-
-        raise RuntimeError(install_instructions)
-
     def analyze_file(self, file_path: Path) -> CTranslationUnit:
         """Analyzes a single C source file using Clang."""
 
