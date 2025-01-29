@@ -166,19 +166,15 @@ class ClangAnalyzer:
         careful token handling since the tokens form a generator that can only
         be consumed once.
         """
-        # First, let's safely get any default value
         default_value = None
         try:
-            # Convert the token generator to a list so we can examine it safely
             tokens = list(param.get_tokens())
             if tokens:
-                # If we have tokens, the first one might be our default value
                 default_value = tokens[0].spelling
         except Exception as e:
-            # If anything goes wrong getting tokens, we'll log it and continue
-            print(f"Warning: Could not extract default value for parameter {param.spelling}: {e}")
+            logger.error(f"Warning: Could not extract default value for parameter {param.spelling}: {e}")
 
-        return CParameter(name=param.spelling or f"arg_{param.type.spelling.replace(' ', '_')}", type=param.type.spelling, default_value=default_value)
+        return CParameter(name=param.spelling or f"placeholder_arg_{param.type.spelling.replace(' ', '_')}", type=param.type.spelling, default_value=default_value)
 
     def _extract_variable(self, cursor) -> CVariable:
         """Extracts detailed variable information from a cursor."""
