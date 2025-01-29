@@ -18,10 +18,8 @@
 Python module
 """
 
-from abc import ABC
 from pathlib import Path
-from typing import Dict, List
-from pandas import DataFrame
+from typing import List
 
 from cldk.analysis import SymbolTable
 from cldk.analysis.python.treesitter import PythonSitter
@@ -29,6 +27,8 @@ from cldk.models.python.models import PyMethod, PyImport, PyModule, PyClass
 
 
 class PythonAnalysis(SymbolTable):
+    """Python Analysis Class"""
+
     def __init__(
         self,
         analysis_backend: str,
@@ -48,13 +48,13 @@ class PythonAnalysis(SymbolTable):
 
         # Initialize the analysis analysis_backend
         if analysis_backend.lower() == "codeql":
-            raise NotImplementedError(f"Support for {analysis_backend} has not been implemented yet.")
+            raise NotImplementedError("Support for {analysis_backend} has not been implemented yet.")
         elif analysis_backend.lower() == "codeanalyzer":
-            raise NotImplementedError(f"Support for {analysis_backend} has not been implemented yet.")
+            raise NotImplementedError("Support for {analysis_backend} has not been implemented yet.")
         elif analysis_backend.lower() == "treesitter":
             self.analysis_backend: PythonSitter = PythonSitter()
         else:
-            raise NotImplementedError(f"Support for {analysis_backend} has not been implemented yet.")
+            raise NotImplementedError("Support for {analysis_backend} has not been implemented yet.")
 
     def get_methods(self) -> List[PyMethod]:
         """
@@ -89,14 +89,14 @@ class PythonAnalysis(SymbolTable):
 
     def is_parsable(self, source_code: str) -> bool:
         """
-                Check if the code is parsable
-                Args:
-                    source_code: source code
+        Check if the code is parsable
+        Args:
+            source_code: source code
 
-                Returns:
-                    True if the code is parsable, False otherwise
+        Returns:
+            True if the code is parsable, False otherwise
         """
-        return PythonSitter.is_parsable(self, source_code)
+        return PythonSitter().is_parsable(source_code)
 
     def get_raw_ast(self, source_code: str) -> str:
         """
@@ -107,9 +107,9 @@ class PythonAnalysis(SymbolTable):
         Returns:
             Tree: the raw AST
         """
-        return PythonSitter.get_raw_ast(self, source_code)
+        return PythonSitter().get_raw_ast(source_code)
 
-    def get_imports(self) ->  List[PyImport]:
+    def get_imports(self) -> List[PyImport]:
         """
         Given an application or a source code, get all the imports
         """
@@ -119,7 +119,7 @@ class PythonAnalysis(SymbolTable):
         """
         Given an application or a source code, get all the variables
         """
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_classes(self) -> List[PyClass]:
         """
@@ -131,34 +131,34 @@ class PythonAnalysis(SymbolTable):
         """
         Given an application or a source code, get all the classes given the inclusion and exclution criteria
         """
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_sub_classes(self, **kwargs):
         """
         Given an application or a source code, get all the sub-classes
         """
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_nested_classes(self, **kwargs):
         """
         Given an application or a source code, get all the nested classes
         """
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_constructors(self, **kwargs):
         """
         Given an application or a source code, get all the constructors
         """
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_methods_in_class(self, **kwargs):
         """
         Given an application or a source code, get all the methods within the given class
         """
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_fields(self, **kwargs):
         """
         Given an application or a source code, get all the fields
         """
-        raise NotImplementedError(f"Support for this functionality has not been implemented yet.")
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")

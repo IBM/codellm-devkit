@@ -18,6 +18,6 @@
 Python package
 """
 
-from .python import PythonAnalysis
+from .python_analysis import PythonAnalysis
 
 __all__ = ["PythonAnalysis"]
