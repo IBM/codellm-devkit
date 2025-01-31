@@ -17,7 +17,7 @@ repo_name: IBM/codellm-devkit
 # docs_dir: docs
 site_dir: _site
 
-copyright: Copyright &copy; 2024 IBM
+copyright: Copyright &copy; 2024-2025 IBM
 
 theme:
   name: material
@@ -27,20 +27,35 @@ theme:
   icon:
     repo: fontawesome/brands/github
   features: # see https://squidfunk.github.io/mkdocs-material/setup/
+    - announce.dismiss
+    - content.action.edit
+    - content.code.copy
+    - content.tabs.link
+    - navigation.indexes
+    - navigation.footer
+    - navigation.sections
     - search.highlight
     - search.suggest
-    - navigation.sections
-    - navigation.path
-    - navigation.footer
-    - navigation.indexes
-    - navigation.top
     - toc.follow
-    - toc.integrate
-    - navigation.tabs
-    - content.action.edit
-  logo: assets/cldk.png
+  logo: assets/images/logo-white.svg
   palette:
-    - primary: custom
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+toggle:
+        icon: material/brightness-auto
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: custom
+      toggle:
+        icon: material/brightness-7
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: custom
+      toggle:
+        icon: material/brightness-4
+
 nav:
   - Home: README.md
   - Walkthrough: walkthrough.md
