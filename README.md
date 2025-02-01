@@ -1,6 +1,5 @@
-# CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs
-
-![codellm-devkit logo](https://github.com/IBM/codellm-devkit/blob/main/docs/assets/cldk.png?raw=true)
+<!-- # CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs -->
+![codellm-devkit logo](./docs/assets/cldk.png)
 
 [![arXiv](https://img.shields.io/badge/arXiv-2410.13007-b31b1b.svg)](https://arxiv.org/abs/2410.13007)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
@@ -39,17 +38,16 @@ For any questions, feedback, or suggestions, please contact the authors:
 | Saurabh Sihna | [sinhas@us.ibm.com](mailto:sinhas@us.ibm.com) |
 ## Table of Contents
 
-- [CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs](#codellm-devkit-a-python-library-for-seamless-interaction-with-codellms)
-  - [Contact](#contact)
-  - [Table of Contents](#table-of-contents)
-  - [Architectural and Design Overview](#architectural-and-design-overview)
-  - [Quick Start: Example Walkthrough](#quick-start-example-walkthrough)
-    - [Prerequisites](#prerequisites)
-    - [Step 1:  Set up an Ollama server](#step-1--set-up-an-ollama-server)
-      - [Pull the latest version of Granite 8b instruct model from ollama](#pull-the-latest-version-of-granite-8b-instruct-model-from-ollama)
-    - [Step 2:  Install CLDK](#step-2--install-cldk)
-    - [Step 3:  Build a code summarization pipeline](#step-3--build-a-code-summarization-pipeline)
-    - [Publication (papers and blogs related to CLDK)](#publication-papers-and-blogs-related-to-cldk)
+- [Contact](#contact)
+- [Table of Contents](#table-of-contents)
+- [Architectural and Design Overview](#architectural-and-design-overview)
+- [Quick Start: Example Walkthrough](#quick-start-example-walkthrough)
+  - [Prerequisites](#prerequisites)
+  - [Step 1:  Set up an Ollama server](#step-1--set-up-an-ollama-server)
+    - [Pull the latest version of Granite 8b instruct model from ollama](#pull-the-latest-version-of-granite-8b-instruct-model-from-ollama)
+  - [Step 2:  Install CLDK](#step-2--install-cldk)
+  - [Step 3:  Build a code summarization pipeline](#step-3--build-a-code-summarization-pipeline)
+  - [Publication (papers and blogs related to CLDK)](#publication-papers-and-blogs-related-to-cldk)
 
 ## Architectural and Design Overview
 

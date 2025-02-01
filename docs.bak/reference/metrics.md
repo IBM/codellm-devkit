@@ -1,3 +1,0 @@
-# `kolena.metrics`
-
-::: kolena.metrics
