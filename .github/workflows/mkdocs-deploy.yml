@@ -19,6 +19,6 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Dependencies
-        run: pip install mkdocs-material mkdocs-autorefs mkdocs-get-deps mkdocs-material-extensions mkdocstrings mkdocstrings-python mkdocs-git-revision-date-localized-plugin
+        run: pip install mkdocs-material[imaging] mkdocs-autorefs mkdocs-get-deps mkdocs-material-extensions mkdocstrings mkdocstrings-python mkdocs-git-revision-date-localized-plugin
       - name: Deploy docs
         run: mkdocs gh-deploy --force --verbose
