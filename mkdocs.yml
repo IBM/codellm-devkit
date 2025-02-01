@@ -9,87 +9,6 @@ nav:
   - Home:
     - Introduction: index.md
 
-#     - Quickstart: dataset/quickstart.md
-#     - Installing <code>kolena</code>: installing-kolena.md
-#     - Core Concepts: dataset/core-concepts/index.md
-#     - Use Cases: dataset/use-cases.md
-#     - Advanced Usage:
-#       - Advanced Usage: dataset/advanced-usage/index.md
-#       - Formatting Datasets:
-#         - Formatting Datasets: dataset/advanced-usage/dataset-formatting/index.md
-#         - Computer Vision: dataset/advanced-usage/dataset-formatting/computer-vision.md
-#         - Natural Language: dataset/advanced-usage/dataset-formatting/natural-language.md
-#         - Audio: dataset/advanced-usage/dataset-formatting/audio.md
-#       - Task Metrics: dataset/advanced-usage/task-metrics.md
-#       - Thresholded Results: dataset/advanced-usage/thresholded-results.md
-#       - Programmatically Compare Models: dataset/advanced-usage/quality-standard-results.md
-#       - Automatically Extract Text Properties: automations/extract-text-metadata.md
-#       - Automatically Extract Image Properties: automations/extract-image-metadata.md
-#       - Automatically Extract Bounding Box Properties: automations/extract-bounding-box-metadata.md
-#       - Setting Up Natural Language Search: automations/set-up-natural-language-search.md
-#       - Uploading Custom Embeddings: dataset/advanced-usage/upload-embeddings.md
-#       - Object Detection with Kolena: dataset/object-detection.md
-#       - LLM Powered Data Processing: dataset/advanced-usage/llm-prompt-extraction.md
-#       - Custom Queries and Fields: dataset/advanced-usage/custom-queries.md
-#     - Connecting Cloud Storage:
-#       - Connecting Cloud Storage: connecting-cloud-storage/index.md
-#       - Amazon S3: connecting-cloud-storage/amazon-s3.md
-#       - S3-Compatible APIs: connecting-cloud-storage/s3-compatible.md
-#       - Google Cloud Storage: connecting-cloud-storage/google-cloud-storage.md
-#       - Azure Blob Storage: connecting-cloud-storage/azure-blob-storage.md
-#       - HTTP Basic: connecting-cloud-storage/http-basic.md
-#     - Connecting External LLM Endpoint:
-#         - Connecting External LLM Endpoint: connecting-external-llm-endpoint/index.md
-#         - Connecting Azure OpenAI deployment: connecting-external-llm-endpoint/azure-openai.md
-#     - Archive:
-#       - Workflows:
-#         - Workflows: workflow/index.md
-#         - Quickstart: workflow/quickstart.md
-#         - Building a Workflow: workflow/building-a-workflow.md
-#         - Core Concepts:
-#           - Core Concepts: workflow/core-concepts/index.md
-#           - Workflow: workflow/core-concepts/workflow.md
-#           - Test Case & Test Suite: workflow/core-concepts/test-suite.md
-#           - Model: workflow/core-concepts/model.md
-#         - Advanced Usage:
-#           - Advanced Usage: workflow/advanced-usage/index.md
-#           - Packaging for Automated Evaluation: workflow/advanced-usage/packaging-for-automated-evaluation.md
-#           - Nesting Test Case Metrics: workflow/advanced-usage/nesting-test-case-metrics.md
-#           - Uploading Activation Maps: workflow/advanced-usage/uploading-activation-maps.md
-#   - API Reference:
-#     - API Reference: reference/index.md
-#     - <code>kolena.annotation</code>: reference/annotation.md
-#     - <code>kolena.asset</code>: reference/asset.md
-#     - <code>kolena.dataset</code>: reference/dataset/index.md
-#     - <code>kolena.errors</code>: reference/errors.md
-#     - <code>kolena.io</code>: reference/io.md
-#     - <code>kolena.initialize</code>: reference/initialize.md
-#     - <code>kolena.metrics</code>: reference/metrics.md
-#     - <code>kolena._experimental</code>: reference/experimental/index.md
-#     - Archived:
-#       - <code>kolena.workflow</code>:
-#         - <code>kolena.workflow</code>: reference/workflow/index.md
-#         - <code>TestSample</code>: reference/workflow/test-sample.md
-#         - <code>GroundTruth</code>: reference/workflow/ground-truth.md
-#         - <code>Inference</code>: reference/workflow/inference.md
-#         - <code>Evaluator</code>: reference/workflow/evaluator.md
-#         - <code>TestCase</code>: reference/workflow/test-case.md
-#         - <code>TestSuite</code>: reference/workflow/test-suite.md
-#         - <code>Model</code>: reference/workflow/model.md
-#         - <code>test</code>: reference/workflow/test-run.md
-#         - Utilities:
-#           - Annotations: reference/workflow/annotation.md
-#           - Assets: reference/workflow/asset.md
-#           - Plots: reference/workflow/plot.md
-#           - <code>define_workflow</code>: reference/workflow/define-workflow.md
-#           - <code>ThresholdedMetrics</code>: reference/workflow/thresholded-metrics.md
-#           - <code>visualization</code>: reference/workflow/visualization.md
-#           - IO: reference/workflow/io.md
-#         - Pre-built Workflows:
-#           - Pre-built Workflows: reference/pre-built/index.md
-#           - Object Detection (2D): reference/pre-built/object-detection-2d.md
-#           - Classification: reference/pre-built/classification.md
-
 theme:
   name: material
   logo: assets/images/logo-white.svg
@@ -179,7 +98,6 @@ plugins:
     cache_dir: .cache/plugin/social/free
   search:
     lang: en
-  git-revision-date-localized:
   mkdocstrings:
     handlers:
       python:
