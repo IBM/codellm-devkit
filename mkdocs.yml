@@ -98,6 +98,7 @@ plugins:
     cache_dir: .cache/plugin/social/free
   search:
     lang: en
+  git-revision-date-localized:
   mkdocstrings:
     handlers:
       python:
