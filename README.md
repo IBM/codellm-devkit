@@ -1,5 +1,5 @@
 <!-- # CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs -->
-![codellm-devkit logo](docs/assets/cldk.png)
+![codellm-devkit](docs/assets/cldk.png)
 
 <p align='center'>
   <a href="https://arxiv.org/abs/2410.13007">
