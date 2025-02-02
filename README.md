@@ -1,14 +1,29 @@
-# CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/cldk-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/images/cldk-light.png">
+  <img src="docs/assets/img-light.png" alt="Logo">
+</picture>
 
-![codellm-devkit logo](https://github.com/IBM/codellm-devkit/blob/main/docs/assets/cldk.png?raw=true)
-
-[![arXiv](https://img.shields.io/badge/arXiv-2410.13007-b31b1b.svg)](https://arxiv.org/abs/2410.13007)
-[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Documentation](https://img.shields.io/badge/GitHub%20Pages-Docs-blue)](https://ibm.github.io/codellm-devkit/)
-[![PyPI version](https://badge.fury.io/py/cldk.svg)](https://badge.fury.io/py/cldk)
-[![Discord](https://img.shields.io/discord/1333486179667935403)](https://discord.gg/AzVaWFS7vh)
-
+<p align='center'>
+  <a href="https://arxiv.org/abs/2410.13007">
+    <img src="https://img.shields.io/badge/arXiv-2410.13007-b31b1b?style=flat-square" />
+  </a>
+  <a href="https://www.python.org/downloads/release/python-3110/">
+    <img src="https://img.shields.io/badge/python-3.11-blue?style=flat-square" />
+  </a>
+  <a href="https://opensource.org/licenses/Apache-2.0">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-green?style=flat-square" />
+  </a>
+  <a href="https://ibm.github.io/codellm-devkit/">
+    <img src="https://img.shields.io/badge/GitHub%20Pages-Docs-blue?style=flat-square" />
+  </a>
+  <a href="https://badge.fury.io/py/cldk">
+    <img src="https://img.shields.io/pypi/v/cldk?style=flat-square&label=codellm-devkit&color=blue" />
+  </a>
+  <a href="https://discord.gg/zEjz9YrmqN">
+    <img src="https://dcbadge.limes.pink/api/server/https://discord.gg/zEjz9YrmqN?style=flat-square"/>
+  </a>
+</p>
 
 Codellm-devkit (CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). Codellm-devkit allows developers to streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.
 
