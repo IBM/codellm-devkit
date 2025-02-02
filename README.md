@@ -1,4 +1,3 @@
-<!-- # CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/cldk-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="docs/assets/images/cldk-light.png">
