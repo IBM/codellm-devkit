@@ -37,7 +37,7 @@ CLDK streamlines the process of transforming raw code into actionable insights, 
 
 # :cldk-layers-20: Developer Guide
 
-Learn how to use Codellm-devkit to analyze your code effectively:
+Get started with Codellm-devkit:
 
 <div class="grid cards" markdown>
 
@@ -64,6 +64,50 @@ Learn how to use Codellm-devkit to analyze your code effectively:
     ---
 
     Developer-focused, detailed API reference documentation for `cldk`.
+
+</div>
+---
+
+---
+
+# :cldk-learning-20: Use Cases
+
+Learn how to leverage CLDK for various code analysis tasks:
+
+<div class="grid cards" markdown>
+
+- [:cldk-test-suite-16: Java Unit Test Generation](usecases/java/unit_test.md)
+
+    ---
+
+    Understand how to use CLDK to generate unit tests for Java projects.
+
+- [:cldk-text-summarization-16: Summarize Python Projects](usecases/python/explain.md)
+
+    ---
+
+    Learn how to summarize Python projects using CLDK.
+
+</div>
+---
+
+# :cldk-rocket-20: Advanced Topics
+
+Dive deeper into advanced topics
+
+<div class="grid cards" markdown>
+
+- [:cldk-rocket-16: Extending CLDK](advanced/extending.md)
+
+    ---
+
+    Learn how to extend CLDK to a new language.
+
+- [:cldk-workflow-16: Adding a New Analysis Backend](advanced/adding_backend.md)
+  
+    ---
+
+    Learn how to add a new analysis backend to CLDK.
 
 </div>
 ---

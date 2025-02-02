@@ -8,6 +8,9 @@ copyright: Copyright &copy; 2024-2025 IBM
 nav:
   - Home:
     - Introduction: index.md
+    - Quick Start: quickstart.md
+    - Installation: installing.md
+    - Core Concepts: core-concepts/index.md
 
 theme:
   name: material
@@ -15,7 +18,8 @@ theme:
   favicon: assets/images/favicon.png
   custom_dir: docs/overrides
   font:
-    text: Inter
+    text: IBM Plex Sans
+    code: IBM Plex Mono
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -35,7 +39,6 @@ theme:
         icon: material/brightness-4
   features:
     - announce.dismiss
-    - content.action.edit
     - content.code.copy
     - content.tabs.link
     - navigation.indexes
@@ -128,8 +131,8 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/IBM/codellm-devkit
       name: CLDK on GitHub
-    - icon: cldk/logo
-      link: https://cldk.dev
+    - icon: cldk/logo-white
+      link: https://ibm.github.io/codellm-devkit
       name: The CLDK Library
   dd_rum:
     client_token: !ENV [ DD_RUM_CLIENT_TOKEN, blank ]

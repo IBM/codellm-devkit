@@ -51,7 +51,7 @@ plugins:
     cards_layout_dir: docs/layouts
   typeset:
   git-committers:
-    repository: kolenaIO/kolena
+    repository: IBM/codellm-devkit
     branch: trunk
   mkdocstrings:
     handlers:
