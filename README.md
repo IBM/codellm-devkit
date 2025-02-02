@@ -1,5 +1,9 @@
 <!-- # CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs -->
-![codellm-devkit](docs/assets/cldk.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/cldk-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/images/cldk-light.png">
+  <img src="docs/assets/img-light.png" alt="Logo">
+</picture>
 
 <p align='center'>
   <a href="https://arxiv.org/abs/2410.13007">
