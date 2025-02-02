@@ -1,4 +1,4 @@
-site_name: CodeLLM-Devkit
+site_name: Codellm-Devkit
 site_description: A library for streamlined code analysis insights for CodeLLM development and deployment.
 repo_url: https://github.com/IBM/codellm-devkit
 repo_name: IBM/codellm-devkit

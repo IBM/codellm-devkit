@@ -29,7 +29,7 @@ hide:
 </p>
 ---
 
-[Codellm-devkit](https://cldk.info) (aka. CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). CLDK simplifies multi-language code analysis by providing a unified Python library that integrates outputs from various analysis tools and prepares them for effective use by CodeLLMs.
+[Codellm-Devkit](https://cldk.info) (aka. CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). CLDK simplifies multi-language code analysis by providing a unified Python library that integrates outputs from various analysis tools and prepares them for effective use by CodeLLMs.
 
 CLDK streamlines the process of transforming raw code into actionable insights, enabling robust analysis pipelines and seamless integration with tools like WALA, Tree-sitter, LLVM, and CodeQL.
 
@@ -37,7 +37,7 @@ CLDK streamlines the process of transforming raw code into actionable insights, 
 
 # :cldk-layers-20: Developer Guide
 
-Get started with Codellm-devkit:
+Get started with Codellm-Devkit:
 
 <div class="grid cards" markdown>
 
@@ -112,13 +112,13 @@ Dive deeper into advanced topics
 </div>
 ---
 
-## Why Codellm-devkit?
+## Why Codellm-Devkit?
 
 !!! tip inline "TL;DR"
 
     CLDK unifies traditional program analysis tools with CodeLLMs, streamlining multi-language code analysis into a single, cohesive framework.
 
-Current code analysis often involves juggling multiple disjointed tools and workflows. With Codellm-devkit, you can:
+Current code analysis often involves juggling multiple disjointed tools and workflows. With Codellm-Devkit, you can:
 
 - **Unified**: Integrate various analysis tools and CodeLLMs into one cohesive framework.
 - **Extensible**: Easily add support for new tools and evolving LLM platforms.
