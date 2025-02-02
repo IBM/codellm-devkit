@@ -109,11 +109,24 @@ Finally, to enable building Java projects automatically, you will need to instal
     sdk install maven
     ```
 
-- Make sure `mvn` command is available in the `PATH`. Add the following to your `~/.zshrc`, `~/.bashrc` or `~/.bash_profile`:
+- Make sure `mvn` command is available in the `PATH`. If `mvn` is not in your path, add the following to your `~/.zshrc`, `~/.bashrc` or `~/.bash_profile` file:
 
     ```bash
     export PATH="$HOME/.sdkman/candidates/maven/current/bin:$PATH"
     ```
+    Then, source the file to apply the changes:
+
+    ```bash
+    source ~/.zshrc # or ~/.bashrc or ~/.bash_profile
+    ```
+
+- Verify the installation:
+
+    ```bash
+    mvn -version
+    ```
+    This should output the version of the installed Maven.
+
 
 ### Python Analysis
 
