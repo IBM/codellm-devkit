@@ -15,7 +15,8 @@ theme:
   favicon: assets/images/favicon.png
   custom_dir: docs/overrides
   font:
-    text: Inter
+    text: IBM Plex Sans
+    code: IBM Plex Mono
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
