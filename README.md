@@ -1,4 +1,3 @@
-<!-- # CodeLLM-Devkit: A Python library for seamless interaction with CodeLLMs -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/cldk-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="docs/assets/images/cldk-light.png">
@@ -7,43 +6,43 @@
 
 <p align='center'>
   <a href="https://arxiv.org/abs/2410.13007">
-    <img src="https://img.shields.io/badge/arXiv-2410.13007-b31b1b?style=flat-square" />
+    <img src="https://img.shields.io/badge/arXiv-2410.13007-b31b1b?style=for-the-badge" />
   </a>
   <a href="https://www.python.org/downloads/release/python-3110/">
-    <img src="https://img.shields.io/badge/python-3.11-blue?style=flat-square" />
+    <img src="https://img.shields.io/badge/python-3.11-blue?style=for-the-badge" />
   </a>
   <a href="https://opensource.org/licenses/Apache-2.0">
-    <img src="https://img.shields.io/badge/License-Apache%202.0-green?style=flat-square" />
+    <img src="https://img.shields.io/badge/License-Apache%202.0-green?style=for-the-badge" />
   </a>
   <a href="https://ibm.github.io/codellm-devkit/">
-    <img src="https://img.shields.io/badge/GitHub%20Pages-Docs-blue?style=flat-square" />
+    <img src="https://img.shields.io/badge/GitHub%20Pages-Docs-blue?style=for-the-badge" />
   </a>
   <a href="https://badge.fury.io/py/cldk">
-    <img src="https://img.shields.io/pypi/v/cldk?style=flat-square&label=codellm-devkit&color=blue" />
+    <img src="https://img.shields.io/pypi/v/cldk?style=for-the-badge&label=codellm-devkit&color=blue" />
   </a>
   <a href="https://discord.gg/zEjz9YrmqN">
-    <img src="https://dcbadge.limes.pink/api/server/https://discord.gg/zEjz9YrmqN?style=flat-square"/>
+    <img src="https://dcbadge.limes.pink/api/server/https://discord.gg/zEjz9YrmqN?style=for-the-badge"/>
   </a>
 </p>
 
-Codellm-devkit (CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). Codellm-devkit allows developers to streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.
+Codellm-Devkit (CLDK) is a multilingual program analysis framework that bridges the gap between traditional static analysis tools and Large Language Models (LLMs) specialized for code (CodeLLMs). Codellm-Devkit allows developers to streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.
 
-Codellm-devkit simplifies the complex process of analyzing codebases that span multiple programming languages, making it easier to extract meaningful insights and drive LLM-based code analysis. `CLDK` achieves this through an open-source Python library that abstracts the intricacies of program analysis and LLM interactions. With this library, developer can streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.
+Codellm-Devkit simplifies the complex process of analyzing codebases that span multiple programming languages, making it easier to extract meaningful insights and drive LLM-based code analysis. `CLDK` achieves this through an open-source Python library that abstracts the intricacies of program analysis and LLM interactions. With this library, developer can streamline the process of transforming raw code into actionable insights by providing a unified interface for integrating outputs from various analysis tools and preparing them for effective use by CodeLLMs.
 
-**The purpose of Codellm-devkit is to enable the development and experimentation of robust analysis pipelines that harness the power of both traditional program analysis tools and CodeLLMs.**
-By providing a consistent and extensible framework, Codellm-devkit aims to reduce the friction associated with multi-language code analysis and ensure compatibility across different analysis tools and LLM platforms.
+**The purpose of Codellm-Devkit is to enable the development and experimentation of robust analysis pipelines that harness the power of both traditional program analysis tools and CodeLLMs.**
+By providing a consistent and extensible framework, Codellm-Devkit aims to reduce the friction associated with multi-language code analysis and ensure compatibility across different analysis tools and LLM platforms.
 
-Codellm-devkit is designed to integrate seamlessly with a variety of popular analysis tools, such as WALA, Tree-sitter, LLVM, and CodeQL, each implemented in different languages. Codellm-devkit acts as a crucial intermediary layer, enabling efficient and consistent communication between these tools and the CodeLLMs.
+Codellm-Devkit is designed to integrate seamlessly with a variety of popular analysis tools, such as WALA, Tree-sitter, LLVM, and CodeQL, each implemented in different languages. Codellm-Devkit acts as a crucial intermediary layer, enabling efficient and consistent communication between these tools and the CodeLLMs.
 
-Codellm-devkit is constantly evolving to include new tools and frameworks, ensuring it remains a versatile solution for code analysis and LLM integration.
+Codellm-Devkit is constantly evolving to include new tools and frameworks, ensuring it remains a versatile solution for code analysis and LLM integration.
 
-Codellm-devkit is:
+Codellm-Devkit is:
 
 - **Unified**: Provides a single framework for integrating multiple analysis tools and CodeLLMs, regardless of the programming languages involved.
 - **Extensible**: Designed to support new analysis tools and LLM platforms, making it adaptable to the evolving landscape of code analysis.
 - **Streamlined**: Simplifies the process of transforming raw code into structured, LLM-ready inputs, reducing the overhead typically associated with multi-language analysis.
 
-Codellm-devkit is an ongoing project, developed at IBM Research.
+Codellm-Devkit is an ongoing project, developed at IBM Research.
 
 ## Contact
 

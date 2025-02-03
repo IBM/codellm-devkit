@@ -32,7 +32,7 @@ layers:
   # Logo
   - size: { width: 144, height: 144 }
     offset: { x: 992, y: 64 }
-    icon: { value: kolena/logo, color: white }
+    icon: { value: cldk/logo-white, color: white }
 
   # Site name
   - size: { width: 832, height: 42 }

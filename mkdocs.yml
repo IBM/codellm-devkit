@@ -1,4 +1,4 @@
-site_name: CodeLLM-Devkit
+site_name: Codellm-Devkit
 site_description: A library for streamlined code analysis insights for CodeLLM development and deployment.
 repo_url: https://github.com/IBM/codellm-devkit
 repo_name: IBM/codellm-devkit
@@ -7,7 +7,10 @@ copyright: Copyright &copy; 2024-2025 IBM
 
 nav:
   - Home:
-    - Introduction: index.md
+    - Home: index.md
+    - Quick Start: quickstart.md
+    - Installation: installing.md
+    - Core Concepts: core-concepts/index.md
 
 theme:
   name: material
@@ -36,8 +39,9 @@ theme:
         icon: material/brightness-4
   features:
     - announce.dismiss
-    - content.action.edit
     - content.code.copy
+    - content.code.prettify
+    - content.code.annotate
     - content.tabs.link
     - navigation.indexes
     - navigation.footer
@@ -129,8 +133,8 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/IBM/codellm-devkit
       name: CLDK on GitHub
-    - icon: cldk/logo
-      link: https://cldk.dev
+    - icon: cldk/logo-white
+      link: https://ibm.github.io/codellm-devkit
       name: The CLDK Library
   dd_rum:
     client_token: !ENV [ DD_RUM_CLIENT_TOKEN, blank ]
