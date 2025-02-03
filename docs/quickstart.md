@@ -69,7 +69,13 @@ Model inference with CLDK starts with a local LLM server. We'll use Ollama to ho
         ```
 
 === "macOS"
-    On macOS, Ollama runs automatically after installation. You can verify it's running by opening Activity Monitor and searching for "ollama".
+    On macOS, Ollama runs automatically after installation. 
+
+    You can check the status with:
+    ```shell
+    launchctl list | grep "ollama"
+    ```
+
 
 ## Step 2: Pull the code LLM. 
 
@@ -82,6 +88,16 @@ Model inference with CLDK starts with a local LLM server. We'll use Ollama to ho
     ```shell
     ollama run granite-code:8b-instruct 'Write a function to print hello world in python'
     ```
+
+    You should see a response like:
+    ```shell
+    ❯ ollama run granite-code:8b-instruct 'Write a function to print hello world in python'
+        ```python
+            def say_hello():
+                print("Hello World!")
+        ```
+    ```
+
 
 ## Step 3: Download Sample Codebase
 
@@ -106,7 +122,7 @@ export JAVA_APP_PATH=/path/to/commons-cli-1.7.0
 
 Let's build a pipeline that analyzes Java methods using LLMs. Create a new file `code_summarization.py`:
 
-```python title="code_summarization.py" linenums="1"  hl_lines="7 10 12-17 21-22 24-25 34-37" 
+```python title="code_summarization.py" linenums="1"  hl_lines="7 10 12-17 24-25 27-28 39" 
 import ollama
 from cldk import CLDK
 from pathlib import Path
@@ -124,6 +140,9 @@ for file_path, class_file in analysis.get_symbol_table().items():
     for type_name, type_declaration in class_file.type_declarations.items():
         # Iterate over methods
         for method in type_declaration.callable_declarations.values():  #  (3)!
+            # Skip constructors
+            if method.is_constructor:
+                continue
             # Get code body
             code_body = Path(file_path).absolute().resolve().read_text()
 
@@ -143,7 +162,7 @@ for file_path, class_file in analysis.get_symbol_table().items():
             # Prompt Ollama
             summary = ollama.generate(
                 model="granite-code:8b-instruct", # (6)!
-                prompt=instruction).get("response") # (7)!
+                prompt=instruction).get("response") 
 
             # Print output
             print(f"\nMethod: {method.declaration}")
@@ -156,8 +175,7 @@ for file_path, class_file in analysis.get_symbol_table().items():
 3.  In a nested loop, we can quickly iterate over the methods in the project and extract the code body.
 4.  CLDK comes with a number of treesitter based utilities that can be used to extract and manipulate code snippets. 
 5.  We use the `sanitize_focal_class()` method to extract the focal class for the method and sanitize any unwanted code in just one line of code.
-6.  Try your favorite model for code summarization. We use the `granite-code:8b-instruct` model in this example.
-7.  We prompt Ollama with the sanitized class and method declaration to generate a summary for the method.
+6.  We use the `granite-code:8b-instruct` model in this example. Try a different model from [Ollama model library](https://ollama.com/library).
 ---
 
 ### Running `code_summarization.py`
