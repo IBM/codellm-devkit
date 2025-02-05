@@ -1,0 +1,61 @@
+INHERIT: mkdocs.yml
+
+strict: false # allows for missing pages in git-committers (i.e. new or moved pages)
+watch:
+  - cldk
+  - mkdocs.yml
+
+theme:
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+  features:
+    # copied from mkdocs.yml -- ensure that these are kept in sync
+    - announce.dismiss
+    - content.action.edit
+    - content.code.copy
+    - content.tabs.link
+    - navigation.indexes
+    - navigation.footer
+    - navigation.sections
+   - search.highlight
+    - search.suggest
+    - toc.follow
+
+    # insider-only features
+    - navigation.path # breadcrumbs
+    - content.tooltips
+
+extra:
+  status:
+    new: Experimental
+
+plugins:
+  social:
+    cache_dir: .cache/plugin/social/insiders
+    cards_layout: custom
+    cards_layout_dir: docs/layouts
+  typeset:
+  git-committers:
+    repository: IBM/codellm-devkit
+    branch: trunk
+  mkdocstrings:
+    handlers:
+      python:
+        options:
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
