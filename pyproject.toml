@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "cldk"
 version = "0.4.0"
-description = "codellm-devkit: A python library for seamless integration with LLMs."
+description = "The official Python SDK for Codellm-Devkit."
 authors = ["Rahul Krishna <i.m.ralk@gmail.com>", "Rangeet Pan <rangeet.pan@ibm.com>", "Saurabh Sinhas <sinhas@us.ibm.com>",
             "Raju Pavuluri <pavuluri@us.ibm.com>"]
 license = "Apache 2.0"
 readme = "README.md"
-homepage = "https://github.com/IBM/codellm-devkit"
-repository = "https://github.com/IBM/codellm-devkit"
+homepage = "https://codellm-devkit.info"
+repository = "https://github.com/codellm-devkit/python-sdk"
 keywords = ["ibm", "llm", "large language models", "code analyzer", "syntax tree"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -32,19 +32,18 @@ python = ">=3.11"
 pydantic = "^2.6.1"
 pandas = "^2.2.0"
 networkx = "^3.3"
-pyarrow = "17.0.0"
-tree-sitter-languages = "^1.10.2"
-tree-sitter = "0.23.0"
-rich = "13.7.1"
+pyarrow = "19.0.0"
+tree-sitter = "0.24.0"
+rich = "13.9.4"
 wget = "3.2"
 requests = "^2.31.0"
 tree-sitter-java = "0.23.5"
-tree-sitter-c = "0.23.1"
-tree-sitter-go = "0.23.1"
-tree-sitter-python = "0.23.2"
-tree-sitter-javascript = "0.23.0"
+tree-sitter-c = "0.23.4"
+tree-sitter-go = "0.23.4"
+tree-sitter-python = "0.23.6"
+tree-sitter-javascript = "0.23.1"
 # Test dependencies
-mkdocs-material = {extras = ["imaging"], version = "^9.6.1"}
+mkdocs-material = {extras = ["imaging"], version = "^9.6.2"}
 
 [tool.poetry.group.dev.dependencies]
 toml = "^0.10.2"
