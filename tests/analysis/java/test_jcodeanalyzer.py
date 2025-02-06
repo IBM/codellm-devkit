@@ -444,6 +444,55 @@ def test_get_all_methods_in_application(test_fixture, analysis_json):
                 assert isinstance(callable, JCallable)
 
 
+def test_get_all_entrypoint_methods_in_application(test_fixture, codeanalyzer_jar_path):
+    """It should return all of the methods in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=None,
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=False,
+        target_files=None,
+    )
+    entrypoint_methods = code_analyzer.get_all_entry_point_methods()
+    assert entrypoint_methods is not None
+    assert isinstance(entrypoint_methods, Dict)
+    assert len(entrypoint_methods) > 0
+    # Validate structure
+    for _, method in entrypoint_methods.items():
+        assert method is not None
+        assert isinstance(method, Dict)
+        for _, callable in method.items():
+            assert callable is not None
+            assert isinstance(callable, JCallable)
+            assert callable.is_entrypoint
+
+
+def test_get_all_entrypoint_classes_in_the_application(test_fixture, codeanalyzer_jar_path):
+    """It should return all of the methods in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=None,
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=False,
+        target_files=None,
+    )
+    entrypoint_classes = code_analyzer.get_all_entry_point_classes()
+    assert entrypoint_classes is not None
+    assert isinstance(entrypoint_classes, Dict)
+    assert len(entrypoint_classes) > 0
+    # Validate structure
+    for _, cls in entrypoint_classes.items():
+        assert cls is not None
+        assert isinstance(cls, JType)
+        assert cls.is_entrypoint_class
+
+
 def test_get_all_classes(test_fixture, analysis_json):
     """It should return all of the classes in an application"""
 

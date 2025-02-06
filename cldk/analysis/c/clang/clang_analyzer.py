@@ -3,9 +3,8 @@ import platform
 from clang.cindex import Config
 from pathlib import Path
 from typing import List, Optional
-from cldk.models.c import CFunction, CMacro, CCallSite, CTranslationUnit, CApplication
+from cldk.models.c import CFunction, CCallSite, CTranslationUnit, CApplication
 import logging
-from ipdb import set_trace
 
 from cldk.models.c.models import CInclude, CParameter, CVariable, StorageClass
 
@@ -34,14 +33,15 @@ def find_libclang() -> str:
 
     # On Linux, we check various common installation paths
     elif system == "Linux":
+        from pathlib import Path
+        
+        lib_paths = [Path("/usr/lib"), Path("/usr/lib64")]
         possible_paths = [
-            "/usr/lib/llvm-14/lib/libclang.so",
-            "/usr/lib/llvm-13/lib/libclang.so",
-            "/usr/lib/llvm-12/lib/libclang.so",
-            "/usr/lib/x86_64-linux-gnu/libclang-14.so.1",
-            "/usr/lib/libclang.so",
+            str(p) for base in lib_paths if base.exists()
+            for p in base.rglob("libclang*.so*")
         ]
-        install_instructions = "Install libclang using: sudo apt-get install libclang-dev"
+
+        install_instructions = "Install libclang development package using your system's package manager"
     else:
         raise RuntimeError(f"Unsupported operating system: {system}")
 

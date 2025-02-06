@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
+from itertools import chain, groupby
 from pdb import set_trace
 import re
 import json
@@ -863,20 +864,20 @@ class JCodeanalyzer:
         return graph_edges
 
     def get_all_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
-        """Returns a dictionary of all entry point methods in the Java code with
-            qualified class name as the key and a dictionary of methods in that class as the value.
+        """Returns a dictionary of all entry point methods in the Java code.
 
         Returns:
-            Dict[str, Dict[str, JCallable]]: A dictionary of dictionaries of entry point
-            methods in the Java code.
+            Dict[str, Dict[str, JCallable]]: A dictionary of all entry point methods in the Java code.
         """
-
-        class_method_dict = {}
-        class_dict = self.get_all_classes()
-        for k, v in class_dict.items():
-            entry_point_methods = {method_name: callable_decl for (method_name, callable_decl) in v.callable_declarations.items() if callable_decl.is_entry_point is True}
-            class_method_dict[k] = entry_point_methods
-        return class_method_dict
+        methods = chain.from_iterable(
+            ((typename, method, callable)
+            for method, callable in methods.items() if callable.is_entrypoint)
+            for typename, methods in self.get_all_methods_in_application().items()
+        )
+        return {
+            typename: {method: callable for _, method, callable in group}
+            for typename, group in groupby(methods, key=lambda x: x[0])
+        }
 
     def get_all_entry_point_classes(self) -> Dict[str, JType]:
         """Returns a dictionary of all entry point classes in the Java code.
@@ -886,8 +887,8 @@ class JCodeanalyzer:
             with qualified class names as keys.
         """
 
-        class_dict = {}
-        symtab = self.get_symbol_table()
-        for val in symtab.values():
-            class_dict.update((k, v) for k, v in val.type_declarations.items() if v.is_entry_point is True)
-        return class_dict
+        return {
+            typename: klass
+            for typename, klass in self.get_all_classes().items()
+            if klass.is_entrypoint_class
+        }
