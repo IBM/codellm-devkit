@@ -23,10 +23,6 @@ from typing import Dict, List, Optional
 from pdb import set_trace
 from pydantic import BaseModel, field_validator, model_validator
 
-from .constants_namespace import ConstantsNamespace
-
-constants = ConstantsNamespace()
-context_concrete_class = ContextVar("context_concrete_class")  # context var to store class concreteness
 _CALLABLES_LOOKUP_TABLE = dict()
 
 
@@ -179,6 +175,7 @@ class JCallable(BaseModel):
     referenced_types: List[str]
     accessed_fields: List[str]
     call_sites: List[JCallSite]
+    is_entrypoint: bool = False
     variable_declarations: List[JVariableDeclaration]
     cyclomatic_complexity: int | None
 
@@ -187,33 +184,6 @@ class JCallable(BaseModel):
         Returns the hash value of the declaration.
         """
         return hash(self.declaration)
-
-    @model_validator(mode="after")
-    def detect_entrypoint_method(self):
-        # check first if the class in which this method exists is concrete or not, by looking at the context var
-        if context_concrete_class.get():
-            # convert annotations to the form GET, POST even if they are @GET or @GET('/ID') etc.
-            annotations_cleaned = [match for annotation in self.annotations for match in re.findall(r"@(.*?)(?:\(|$)", annotation)]
-
-            param_type_list = [val.type for val in self.parameters]
-            # check the param types against known servlet param types
-            if any(substring in string for substring in param_type_list for string in constants.ENTRY_POINT_METHOD_SERVLET_PARAM_TYPES):
-                # check if this method is over-riding (only methods that override doGet / doPost etc. will be flagged as first level entry points)
-                if "Override" in annotations_cleaned:
-                    self.is_entry_point = True
-                    return self
-
-            # now check the cleaned annotations against known javax ws annotations
-            if any(substring in string for substring in annotations_cleaned for string in constants.ENTRY_POINT_METHOD_JAVAX_WS_ANNOTATIONS):
-                self.is_entry_point = True
-                return self
-
-            # check the cleaned annotations against known spring rest method annotations
-            if any(substring in string for substring in annotations_cleaned for string in constants.ENTRY_POINT_METHOD_SPRING_ANNOTATIONS):
-                self.is_entry_point = True
-                return self
-        return self
-
 
 class JType(BaseModel):
     """Represents a Java class or interface.
@@ -257,43 +227,11 @@ class JType(BaseModel):
     modifiers: List[str] = []
     annotations: List[str] = []
     parent_type: str
+    is_entrypoint_class: bool = False
     nested_type_declerations: List[str] = []
     callable_declarations: Dict[str, JCallable] = {}
     field_declarations: List[JField] = []
     enum_constants: List[JEnumConstant] = []
-
-    # first get the data in raw form and check if the class is concrete or not, before any model validation is done
-    #   for this we assume if a class is not an interface or abstract it is concrete
-    #       for abstract classes we will check the modifiers
-    @model_validator(mode="before")
-    def check_concrete_class(cls, values):
-        """Detects if the class is concrete based on its properties."""
-        values["is_concrete_class"] = False
-        if values.get("is_class_or_interface_declaration") and not values.get("is_interface"):
-            if "abstract" not in values.get("modifiers"):
-                values["is_concrete_class"] = True
-        # since the methods in this class need access to the concrete class flag,
-        # we will store this in a context var - this is a hack
-        token = context_concrete_class.set(values["is_concrete_class"])
-        return values
-
-    # after model validation is done we populate the is_entry_point flag by checking
-    # if the class extends or implements known servlet classes
-    @model_validator(mode="after")
-    def check_concrete_entry_point(self):
-        """Detects if the class is entry point based on its properties."""
-        if self.is_concrete_class:
-            if any(substring in string for substring in (self.extends_list + self.implements_list) for string in constants.ENTRY_POINT_SERVLET_CLASSES):
-                self.is_entry_point = True
-                return self
-        # Handle spring classes
-        # clean annotations - take out @ and any paranehesis along with info in them.
-        annotations_cleaned = [match for annotation in self.annotations for match in re.findall(r"@(.*?)(?:\(|$)", annotation)]
-        if any(substring in string for substring in annotations_cleaned for string in constants.ENTRY_POINT_CLASS_SPRING_ANNOTATIONS):
-            self.is_entry_point = True
-            return self
-        # context_concrete.reset()
-        return self
 
 
 class JCompilationUnit(BaseModel):
