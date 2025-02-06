@@ -445,7 +445,7 @@ def test_get_all_methods_in_application(test_fixture, analysis_json):
 
 
 def test_get_all_entrypoint_methods_in_application(test_fixture, codeanalyzer_jar_path):
-    """It should return all of the methods in an application"""
+    """It should return all of the entrypoint methods in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture,
         source_code=None,
@@ -471,7 +471,7 @@ def test_get_all_entrypoint_methods_in_application(test_fixture, codeanalyzer_ja
 
 
 def test_get_all_entrypoint_classes_in_the_application(test_fixture, codeanalyzer_jar_path):
-    """It should return all of the methods in an application"""
+    """It should return all of the entrypoint classes in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture,
         source_code=None,
