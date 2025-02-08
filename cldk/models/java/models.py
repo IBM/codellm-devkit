@@ -17,11 +17,9 @@
 """
 Models module
 """
-import re
-from contextvars import ContextVar
 from typing import Dict, List, Optional
-from pdb import set_trace
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, field_validator
+from cldk.models.java.enums import CRUDOperationType, CRUDQueryType
 
 _CALLABLES_LOOKUP_TABLE = dict()
 
@@ -77,6 +75,32 @@ class JEnumConstant(BaseModel):
     arguments: List[str]
 
 
+class JCRUDOperation(BaseModel):
+    """Represents a CRUD operation.
+
+    Attributes:
+        line_number (int): The line number of the operation.
+        operation_type (JCRUDOperationType): The type of the operation.
+    """
+
+    line_number: int
+    operation_type: CRUDOperationType | None
+
+
+class JCRUDQuery(BaseModel):
+    """Represents a CRUD query.
+
+    Attributes:
+        line_number (int): The line number of the query.
+        query_arguments (List[str]): The arguments of the query.
+        query_type (JCRUDQueryType): The type of the query.
+    """
+
+    line_number: int
+    query_arguments: List[str] | None
+    query_type: CRUDQueryType | None
+
+
 class JCallSite(BaseModel):
     """Represents a call site.
 
@@ -86,8 +110,15 @@ class JCallSite(BaseModel):
         receiver_type (str): Name of type declaring the called method.
         argument_types (List[str]): Types of actual parameters for the call.
         return_type (str): Return type of the method call (resolved type of the method call expression; empty string if expression is unresolved).
+        callee_signature (str): Signature of the callee.
         is_static_call (bool): Flag indicating whether the call is a static call.
+        is_private (bool): Flag indicating whether the call is a private call.
+        is_public (bool): Flag indicating whether the call is a public call.
+        is_protected (bool): Flag indicating whether the call is a protected call.
+        is_unspecified (bool): Flag indicating whether the call is an unspecified call.
         is_constructor_call (bool): Flag indicating whether the call is a constructor call.
+        crud_operation (CRUDOperationType): The CRUD operation type of the call site.
+        crud_query (CRUDQueryType): The CRUD query type of the call site.
         start_line (int): The starting line number of the call site.
         start_column (int): The starting column of the call site.
         end_line (int): The ending line number of the call site.
@@ -106,6 +137,8 @@ class JCallSite(BaseModel):
     is_protected: bool | None = None
     is_unspecified: bool | None = None
     is_constructor_call: bool
+    crud_operation: JCRUDOperation | None
+    crud_query: JCRUDQuery | None
     start_line: int
     start_column: int
     end_line: int
@@ -155,6 +188,8 @@ class JCallable(BaseModel):
         accessed_fields (List[str]): Fields accessed in the callable.
         call_sites (List[JCallSite]): Call sites in the callable.
         variable_declarations (List[JVariableDeclaration]): Local variable declarations in the callable.
+        crud_operations (List[JCRUDOperation]): CRUD operations in the callable.
+        crud_queries (List[JCRUDQuery]): CRUD queries in the callable.
         cyclomatic_complexity (int): Cyclomatic complexity of the callable.
     """
 
@@ -177,6 +212,8 @@ class JCallable(BaseModel):
     call_sites: List[JCallSite]
     is_entrypoint: bool = False
     variable_declarations: List[JVariableDeclaration]
+    crud_operations: List[JCRUDOperation] | None
+    crud_queries: List[JCRUDQuery] | None
     cyclomatic_complexity: int | None
 
     def __hash__(self):
@@ -184,6 +221,7 @@ class JCallable(BaseModel):
         Returns the hash value of the declaration.
         """
         return hash(self.declaration)
+
 
 class JType(BaseModel):
     """Represents a Java class or interface.
@@ -231,7 +269,7 @@ class JType(BaseModel):
     nested_type_declerations: List[str] = []
     callable_declarations: Dict[str, JCallable] = {}
     field_declarations: List[JField] = []
-    enum_constants: List[JEnumConstant] = []
+    enum_constants: List[JEnumConstant] | None = []
 
 
 class JCompilationUnit(BaseModel):

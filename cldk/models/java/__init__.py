@@ -26,4 +26,6 @@ from .models import (
     JGraphEdges,
 )
 
-__all__ = ["JApplication", "JCallable", "JType", "JCompilationUnit", "JGraphEdges", "ConstantsNamespace"]
+from .enums import CRUDOperationType, CRUDQueryType
+
+__all__ = ["JApplication", "JCallable", "JType", "JCompilationUnit", "JGraphEdges", "CRUDOperationType", "CRUDQueryType"]

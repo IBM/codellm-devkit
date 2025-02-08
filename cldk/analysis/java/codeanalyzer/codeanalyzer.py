@@ -13,32 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-from itertools import chain, groupby
-from pdb import set_trace
-import re
 import json
+import logging
+import re
 import shlex
-import requests
-import networkx as nx
-from pathlib import Path
 import subprocess
-from subprocess import CompletedProcess
-from urllib.request import urlretrieve
-from datetime import datetime
 from importlib import resources
+from itertools import chain, groupby
+from pathlib import Path
+from subprocess import CompletedProcess
+from typing import Any, Dict, List, Tuple
+from typing import Union
 
+import networkx as nx
 from networkx import DiGraph
 
 from cldk.analysis import AnalysisLevel
 from cldk.analysis.java.treesitter import JavaSitter
 from cldk.models.java import JGraphEdges
-from cldk.models.java.models import JApplication, JCallable, JField, JMethodDetail, JType, JCompilationUnit, JGraphEdgesST
-from typing import Dict, List, Tuple
-from typing import Union
-
+from cldk.models.java.enums import CRUDOperationType
+from cldk.models.java.models import JApplication, JCRUDOperation, JCallable, JField, JMethodDetail, JType, JCompilationUnit, JGraphEdgesST
 from cldk.utils.exceptions.exceptions import CodeanalyzerExecutionException
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -143,22 +138,22 @@ class JCodeanalyzer:
             with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.bin") / "codeanalyzer") as codeanalyzer_bin_path:
                 codeanalyzer_exec = shlex.split(codeanalyzer_bin_path.__str__())
         else:
-
             if self.analysis_backend_path:
                 analysis_backend_path = Path(self.analysis_backend_path)
                 logger.info(f"Using codeanalyzer jar from {analysis_backend_path}")
                 codeanalyzer_jar_file = next(analysis_backend_path.rglob("codeanalyzer-*.jar"), None)
+                if codeanalyzer_jar_file is None:
+                    raise CodeanalyzerExecutionException("Codeanalyzer jar not found in the provided path.")
                 codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
             else:
-                # Since the path to codeanalyzer.jar was not provided, we'll download the latest version from GitHub.
+                # Since the path to codeanalyzer.jar we will use the default jar from the cldk/analysis/java/codeanalyzer/jar folder
                 with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.jar")) as codeanalyzer_jar_path:
-                    # Download the codeanalyzer jar if it doesn't exist, update if it's outdated,
-                    # do nothing if it's up-to-date.
                     codeanalyzer_jar_file = next(codeanalyzer_jar_path.rglob("codeanalyzer-*.jar"), None)
                     codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
         return codeanalyzer_exec
 
-    def init_japplication(self, data: str) -> JApplication:
+    @staticmethod
+    def _init_japplication(data: str) -> JApplication:
         """Return JApplication giving the stringified JSON as input.
         Returns
         -------
@@ -197,7 +192,7 @@ class JCodeanalyzer:
                     text=True,
                     check=True,
                 )
-                return JApplication(**json.loads(console_out.stdout))
+                return self._init_japplication(console_out.stdout)
             except Exception as e:
                 raise CodeanalyzerExecutionException(str(e)) from e
         else:
@@ -217,7 +212,7 @@ class JCodeanalyzer:
                     # flag is set, we'll run the analysis every time the object is created. This will happen regradless
                     # of the existence of the analysis file.
                     # Create the executable command for codeanalyzer.
-                    codeanalyzer_args = codeanalyzer_exec + shlex.split(f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -o {self.analysis_json_path}")
+                    codeanalyzer_args = codeanalyzer_exec + shlex.split(f"-i {Path(self.project_dir)} --analysis-level={analysis_level} -o {self.analysis_json_path} -v")
                     is_run_code_analyzer = True
 
             if is_run_code_analyzer:
@@ -248,12 +243,11 @@ class JCodeanalyzer:
         codeanalyzer_args = ["--source-analysis", self.source_code]
         codeanalyzer_cmd = codeanalyzer_exec + codeanalyzer_args
         try:
-            print(f"Running {' '.join(codeanalyzer_cmd)}")
             logger.info(f"Running {' '.join(codeanalyzer_cmd)}")
             console_out: CompletedProcess[str] = subprocess.run(codeanalyzer_cmd, capture_output=True, text=True, check=True)
             if console_out.returncode != 0:
                 raise CodeanalyzerExecutionException(console_out.stderr)
-            return JApplication(**json.loads(console_out.stdout))
+            return self._init_japplication(console_out.stdout)
         except Exception as e:
             raise CodeanalyzerExecutionException(str(e)) from e
 
@@ -870,14 +864,9 @@ class JCodeanalyzer:
             Dict[str, Dict[str, JCallable]]: A dictionary of all entry point methods in the Java code.
         """
         methods = chain.from_iterable(
-            ((typename, method, callable)
-            for method, callable in methods.items() if callable.is_entrypoint)
-            for typename, methods in self.get_all_methods_in_application().items()
+            ((typename, method, callable) for method, callable in methods.items() if callable.is_entrypoint) for typename, methods in self.get_all_methods_in_application().items()
         )
-        return {
-            typename: {method: callable for _, method, callable in group}
-            for typename, group in groupby(methods, key=lambda x: x[0])
-        }
+        return {typename: {method: callable for _, method, callable in group} for typename, group in groupby(methods, key=lambda x: x[0])}
 
     def get_all_entry_point_classes(self) -> Dict[str, JType]:
         """Returns a dictionary of all entry point classes in the Java code.
@@ -887,8 +876,110 @@ class JCodeanalyzer:
             with qualified class names as keys.
         """
 
-        return {
-            typename: klass
-            for typename, klass in self.get_all_classes().items()
-            if klass.is_entrypoint_class
-        }
+        return {typename: klass for typename, klass in self.get_all_classes().items() if klass.is_entrypoint_class}
+
+    def get_all_crud_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a dictionary of all CRUD operations in the source code.
+
+        Raises:
+            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+
+        Returns:
+            Dict[str, List[str]]: A dictionary of all CRUD operations in the source code.
+        """
+
+        crud_operations = []
+        for class_name, class_details in self.get_all_classes().items():
+            for method_name, method_details in class_details.callable_declarations.items():
+                if len(method_details.crud_operations) > 0:
+                    crud_operations.append({class_name: class_details, method_name: method_details, "crud_operations": method_details.crud_operations})
+        return crud_operations
+
+    def get_all_read_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a list of all read operations in the source code.
+
+        Raises:
+            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+
+        Returns:
+            List[Dict[str, Union[str, JCallable, List[CRUDOperation]]]]:: A list of all read operations in the source code.
+        """
+        crud_read_operations = []
+        for class_name, class_details in self.get_all_classes().items():
+            for method_name, method_details in class_details.callable_declarations.items():
+                if len(method_details.crud_operations) > 0:
+                    crud_read_operations.append(
+                        {
+                            class_name: class_details,
+                            method_name: method_details,
+                            "crud_operations": [crud_op for crud_op in method_details.crud_operations if crud_op.operation_type == CRUDOperationType.READ],
+                        }
+                    )
+        return crud_read_operations
+
+    def get_all_create_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a list of all create operations in the source code.
+
+        Raises:
+            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+
+        Returns:
+            List[Dict[str, Union[str, JCallable, List[CRUDOperation]]]]: A list of all create operations in the source code.
+        """
+        crud_create_operations = []
+        for class_name, class_details in self.get_all_classes().items():
+            for method_name, method_details in class_details.callable_declarations.items():
+                if len(method_details.crud_operations) > 0:
+                    crud_create_operations.append(
+                        {
+                            class_name: class_details,
+                            method_name: method_details,
+                            "crud_operations": [crud_op for crud_op in method_details.crud_operations if crud_op.operation_type == CRUDOperationType.CREATE],
+                        }
+                    )
+        return crud_create_operations
+
+    def get_all_update_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a list of all update operations in the source code.
+
+        Raises:
+            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+
+        Returns:
+            List[Dict[str, Union[str, JCallable, List[CRUDOperation]]]]: A list of all update operations in the source code.
+        """
+        crud_update_operations = []
+        for class_name, class_details in self.get_all_classes().items():
+            for method_name, method_details in class_details.callable_declarations.items():
+                if len(method_details.crud_operations) > 0:
+                    crud_update_operations.append(
+                        {
+                            class_name: class_details,
+                            method_name: method_details,
+                            "crud_operations": [crud_op for crud_op in method_details.crud_operations if crud_op.operation_type == CRUDOperationType.UPDATE],
+                        }
+                    )
+
+        return crud_update_operations
+
+    def get_all_delete_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a list of all delete operations in the source code.
+
+        Raises:
+            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+
+        Returns:
+            List[Dict[str, Union[str, JCallable, List[CRUDOperation]]]]: A list of all delete operations in the source code.
+        """
+        crud_delete_operations = []
+        for class_name, class_details in self.get_all_classes().items():
+            for method_name, method_details in class_details.callable_declarations.items():
+                if len(method_details.crud_operations) > 0:
+                    crud_delete_operations.append(
+                        {
+                            class_name: class_details,
+                            method_name: method_details,
+                            "crud_operations": [crud_op for crud_op in method_details.crud_operations if crud_op.operation_type == CRUDOperationType.DELETE],
+                        }
+                    )
+        return crud_delete_operations
