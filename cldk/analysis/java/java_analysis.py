@@ -638,7 +638,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all CRUD operations in the source code.
         """
-        return self.backend.get_all_crud_operations(self.source_code)
+        return self.backend.get_all_crud_operations()
 
     def get_all_create_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
         """Returns a list of all create operations in the source code.
@@ -646,7 +646,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all create operations in the source code.
         """
-        return self.backend.get_all_create_operations(self.source_code)
+        return self.backend.get_all_create_operations()
 
     def get_all_read_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
         """Returns a list of all read operations in the source code.
@@ -654,7 +654,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all read operations in the source code.
         """
-        return self.backend.get_all_read_operations(self.source_code)
+        return self.backend.get_all_read_operations()
 
     def get_all_update_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
         """Returns a list of all update operations in the source code.
@@ -662,7 +662,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all update operations in the source code.
         """
-        return self.backend.get_all_update_operations(self.source_code)
+        return self.backend.get_all_update_operations()
 
     def get_all_delete_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
         """Returns a list of all delete operations in the source code.
@@ -670,4 +670,4 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all delete operations in the source code.
         """
-        return self.backend.get_all_delete_operations(self.source_code)
+        return self.backend.get_all_delete_operations()
