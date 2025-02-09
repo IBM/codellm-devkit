@@ -20,6 +20,7 @@ Test Cases for JCodeanalyzer
 
 import os
 import json
+from pdb import set_trace
 from typing import Dict, List, Tuple
 from unittest.mock import patch, MagicMock
 import networkx as nx
@@ -992,3 +993,28 @@ def test_get_all_get_crud_delete_operations(test_fixture_pbw, codeanalyzer_jar_p
             assert isinstance(crud_op, JCRUDOperation)
             assert crud_op.line_number > 0
             assert crud_op.operation_type.value == "DELETE"
+
+
+def test_get_all_get_crud_operations_daytrader8(test_fixture, codeanalyzer_jar_path):
+    """It should return all of the CRUD operations in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=test_fixture / "build",
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=True,
+        target_files=None,
+    )
+    crud_operations = code_analyzer.get_all_crud_operations()
+    assert crud_operations is not None
+    for operation in crud_operations:
+        assert operation is not None
+        assert isinstance(operation, Dict)
+        assert isinstance(operation["crud_operations"], list)
+        for crud_op in operation["crud_operations"]:
+            assert crud_op is not None
+            assert isinstance(crud_op, JCRUDOperation)
+            assert crud_op.line_number > 0
+            assert crud_op.operation_type.value in ["CREATE", "READ", "UPDATE", "DELETE"]

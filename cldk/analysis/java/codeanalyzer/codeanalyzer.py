@@ -160,6 +160,9 @@ class JCodeanalyzer:
         JApplication
             The application view of the Java code with the analysis results.
         """
+        # from ipdb import set_trace
+
+        # set_trace()
         return JApplication(**json.loads(data))
 
     def _init_codeanalyzer(self, analysis_level=1) -> JApplication:
@@ -231,7 +234,7 @@ class JCodeanalyzer:
                     raise CodeanalyzerExecutionException(str(e)) from e
             with open(analysis_json_path_file) as f:
                 data = json.load(f)
-                return JApplication(**data)
+                return self._init_japplication(json.dumps(data))
 
     def _codeanalyzer_single_file(self) -> JApplication:
         """Invokes codeanalyzer in a single file mode.

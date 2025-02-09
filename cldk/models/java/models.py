@@ -260,13 +260,13 @@ class JType(BaseModel):
     is_concrete_class: bool = False
     is_entry_point: bool = False
     comment: str
-    extends_list: List[str] = []
-    implements_list: List[str] = []
-    modifiers: List[str] = []
-    annotations: List[str] = []
+    extends_list: List[str] | None = []
+    implements_list: List[str] | None = []
+    modifiers: List[str] | None = []
+    annotations: List[str] | None = []
     parent_type: str
     is_entrypoint_class: bool = False
-    nested_type_declerations: List[str] = []
+    nested_type_declerations: List[str] | None = []
     callable_declarations: Dict[str, JCallable] = {}
     field_declarations: List[JField] = []
     enum_constants: List[JEnumConstant] | None = []
@@ -359,6 +359,8 @@ class JGraphEdges(BaseModel):
                 accessed_fields=[],
                 call_sites=[],
                 variable_declarations=[],
+                crud_operations=[],
+                crud_queries=[],
                 cyclomatic_complexity=0,
             ),
         )
