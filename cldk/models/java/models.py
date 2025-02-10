@@ -187,6 +187,7 @@ class JCallable(BaseModel):
         referenced_types (List[str]): The types referenced within the callable.
         accessed_fields (List[str]): Fields accessed in the callable.
         call_sites (List[JCallSite]): Call sites in the callable.
+        is_entrypoint (bool): A flag indicating whether this is a service entry point method.
         variable_declarations (List[JVariableDeclaration]): Local variable declarations in the callable.
         crud_operations (List[JCRUDOperation]): CRUD operations in the callable.
         crud_queries (List[JCRUDQuery]): CRUD queries in the callable.
@@ -196,7 +197,6 @@ class JCallable(BaseModel):
     signature: str
     is_implicit: bool
     is_constructor: bool
-    is_entry_point: bool = False
     comment: str
     annotations: List[str]
     modifiers: List[str]
@@ -236,13 +236,13 @@ class JType(BaseModel):
         is_annotation_declaration (bool): A flag indicating whether the object is an annotation declaration.
         is_record_declaration (bool): A flag indicating whether this object is a record declaration.
         is_concrete_class (bool): A flag indicating whether this is a concrete class.
-        is_entry_point (bool): A flag indicating whether this is an entry point class.
         comment (str): The comment of the class or interface.
         extends_list (List[str]): The list of classes or interfaces that the object extends.
         implements_list (List[str]): The list of interfaces that the object implements.
         modifiers (List[str]): The list of modifiers of the object.
         annotations (List[str]): The list of annotations of the object.
         parent_type (str): The name of the parent class (if it exists).
+        is_entrypoint_class (bool): A flag indicating whether this is a service entry point class.
         nested_type_declarations (List[str]): All the class declarations nested under this class.
         callable_declarations (Dict[str, JCallable]): The list of constructors and methods of the object.
         field_declarations (List[JField]): The list of fields of the object.
@@ -258,7 +258,6 @@ class JType(BaseModel):
     is_annotation_declaration: bool = False
     is_record_declaration: bool = False
     is_concrete_class: bool = False
-    is_entry_point: bool = False
     comment: str
     extends_list: List[str] | None = []
     implements_list: List[str] | None = []
