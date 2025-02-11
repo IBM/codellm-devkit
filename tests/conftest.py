@@ -70,7 +70,7 @@ def codeanalyzer_jar_path():
     # Load the configuration
     config = toml.load(pyproject_path)
 
-    return Path(config["tool"]["cldk"]["testing"]["codeanalyzer-jar-path"]) / "2.1.0"
+    return Path(config["tool"]["cldk"]["testing"]["codeanalyzer-jar-path"]) / "2.2.0"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -107,6 +107,48 @@ def test_fixture():
     # --------------------------------------------------------------------------------
     # Daytrader8 sample application path
     yield Path(test_data_path) / "sample.daytrader8-1.2"
+
+    # -----------------------------------[ TEARDOWN ]----------------------------------
+    # Remove the daytrader8 sample application that was downloaded for testing
+    for directory in Path(test_data_path).iterdir():
+        if directory.exists() and directory.is_dir():
+            shutil.rmtree(directory)
+    # ---------------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="session", autouse=True)
+def test_fixture_pbw():
+    """
+    Returns the path to the test data directory for plantsbywebsphere.
+
+    Yields:
+        Path : The path to the test data directory.
+    """
+    # ----------------------------------[ SETUP ]----------------------------------
+    # Path to your pyproject.toml
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+
+    # Load the configuration
+    config = toml.load(pyproject_path)
+
+    # Access the test data path
+    test_data_path = config["tool"]["cldk"]["testing"]["sample-application"]
+    filename = Path(test_data_path).absolute() / "plantsbywebsphere.zip"
+
+    # If the file doesn't exist, raise an error
+    if not Path(filename).exists():
+        raise FileNotFoundError(f"File {filename} does not exist. Please download the file and try again")
+
+    # Extract the zip file to the test data path
+    with zipfile.ZipFile(filename, "r") as zip_ref:
+        zip_ref.extractall(test_data_path + "plantsbywebsphere")
+
+    # Make chmod +x on the gradlew file
+    gradlew_path = Path(test_data_path) / "plantsbywebsphere" / "gradlew"
+    os.chmod(gradlew_path, 0o755)
+    # --------------------------------------------------------------------------------
+    # Daytrader8 sample application path
+    yield Path(test_data_path) / "plantsbywebsphere"
 
     # -----------------------------------[ TEARDOWN ]----------------------------------
     # Remove the daytrader8 sample application that was downloaded for testing

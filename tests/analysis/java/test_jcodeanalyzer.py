@@ -20,6 +20,7 @@ Test Cases for JCodeanalyzer
 
 import os
 import json
+from pdb import set_trace
 from typing import Dict, List, Tuple
 from unittest.mock import patch, MagicMock
 import networkx as nx
@@ -27,7 +28,7 @@ from networkx import DiGraph
 
 from cldk.analysis import AnalysisLevel
 from cldk.analysis.java.codeanalyzer import JCodeanalyzer
-from cldk.models.java.models import JApplication, JType, JCallable, JCompilationUnit, JMethodDetail
+from cldk.models.java.models import JApplication, JCRUDOperation, JType, JCallable, JCompilationUnit, JMethodDetail
 from cldk.models.java import JGraphEdges
 
 
@@ -415,84 +416,6 @@ def test_get_all_callees(test_fixture, analysis_json):
         assert len(all_callees["callee_details"]) == 2
 
 
-def test_get_all_methods_in_application(test_fixture, analysis_json):
-    """It should return all of the methods in an application"""
-
-    # Patch subprocess so that it does not run codeanalyzer
-    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
-        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
-        code_analyzer = JCodeanalyzer(
-            project_dir=test_fixture,
-            source_code=None,
-            analysis_backend_path=None,
-            analysis_json_path=None,
-            analysis_level=AnalysisLevel.call_graph,
-            use_graalvm_binary=False,
-            eager_analysis=False,
-            target_files=None,
-        )
-        all_methods = code_analyzer.get_all_methods_in_application()
-        assert all_methods is not None
-        assert isinstance(all_methods, Dict)
-        assert len(all_methods) > 0
-        # Validate structure
-        for _, method in all_methods.items():
-            assert method is not None
-            assert isinstance(method, Dict)
-            for _, callable in method.items():
-                assert callable is not None
-                assert isinstance(callable, JCallable)
-
-
-def test_get_all_entrypoint_methods_in_application(test_fixture, codeanalyzer_jar_path):
-    """It should return all of the entrypoint methods in an application"""
-    code_analyzer = JCodeanalyzer(
-        project_dir=test_fixture,
-        source_code=None,
-        analysis_backend_path=codeanalyzer_jar_path,
-        analysis_json_path=None,
-        analysis_level=AnalysisLevel.symbol_table,
-        use_graalvm_binary=False,
-        eager_analysis=False,
-        target_files=None,
-    )
-    entrypoint_methods = code_analyzer.get_all_entry_point_methods()
-    assert entrypoint_methods is not None
-    assert isinstance(entrypoint_methods, Dict)
-    assert len(entrypoint_methods) > 0
-    # Validate structure
-    for _, method in entrypoint_methods.items():
-        assert method is not None
-        assert isinstance(method, Dict)
-        for _, callable in method.items():
-            assert callable is not None
-            assert isinstance(callable, JCallable)
-            assert callable.is_entrypoint
-
-
-def test_get_all_entrypoint_classes_in_the_application(test_fixture, codeanalyzer_jar_path):
-    """It should return all of the entrypoint classes in an application"""
-    code_analyzer = JCodeanalyzer(
-        project_dir=test_fixture,
-        source_code=None,
-        analysis_backend_path=codeanalyzer_jar_path,
-        analysis_json_path=None,
-        analysis_level=AnalysisLevel.symbol_table,
-        use_graalvm_binary=False,
-        eager_analysis=False,
-        target_files=None,
-    )
-    entrypoint_classes = code_analyzer.get_all_entry_point_classes()
-    assert entrypoint_classes is not None
-    assert isinstance(entrypoint_classes, Dict)
-    assert len(entrypoint_classes) > 0
-    # Validate structure
-    for _, cls in entrypoint_classes.items():
-        assert cls is not None
-        assert isinstance(cls, JType)
-        assert cls.is_entrypoint_class
-
-
 def test_get_all_classes(test_fixture, analysis_json):
     """It should return all of the classes in an application"""
 
@@ -869,8 +792,8 @@ def test_get_class_call_graph(test_fixture, analysis_json):
         assert len(class_call_graph) > 0
 
 
-def test_get_all_entry_point_methods(test_fixture, analysis_json):
-    """It should return the all of the entry point methods"""
+def test_get_all_methods_in_application(test_fixture, analysis_json):
+    """It should return all of the methods in an application"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -885,41 +808,213 @@ def test_get_all_entry_point_methods(test_fixture, analysis_json):
             eager_analysis=False,
             target_files=None,
         )
-
-        # Call with method signature
-        entry_point_methods = code_analyzer.get_all_entry_point_methods()
-        assert entry_point_methods is not None
-        assert isinstance(entry_point_methods, Dict)
-        assert len(entry_point_methods) > 0
+        all_methods = code_analyzer.get_all_methods_in_application()
+        assert all_methods is not None
+        assert isinstance(all_methods, Dict)
+        assert len(all_methods) > 0
         # Validate structure
-        for _, entry_point in entry_point_methods.items():
-            assert isinstance(entry_point, Dict)
-            for _, method in entry_point.items():
-                assert isinstance(method, JCallable)
+        for _, method in all_methods.items():
+            assert method is not None
+            assert isinstance(method, Dict)
+            for _, callable in method.items():
+                assert callable is not None
+                assert isinstance(callable, JCallable)
 
 
-def test_get_all_entry_point_classes(test_fixture, analysis_json):
-    """It should return the all of the entry point classes"""
+def test_get_all_entrypoint_methods_in_application(test_fixture, codeanalyzer_jar_path):
+    """It should return all of the entrypoint methods in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=None,
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=False,
+        target_files=None,
+    )
+    entrypoint_methods = code_analyzer.get_all_entry_point_methods()
+    assert entrypoint_methods is not None
+    assert isinstance(entrypoint_methods, Dict)
+    assert len(entrypoint_methods) > 0
+    # Validate structure
+    for _, method in entrypoint_methods.items():
+        assert method is not None
+        assert isinstance(method, Dict)
+        for _, callable in method.items():
+            assert callable is not None
+            assert isinstance(callable, JCallable)
+            assert callable.is_entrypoint
 
-    # Patch subprocess so that it does not run codeanalyzer
-    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
-        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
-        code_analyzer = JCodeanalyzer(
-            project_dir=test_fixture,
-            source_code=None,
-            analysis_backend_path=None,
-            analysis_json_path=None,
-            analysis_level=AnalysisLevel.call_graph,
-            use_graalvm_binary=False,
-            eager_analysis=False,
-            target_files=None,
-        )
 
-        # Call with method signature
-        entry_point_classes = code_analyzer.get_all_entry_point_classes()
-        assert entry_point_classes is not None
-        assert isinstance(entry_point_classes, Dict)
-        assert len(entry_point_classes) > 0
-        # Validate structure
-        for _, entry_point in entry_point_classes.items():
-            assert isinstance(entry_point, JType)
+def test_get_all_entrypoint_classes_in_the_application(test_fixture, codeanalyzer_jar_path):
+    """It should return all of the entrypoint classes in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=None,
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=False,
+        target_files=None,
+    )
+    entrypoint_classes = code_analyzer.get_all_entry_point_classes()
+    assert entrypoint_classes is not None
+    assert isinstance(entrypoint_classes, Dict)
+    assert len(entrypoint_classes) > 0
+    # Validate structure
+    for _, cls in entrypoint_classes.items():
+        assert cls is not None
+        assert isinstance(cls, JType)
+        assert cls.is_entrypoint_class
+
+
+def test_get_all_get_crud_operations(test_fixture_pbw, codeanalyzer_jar_path):
+    """It should return all of the CRUD operations in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture_pbw,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=test_fixture_pbw / "build",
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=True,
+        target_files=None,
+    )
+    crud_operations = code_analyzer.get_all_crud_operations()
+    assert crud_operations is not None
+    for operation in crud_operations:
+        assert operation is not None
+        assert isinstance(operation, Dict)
+        assert isinstance(operation["crud_operations"], list)
+        for crud_op in operation["crud_operations"]:
+            assert crud_op is not None
+            assert isinstance(crud_op, JCRUDOperation)
+            assert crud_op.line_number > 0
+            assert crud_op.operation_type.value in ["CREATE", "READ", "UPDATE", "DELETE"]
+
+
+def test_get_all_get_crud_read_operations(test_fixture_pbw, codeanalyzer_jar_path):
+    """It should return all of the CRUD read operations in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture_pbw,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=test_fixture_pbw / "build",
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=True,
+        target_files=None,
+    )
+    crud_operations = code_analyzer.get_all_read_operations()
+    assert crud_operations is not None
+    for operation in crud_operations:
+        assert operation is not None
+        assert isinstance(operation, Dict)
+        assert isinstance(operation["crud_operations"], list)
+        for crud_op in operation["crud_operations"]:
+            assert crud_op is not None
+            assert isinstance(crud_op, JCRUDOperation)
+            assert crud_op.line_number > 0
+            assert crud_op.operation_type.value == "READ"
+
+
+def test_get_all_get_crud_create_operations(test_fixture_pbw, codeanalyzer_jar_path):
+    """It should return all of the CRUD create operations in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture_pbw,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=test_fixture_pbw / "build",
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=True,
+        target_files=None,
+    )
+    crud_operations = code_analyzer.get_all_create_operations()
+    assert crud_operations is not None
+    for operation in crud_operations:
+        assert operation is not None
+        assert isinstance(operation, Dict)
+        assert isinstance(operation["crud_operations"], list)
+        for crud_op in operation["crud_operations"]:
+            assert crud_op is not None
+            assert isinstance(crud_op, JCRUDOperation)
+            assert crud_op.line_number > 0
+            assert crud_op.operation_type.value == "CREATE"
+
+
+def test_get_all_get_crud_update_operations(test_fixture_pbw, codeanalyzer_jar_path):
+    """It should return all of the CRUD update operations in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture_pbw,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=test_fixture_pbw / "build",
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=True,
+        target_files=None,
+    )
+    crud_operations = code_analyzer.get_all_update_operations()
+    assert crud_operations is not None
+    for operation in crud_operations:
+        assert operation is not None
+        assert isinstance(operation, Dict)
+        assert isinstance(operation["crud_operations"], list)
+        for crud_op in operation["crud_operations"]:
+            assert crud_op is not None
+            assert isinstance(crud_op, JCRUDOperation)
+            assert crud_op.line_number > 0
+            assert crud_op.operation_type.value == "UPDATE"
+
+
+def test_get_all_get_crud_delete_operations(test_fixture_pbw, codeanalyzer_jar_path):
+    """It should return all of the CRUD delete operations in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture_pbw,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=test_fixture_pbw / "build",
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=True,
+        target_files=None,
+    )
+    crud_operations = code_analyzer.get_all_delete_operations()
+    assert crud_operations is not None
+    for operation in crud_operations:
+        assert operation is not None
+        assert isinstance(operation, Dict)
+        assert isinstance(operation["crud_operations"], list)
+        for crud_op in operation["crud_operations"]:
+            assert crud_op is not None
+            assert isinstance(crud_op, JCRUDOperation)
+            assert crud_op.line_number > 0
+            assert crud_op.operation_type.value == "DELETE"
+
+
+def test_get_all_get_crud_operations_daytrader8(test_fixture, codeanalyzer_jar_path):
+    """It should return all of the CRUD operations in an application"""
+    code_analyzer = JCodeanalyzer(
+        project_dir=test_fixture,
+        source_code=None,
+        analysis_backend_path=codeanalyzer_jar_path,
+        analysis_json_path=test_fixture / "build",
+        analysis_level=AnalysisLevel.symbol_table,
+        use_graalvm_binary=False,
+        eager_analysis=True,
+        target_files=None,
+    )
+    crud_operations = code_analyzer.get_all_crud_operations()
+    assert crud_operations is not None
+    for operation in crud_operations:
+        assert operation is not None
+        assert isinstance(operation, Dict)
+        assert isinstance(operation["crud_operations"], list)
+        for crud_op in operation["crud_operations"]:
+            assert crud_op is not None
+            assert isinstance(crud_op, JCRUDOperation)
+            assert crud_op.line_number > 0
+            assert crud_op.operation_type.value in ["CREATE", "READ", "UPDATE", "DELETE"]

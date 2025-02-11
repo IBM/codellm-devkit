@@ -19,7 +19,7 @@ Java module
 """
 
 from pathlib import Path
-from typing import Dict, List, Tuple, Set
+from typing import Any, Dict, List, Tuple, Set, Union
 from networkx import DiGraph
 from tree_sitter import Tree
 
@@ -27,7 +27,7 @@ from cldk.analysis import SymbolTable, CallGraph, AnalysisLevel
 from cldk.analysis.java.treesitter import JavaSitter
 from cldk.models.java import JCallable
 from cldk.models.java import JApplication
-from cldk.models.java.models import JCompilationUnit, JMethodDetail, JType, JField
+from cldk.models.java.models import JCRUDOperation, JCompilationUnit, JMethodDetail, JType, JField
 from cldk.analysis.java.codeanalyzer import JCodeanalyzer
 from cldk.analysis.java.codeql import JCodeQL
 from cldk.utils.analysis_engine import AnalysisEngine
@@ -619,8 +619,6 @@ class JavaAnalysis(SymbolTable, CallGraph):
             List[int]: List of line numbers within in source method code block.
         """
 
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_calling_lines(self.source_code, target_method_name)
 
     def get_call_targets(self, declared_methods: dict) -> Set[str]:
@@ -629,12 +627,47 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Args:
             declared_methods (dict): A dictionary of all declared methods in the class.
 
-        Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
-
         Returns:
             Set[str]: A list of call targets (methods).
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_call_targets(self.source_code, declared_methods)
+
+    def get_all_crud_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a dictionary of all CRUD operations in the source code.
+
+        Returns:
+            List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all CRUD operations in the source code.
+        """
+        return self.backend.get_all_crud_operations()
+
+    def get_all_create_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a list of all create operations in the source code.
+
+        Returns:
+            List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all create operations in the source code.
+        """
+        return self.backend.get_all_create_operations()
+
+    def get_all_read_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a list of all read operations in the source code.
+
+        Returns:
+            List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all read operations in the source code.
+        """
+        return self.backend.get_all_read_operations()
+
+    def get_all_update_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a list of all update operations in the source code.
+
+        Returns:
+            List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all update operations in the source code.
+        """
+        return self.backend.get_all_update_operations()
+
+    def get_all_delete_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
+        """Returns a list of all delete operations in the source code.
+
+        Returns:
+            List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all delete operations in the source code.
+        """
+        return self.backend.get_all_delete_operations()
