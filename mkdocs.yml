@@ -1,7 +1,7 @@
 site_name: Codellm-Devkit
-site_description: A library for streamlined code analysis insights for CodeLLM development and deployment.
-repo_url: https://github.com/IBM/codellm-devkit
-repo_name: IBM/codellm-devkit
+site_description: Libraries for streamlined code analysis insights for CodeLLM development and deployment.
+# repo_url: https://github.com/codellm-devkit
+repo_name: codellm-devkit
 strict: false
 copyright: Copyright &copy; 2024-2025 IBM
 
@@ -85,9 +85,6 @@ markdown_extensions:
           - docs/overrides/.icons
   - pymdownx.arithmatex:
       generic: true
-
-watch:
-  - cldk
 
 extra_css:
   - assets/css/theme.css
