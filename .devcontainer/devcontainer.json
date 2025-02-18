@@ -1,0 +1,71 @@
+{
+	"name": "CLDK Python SDK",
+	"dockerFile": "Dockerfile",
+	"context": "..",
+	"remoteUser": "vscode",
+	"workspaceFolder": "/python-sdk",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/python-sdk,type=bind,consistency=delegated",
+	// "mounts": [
+	// 	"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ollama,target=/home/vscode/.ollama,type=bind,consistency=cached"
+	// ],
+    "runArgs": ["-h", "codellm-devkit", "--name", "python-sdk"],
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"[python]": {
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					"editor.formatOnSave": true
+				},
+				"git.mergeEditor": true,
+				"autoDocstring.docstringFormat": "google",
+				"markdown-preview-github-styles.colorTheme": "light",
+				"makefile.extensionOutputFolder": "/tmp",
+				"python.terminal.activateEnvironment": true,
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestEnabled": true,
+				"python.testing.pytestArgs": [
+					"tests"
+				],
+				"cSpell.words": [
+					"pydantic",
+					"pyarrow",
+					"cldk",
+					"Codeanalyzer",
+					"treesitter"
+				],
+				"files.exclude": {
+					"**/.git": true,
+					"**/.DS_Store": true,
+					"**/*.pyc": true,
+					"**/__pycache__": true,
+					"**/.pytest_cache": true
+				}
+			},
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-toolsai.jupyter",
+				"ms-python.debugpy",
+				"ms-python.pylint",
+				"ms-python.flake8",
+				"ms-python.black-formatter",
+				"zeshuaro.vscode-python-poetry",
+				"njpwerner.autodocstring",
+				"wholroyd.jinja",
+				"yzhang.markdown-all-in-one",
+				"hnw.vscode-auto-open-markdown-preview",
+				"davidanson.vscode-markdownlint",
+				"bierner.markdown-preview-github-styles",
+				"tamasfe.even-better-toml",
+				"donjayamanne.githistory",
+				"GitHub.vscode-pull-request-github",
+				"hbenl.vscode-test-explorer",
+				"LittleFoxTeam.vscode-python-test-adapter",
+				"redhat.vscode-yaml",
+				"ms-azuretools.vscode-docker",
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	},
+	"postCreateCommand": "sudo poetry config virtualenvs.create false && sudo poetry install; echo '---'; python3 --version; echo '---'; java -version; echo '---'; mvn --version; echo '--'; clang --version; echo '---';"
+}
