@@ -122,6 +122,18 @@ Before we begin, make sure you have the following prerequisites installed:
   * Python 3.11 or later
   * Ollama v0.3.4 or later
 
+If you are using [Visual Studio Code](https://code.visualstudio.com) with the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension along with [Docker Desktop](https://www.docker.com/products/docker-desktop) or [Rancher Desktop](https://w3.ibm.com/w3publisher/docker-desktop/rancher-desktop), this project contains a Dev Container environment for you to develop in. 
+
+Use the following commands:
+
+```bash
+git clone https://github.com/codellm-devkit/python-sdk.git
+cd python-dsk
+code .
+```
+
+When Visual Studio Code starts, select the option to **Reopen in Container** and a development environment with Python, Java, C, and Rust will be available to you. See [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers) for more detailed instructions.
+
 ### Step 1:  Set up an Ollama server
 
 If don't already have ollama, please download and install it from here: [Ollama](https://ollama.com/download). 
