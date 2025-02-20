@@ -287,14 +287,14 @@ def test_get_calling_lines():
     }
 """
     # test where call is found
-    calling_lines = java_sitter.get_calling_lines(source_method_code, "hasNext", False)
+    calling_lines = java_sitter.get_calling_lines(source_method_code, "hasNext")
     assert calling_lines is not None
     assert isinstance(calling_lines, List)
     assert len(calling_lines) == 1
     assert calling_lines[0] == 7
 
     # test where call is not found
-    calling_lines = java_sitter.get_calling_lines(source_method_code, "foo", False)
+    calling_lines = java_sitter.get_calling_lines(source_method_code, "foo")
     assert calling_lines is not None
     assert isinstance(calling_lines, List)
     assert len(calling_lines) == 0
