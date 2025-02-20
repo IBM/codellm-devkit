@@ -259,7 +259,7 @@ class JavaSitter:
         )
         return call_targets
 
-    def get_calling_lines(self, source_method_code: str, target_method_name: str, is_target_method_a_constructor: bool) -> List[int]:
+    def get_calling_lines(self, source_method_code: str, target_method_name: str) -> List[int]:
         """
         Returns a list of line numbers in source method where target method is called.
 
