@@ -313,7 +313,7 @@ class JCodeanalyzer:
                         "type": jge.type,
                         "weight": jge.weight,
                         "calling_lines": (
-                            tsu.get_calling_lines(jge.source.method.code, jge.target.method.signature, jge.target.method.is_constructor)
+                            tsu.get_calling_lines(jge.source.method.code, jge.target.method.signature)
                             if not jge.source.method.is_implicit or not jge.target.method.is_implicit
                             else []
                         ),
