@@ -827,7 +827,7 @@ class JCodeanalyzer:
                 )
                 if call_edge not in cg:
                     cg.append(call_edge)
-                cg = self.__raw_call_graph_using_symbol_table(qualified_class_name=target_class, method_signature=target_method_details.signature, cg=cg)
+                # cg = self.__raw_call_graph_using_symbol_table(qualified_class_name=target_class, method_signature=target_method_details.signature, cg=cg)
         return cg
 
     def get_class_call_graph(self, qualified_class_name: str, method_name: str | None = None) -> List[Tuple[JMethodDetail, JMethodDetail]]:
