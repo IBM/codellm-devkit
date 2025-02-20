@@ -48,7 +48,7 @@ def test_init_japplication(test_fixture, codeanalyzer_jar_path, analysis_json):
             eager_analysis=False,
             target_files=None,
         )
-        app = code_analyzer.init_japplication(analysis_json)
+        app = code_analyzer._init_japplication(analysis_json)
         assert app is not None
         assert isinstance(app, JApplication)
 
