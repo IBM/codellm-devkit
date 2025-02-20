@@ -859,6 +859,17 @@ class JCodeanalyzer:
 
         return graph_edges
 
+    def remove_all_comments(self, src_code: str) -> str:
+        """Remove all comments in the source code.
+
+        Args:
+            src_code (str): Original source code.
+
+        Returns:
+            str: The same source code without comments.
+        """
+        raise NotImplementedError("This function is not implemented yet.")
+
     def get_all_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
         """returns a dictionary of all entry point methods in the Java code.
 

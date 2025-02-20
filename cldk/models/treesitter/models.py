@@ -72,3 +72,16 @@ class Captures:
     def __len__(self) -> int:
         """return the number of captures."""
         return len(self.captures)
+
+    def __add__(self, other: "Captures") -> "Captures":
+        """Concatenate two Captures objects.
+        Parameters
+        ----------
+        other : Captures
+            The other Captures object to concatenate.
+        Returns
+        -------
+        Captures
+            The concatenated Captures object.
+        """
+        return self.captures + other.captures

@@ -36,9 +36,18 @@ from cldk.utils.analysis_engine import AnalysisEngine
 
 class JavaAnalysis(SymbolTable, CallGraph):
 
-    def __init__(self, project_dir: str | Path | None, source_code: str | None, analysis_backend: str,
-                 analysis_backend_path: str | None, analysis_json_path: str | Path | None, analysis_level: str,
-                 target_files: List[str] | None, use_graalvm_binary: bool, eager_analysis: bool) -> None:
+    def __init__(
+        self,
+        project_dir: str | Path | None,
+        source_code: str | None,
+        analysis_backend: str,
+        analysis_backend_path: str | None,
+        analysis_json_path: str | Path | None,
+        analysis_level: str,
+        target_files: List[str] | None,
+        use_graalvm_binary: bool,
+        eager_analysis: bool,
+    ) -> None:
         """Initialization method for Java Analysis backend.
 
         Args:
@@ -560,9 +569,6 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             str: The source code with all comments removed.
         """
-        # Remove any prefix comments/content before the package declaration
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.CODEANALYZER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.remove_all_comments(self.source_code)
 
     def get_methods_with_annotations(self, annotations: List[str]) -> Dict[str, List[Dict]]:
@@ -577,9 +583,8 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             Dict[str, List[Dict]]: Dictionary with annotations as keys and a list of dictionaries containing method names and bodies, as values.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.CODEANALYZER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
-        return self.backend.get_methods_with_annotations(self.source_code, annotations)
+        # TODO: This call is missing some implementation. The logic currently resides in java_sitter but tree_sitter will no longer be option, rather it will be default and common. Need to implement this differently. Somthing like, self.commons.treesitter.get_methods_with_annotations(annotations)
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_test_methods(self) -> Dict[str, str]:
         """returns a dictionary of method names and method bodies.
@@ -610,8 +615,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             List[int]: List of line numbers within in source method code block.
         """
-
-        return self.backend.get_calling_lines(self.source_code, target_method_name)
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_call_targets(self, declared_methods: dict) -> Set[str]:
         """Uses simple name resolution for finding the call targets. Nothing sophiscticed here. Just a simple search over the AST.
@@ -622,7 +626,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             Set[str]: A list of call targets (methods).
         """
-        return self.backend.get_call_targets(self.source_code, declared_methods)
+        raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_all_crud_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
         """returns a dictionary of all CRUD operations in the source code.
