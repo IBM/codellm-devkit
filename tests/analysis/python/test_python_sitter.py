@@ -66,7 +66,7 @@ class Calculator():
 
 
 def test_is_parsable():
-    """It should be able to parse the code"""
+    """be able to parse the code"""
     python_sitter = PythonSitter()
 
     code = "def is_parsable(self, code: str) -> bool: return True"
@@ -93,7 +93,7 @@ def test_is_parsable():
 
 
 def test_get_raw_ast():
-    """It should return the raw AST"""
+    """return the raw AST"""
     python_sitter = PythonSitter()
 
     raw_ast = python_sitter.get_raw_ast(PYTHON_CODE)
@@ -103,7 +103,7 @@ def test_get_raw_ast():
 
 
 def test_get_all_methods():
-    """It should return all of the methods"""
+    """return all of the methods"""
     python_sitter = PythonSitter()
 
     all_methods = python_sitter.get_all_methods(PYTHON_CODE)
@@ -115,7 +115,7 @@ def test_get_all_methods():
 
 
 def test_get_all_functions():
-    """It should return all of the functions"""
+    """return all of the functions"""
     python_sitter = PythonSitter()
 
     all_functions = python_sitter.get_all_functions(PYTHON_CODE)
@@ -127,7 +127,7 @@ def test_get_all_functions():
 
 
 def test_get_method_details():
-    """It should return the method details"""
+    """return the method details"""
     python_sitter = PythonSitter()
 
     method_details = python_sitter.get_method_details(PYTHON_CODE, "add(self, a, b)")
@@ -143,7 +143,7 @@ def test_get_method_details():
 
 
 def test_get_all_imports():
-    """It should return all of the imports"""
+    """return all of the imports"""
     python_sitter = PythonSitter()
 
     all_imports = python_sitter.get_all_imports(PYTHON_CODE)
@@ -156,7 +156,7 @@ def test_get_all_imports():
 
 
 def test_get_module_details():
-    """It should return the module details"""
+    """return the module details"""
     python_sitter = PythonSitter()
 
     module_details = python_sitter.get_module_details(PYTHON_CODE)
@@ -168,7 +168,7 @@ def test_get_module_details():
 
 
 def test_get_all_import_details():
-    """It should return all of the import details"""
+    """return all of the import details"""
     python_sitter = PythonSitter()
 
     all_import_details = python_sitter.get_all_imports_details(PYTHON_CODE)
@@ -180,7 +180,7 @@ def test_get_all_import_details():
 
 
 def test_get_all_classes():
-    """It should return all of the classes"""
+    """return all of the classes"""
     python_sitter = PythonSitter()
 
     all_classes = python_sitter.get_all_classes(PYTHON_CODE)
@@ -193,7 +193,7 @@ def test_get_all_classes():
 
 
 def test_get_all_modules(tmp_path):
-    """It should return all of the modules"""
+    """return all of the modules"""
     python_sitter = PythonSitter()
 
     # set up some temporary modules

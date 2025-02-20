@@ -269,10 +269,6 @@ class JavaSitter:
             source method code
 
         target_method_code : str
-            target method code
-
-        is_target_method_a_constructor : bool
-            True if target method is a constructor, False otherwise.
 
         Returns:
         --------

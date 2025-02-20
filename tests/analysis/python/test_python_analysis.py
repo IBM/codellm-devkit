@@ -67,7 +67,7 @@ class Calculator():
 
 
 def test_not_implemented():
-    """It should return raise a not implemented exception"""
+    """return raise a not implemented exception"""
     # test with CodeQL
     with pytest.raises(NotImplementedError) as except_info:
         _ = PythonAnalysis(
@@ -89,7 +89,7 @@ def test_not_implemented():
 
 
 def test_get_methods():
-    """It should return all of the methods"""
+    """return all of the methods"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -103,7 +103,7 @@ def test_get_methods():
 
 
 def test_get_functions():
-    """It should return all of the functions"""
+    """return all of the functions"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -117,7 +117,7 @@ def test_get_functions():
 
 
 def test_get_all_modules(tmp_path):
-    """It should return all of the modules"""
+    """return all of the modules"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=tmp_path, source_code=None, analysis_backend_path=None, analysis_json_path=None
     )
@@ -139,7 +139,7 @@ def test_get_all_modules(tmp_path):
 
 
 def test_get_method_details():
-    """It should return the method details"""
+    """return the method details"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -151,7 +151,7 @@ def test_get_method_details():
 
 
 def test_is_parsable():
-    """It should be able to parse the code"""
+    """be able to parse the code"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -166,7 +166,7 @@ def test_is_parsable():
 
 
 def test_get_raw_ast():
-    """It should return the raw AST"""
+    """return the raw AST"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -178,7 +178,7 @@ def test_get_raw_ast():
 
 
 def test_get_imports():
-    """It should return all of the imports"""
+    """return all of the imports"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -192,7 +192,7 @@ def test_get_imports():
 
 
 def test_get_variables():
-    """It should return all of the variables"""
+    """return all of the variables"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -203,7 +203,7 @@ def test_get_variables():
 
 
 def test_get_classes():
-    """It should return all of the classes"""
+    """return all of the classes"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -218,7 +218,7 @@ def test_get_classes():
 
 
 def test_get_classes_by_criteria():
-    """It should return all of the classes that match the criteria"""
+    """return all of the classes that match the criteria"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -229,7 +229,7 @@ def test_get_classes_by_criteria():
 
 
 def test_get_sub_classes():
-    """It should return all of the subclasses"""
+    """return all of the subclasses"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -240,7 +240,7 @@ def test_get_sub_classes():
 
 
 def test_get_nested_classes():
-    """It should return all of the nested classes"""
+    """return all of the nested classes"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -251,7 +251,7 @@ def test_get_nested_classes():
 
 
 def test_get_constructors():
-    """It should return all of the constructors"""
+    """return all of the constructors"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -262,7 +262,7 @@ def test_get_constructors():
 
 
 def test_get_methods_in_class():
-    """It should return all of the methods in the class"""
+    """return all of the methods in the class"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
@@ -273,7 +273,7 @@ def test_get_methods_in_class():
 
 
 def test_get_fields():
-    """It should return all of the fields in the class"""
+    """return all of the fields in the class"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )
