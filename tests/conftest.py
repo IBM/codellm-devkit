@@ -20,6 +20,7 @@ Global Test Fixtures
 
 import os
 import json
+from pdb import set_trace
 import shutil
 import zipfile
 from pathlib import Path
@@ -170,15 +171,16 @@ def test_fixture_binutils():
 
     # Access the test data path
     test_data_path = config["tool"]["cldk"]["testing"]["sample-c-application"]
-    filename = Path(test_data_path).absolute() / "binutils-2.7.zip"
+    filename = Path(test_data_path).absolute() / "binutils.zip"
 
     # Extract the zip file to the test data path
     with zipfile.ZipFile(filename, "r") as zip_ref:
-        zip_ref.extractall(test_data_path + "binutils-2.7")
+        zip_ref.extractall(test_data_path)
 
     # ------------------------------ [ TEST FIXTURE ]------------------------------
     # Binutils sample application path
-    yield Path(test_data_path) / "binutils-2.7"
+    yield Path(test_data_path) / "binutils"
+    set_trace()
 
     # ---------------------------------[ TEARDOWN ]--------------------------------
     # Remove the binutils sample application that was downloaded for testing
