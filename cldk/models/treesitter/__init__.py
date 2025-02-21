@@ -18,6 +18,6 @@
 Treesitter package
 """
 
-from .models import Captures
+from ...analysis.commons.treesitter.models import Captures
 
 __all__ = ["Captures"]

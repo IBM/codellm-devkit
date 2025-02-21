@@ -15,20 +15,20 @@
 ################################################################################
 
 """
-JavaSitter module
+TreesitterJava module
 """
 import logging
 from itertools import groupby
 from typing import List, Set, Dict
 from tree_sitter import Language, Node, Parser, Query, Tree
 import tree_sitter_java as tsjava
-from cldk.models.treesitter import Captures
+from cldk.analysis.commons.treesitter.models import Captures
 
 logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-many-public-methods
-class JavaSitter:
+class TreesitterJava:
     """
     Treesitter for Java usecases.
     """

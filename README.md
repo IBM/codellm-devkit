@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/images/cldk-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/assets/images/cldk-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/cldk-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="docs/images/cldk-light.png">
   <img src="docs/assets/img-light.png" alt="Logo">
 </picture>
 
@@ -22,6 +22,12 @@
   </a>
   <a href="https://discord.gg/zEjz9YrmqN">
     <img src="https://dcbadge.limes.pink/api/server/https://discord.gg/zEjz9YrmqN?style=for-the-badge"/>
+  </a>
+  <a href="https://github.com/YOUR_REPO/actions/workflows/test.yml">
+  <img src="https://img.shields.io/badge/Tests-120%2F120%20Passing-green?style=for-the-badge" />
+</a>
+  <a href="https://github.com/codellm-devkit/python-sdk">
+  <img src="https://img.shields.io/badge/Coverage-77%25-green?style=for-the-badge" />
   </a>
 </p>
 

@@ -19,15 +19,15 @@ Java Tests
 """
 import os
 from typing import List, Set, Dict
-from tree_sitter import Node, Tree
+from tree_sitter import Tree
 import pytest
 
-from cldk.analysis.java.treesitter import JavaSitter
+from cldk.analysis.commons.treesitter import TreesitterJava
 
 
 def test_method_is_not_in_class(test_fixture):
     """not find the method in the class"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file and send its contents
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/beans/MarketSummaryDataBean.java")
@@ -45,7 +45,7 @@ def test_method_is_not_in_class(test_fixture):
 
 def test_is_parsable(test_fixture):
     """Should be able to parse the file"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file and send its contents
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/beans/MarketSummaryDataBean.java")
@@ -64,7 +64,7 @@ def test_is_parsable(test_fixture):
 
 def test_get_raw_ast(test_fixture):
     """Should return the raw AST"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file and send its contents
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/util/Log.java")
@@ -79,7 +79,7 @@ def test_get_raw_ast(test_fixture):
 
 def test_get_all_imports(test_fixture):
     """Should return all of the imports"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file and send its contents
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/util/Log.java")
@@ -98,7 +98,7 @@ def test_get_all_imports(test_fixture):
 
 def test_get_package_name(test_fixture):
     """Should return the package name"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file and send its contents
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/util/Log.java")
@@ -113,7 +113,7 @@ def test_get_package_name(test_fixture):
 
 def test_get_class_name(test_fixture):
     """Should return the class name"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file and send its contents
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/util/Log.java")
@@ -128,7 +128,7 @@ def test_get_class_name(test_fixture):
 
 def test_get_superclass(test_fixture):
     """Should return the superclass name"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file with no supper class
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/util/Log.java")
@@ -158,7 +158,7 @@ def test_get_superclass(test_fixture):
 
 def test_get_all_interfaces(test_fixture):
     """Should return all interfaces"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file with interfaces
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/impl/direct/TradeDirect.java")
@@ -185,7 +185,7 @@ def test_get_all_interfaces(test_fixture):
 
 def test_get_method_name_from_declaration():
     """Should return the method name from a declarations"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     declaration = "public Future<?> submitOrder(Integer orderID, boolean twoPhase)"
     method_name = java_sitter.get_method_name_from_declaration(declaration)
@@ -196,7 +196,7 @@ def test_get_method_name_from_declaration():
 
 def test_get_method_name_from_invocation():
     """Should return the method name from an invocation"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     invocation = "asyncOrder.setProperties(orderID,twoPhase);"
     method_name = java_sitter.get_method_name_from_invocation(invocation)
@@ -207,7 +207,7 @@ def test_get_method_name_from_invocation():
 
 def test_get_identifier_from_arbitrary_statement():
     """Should return the method name from an arbitrary statement"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     arbitrary_statement = "asyncOrder.setProperties(orderID,twoPhase);"
     identifier = java_sitter.get_identifier_from_arbitrary_statement(arbitrary_statement)
@@ -218,7 +218,7 @@ def test_get_identifier_from_arbitrary_statement():
 
 def test_safe_ascend(test_fixture):
     """safely ascend the node tree"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Test is catches if the node is None
     with pytest.raises(ValueError) as except_info:
@@ -256,14 +256,14 @@ def test_safe_ascend(test_fixture):
 
 def test_get_call_targets():
     """get the call targets"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # TODO: This test case needs to be written
 
 
 def test_get_calling_lines():
     """get the calling lines"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     source_method_code = """
     public static BigDecimal computeHoldingsTotal(Collection<?> holdingDataBeans) {
@@ -296,7 +296,7 @@ def test_get_calling_lines():
 
 def test_get_test_methods(test_fixture):
     """Should return the test methods"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # TODO: Need to find an example with test methods
 
@@ -313,7 +313,7 @@ def test_get_test_methods(test_fixture):
 
 def test_get_methods_with_annotations(test_fixture):
     """Should return methods with annotations"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file with annotations
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/web/prims/PingJDBCRead2JSP.java")
@@ -334,7 +334,7 @@ def test_get_methods_with_annotations(test_fixture):
 
 def test_get_all_type_invocations(test_fixture):
     """Should return all of the type invocations"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/web/prims/PingJDBCRead2JSP.java")
@@ -352,7 +352,7 @@ def test_get_all_type_invocations(test_fixture):
 
 def test_get_method_return_type():
     """get the methods return type"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     source_method_code = """
     public static BigDecimal computeHoldingsTotal(Collection<?> holdingDataBeans) {
@@ -377,7 +377,7 @@ def test_get_method_return_type():
 
 def test_get_lexical_tokens(test_fixture):
     """Should return the lexical tokens"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/web/prims/PingJDBCRead2JSP.java")
@@ -393,7 +393,7 @@ def test_get_lexical_tokens(test_fixture):
 
 def test_remove_all_comments(test_fixture):
     """remove all comments"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/web/prims/PingJDBCRead2JSP.java")
@@ -410,7 +410,7 @@ def test_remove_all_comments(test_fixture):
 
 def test_make_pruned_code_prettier(test_fixture):
     """make pruned code prettier"""
-    java_sitter = JavaSitter()
+    java_sitter = TreesitterJava()
 
     # Get a test source file
     filename = os.path.join(test_fixture, "src/main/java/com/ibm/websphere/samples/daytrader/web/prims/PingJDBCRead2JSP.java")

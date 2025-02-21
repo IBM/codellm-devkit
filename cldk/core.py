@@ -26,7 +26,7 @@ from typing import List
 from cldk.analysis import AnalysisLevel
 from cldk.analysis.c import CAnalysis
 from cldk.analysis.java import JavaAnalysis
-from cldk.analysis.java.treesitter import JavaSitter
+from cldk.analysis.commons.treesitter import TreesitterJava
 from cldk.utils.exceptions import CldkInitializationException
 from cldk.utils.sanitization.java import TreesitterSanitizer
 
@@ -56,7 +56,6 @@ class CLDK:
         project_path: str | Path | None = None,
         source_code: str | None = None,
         eager: bool = False,
-        analysis_backend: str | None = "codeanalyzer",
         analysis_level: str = AnalysisLevel.symbol_table,
         target_files: List[str] | None = None,
         analysis_backend_path: str | None = None,
@@ -64,7 +63,7 @@ class CLDK:
         use_graalvm_binary: bool = False,
     ) -> JavaAnalysis:
         """
-        Initialize the preprocessor based on the specified language and analysis_backend.
+        Initialize the preprocessor based on the specified language.
 
         Parameters
         ----------
@@ -73,18 +72,11 @@ class CLDK:
         source_code : str, optional
             The source code of the project, defaults to None. If None, it is assumed that the whole project is being
             analyzed.
-        analysis_backend : str, optional
-            The analysis_backend used for analysis, defaults to "codeql".
         analysis_backend_path : str, optional
-            The path to the analysis_backend, defaults to None and in the case of codeql, it is assumed that the cli is
-            installed and available in the PATH. In the case of codeanalyzer the codeanalyzer.jar is downloaded from the
-            lastest release.
+            The path to the analysis backend, defaults to None where it assumes the default backend path.
         analysis_json_path : str or Path, optional
             The path save the to the analysis database (analysis.json), defaults to None. If None, the analysis database
             is not persisted.
-        use_graalvm_binary : bool, optional
-            A flag indicating whether to use the GraalVM binary for SDG analysis, defaults to False. If False,
-            the default Java binary is used and one needs to have Java 17 or higher installed.
         eager : bool, optional
             A flag indicating whether to perform eager analysis, defaults to False. If True, the analysis is performed
             eagerly. That is, the analysis.json file is created during analysis every time even if it already exists.
@@ -121,7 +113,6 @@ class CLDK:
             return JavaAnalysis(
                 project_dir=project_path,
                 source_code=source_code,
-                analysis_backend=analysis_backend,
                 analysis_level=analysis_level,
                 analysis_backend_path=analysis_backend_path,
                 analysis_json_path=analysis_json_path,
@@ -145,7 +136,7 @@ class CLDK:
 
         """
         if self.language == "java":
-            return JavaSitter()
+            return TreesitterJava()
         else:
             raise NotImplementedError(f"Treesitter parser for {self.language} is not implemented yet.")
 

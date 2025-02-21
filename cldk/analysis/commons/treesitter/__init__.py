@@ -17,3 +17,8 @@
 """
 Treesitter package
 """
+
+from .treesitter_java import TreesitterJava
+from .treesitter_python import TreesitterPython
+
+__all__ = ["TreesitterJava", "TreesitterPython"]

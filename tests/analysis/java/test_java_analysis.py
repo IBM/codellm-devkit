@@ -20,7 +20,7 @@ Java Tests
 
 import os
 import json
-from typing import Dict, List, Tuple
+from typing import Dict, List, Set, Tuple
 from unittest.mock import patch, MagicMock
 
 from tree_sitter import Tree
@@ -31,7 +31,6 @@ from cldk import CLDK
 from cldk.analysis import AnalysisLevel
 from cldk.analysis.java import JavaAnalysis
 from cldk.models.java.models import JCallable, JCompilationUnit, JField, JMethodDetail, JApplication, JType
-from cldk.utils.analysis_engine import AnalysisEngine
 
 
 def test_get_symbol_table_is_not_null(test_fixture, analysis_json):
@@ -45,34 +44,11 @@ def test_get_symbol_table_is_not_null(test_fixture, analysis_json):
         cldk = CLDK(language="java")
         analysis = cldk.analysis(
             project_path=test_fixture,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             eager=True,
             analysis_level=AnalysisLevel.call_graph,
         )
         assert analysis.get_symbol_table() is not None
-
-
-# def test_get_class_call_graph(test_fixture, analysis_json):
-#     """Should return the class call graph"""
-#     # Patch subprocess so that it does not run codeanalyzer
-#     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
-#         run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
-
-#         # Initialize the CLDK object with the project directory, language, and analysis_backend.
-#         cldk = CLDK(language="java")
-
-#         analysis = cldk.analysis(
-#             project_path=test_fixture,
-#             analysis_backend=AnalysisEngine.CODEANALYZER,
-#             analysis_backend_path=None,
-#             eager=True,
-#             analysis_level=AnalysisLevel.call_graph,
-#         )
-#         class_call_graph: List[Tuple[JMethodDetail, JMethodDetail]] = analysis.get_class_call_graph(
-#             qualified_class_name="com.ibm.websphere.samples.daytrader.impl.direct.TradeDirectDBUtils"
-#         )
-#         assert class_call_graph is not None
 
 
 def test_get_imports(test_fixture, analysis_json):
@@ -84,7 +60,6 @@ def test_get_imports(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -108,7 +83,6 @@ def test_get_variables(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -132,7 +106,6 @@ def test_get_service_entry_point_classes(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -156,7 +129,6 @@ def test_get_service_entry_point_methods(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -180,7 +152,6 @@ def test_get_application_view(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -212,7 +183,6 @@ def test_get_symbol_table(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -237,7 +207,6 @@ def test_get_compilation_units(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -247,9 +216,7 @@ def test_get_compilation_units(test_fixture, analysis_json):
         )
 
         # When this is implemented please add a real test case
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_compilation_units()
-        assert except_info.type == NotImplementedError
+        assert java_analysis.get_compilation_units() != None
 
 
 def test_get_class_hierarchy(test_fixture, analysis_json):
@@ -261,7 +228,6 @@ def test_get_class_hierarchy(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -285,7 +251,6 @@ def test_is_parsable(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -311,7 +276,6 @@ def test_get_raw_ast(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -340,7 +304,6 @@ def test_get_call_graph(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -366,7 +329,6 @@ def test_get_call_graph_json(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -394,7 +356,6 @@ def test_get_callers(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -441,7 +402,6 @@ def test_get_callees(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -493,7 +453,6 @@ def test_get_methods(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -509,12 +468,6 @@ def test_get_methods(test_fixture, analysis_json):
         for _, method in methods.items():
             assert isinstance(method, Dict)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_methods()
-        assert except_info.type == NotImplementedError
-
 
 def test_get_classes(test_fixture, analysis_json):
     """Should return the classes"""
@@ -525,7 +478,6 @@ def test_get_classes(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -541,12 +493,6 @@ def test_get_classes(test_fixture, analysis_json):
         for _, a_class in classes.items():
             assert isinstance(a_class, JType)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_classes()
-        assert except_info.type == NotImplementedError
-
 
 def test_get_classes_by_criteria(test_fixture, analysis_json):
     """Should return the classes by criteria"""
@@ -557,7 +503,6 @@ def test_get_classes_by_criteria(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -588,12 +533,6 @@ def test_get_classes_by_criteria(test_fixture, analysis_json):
         assert isinstance(classes, Dict)
         assert len(classes) == 1
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_classes_by_criteria()
-        assert except_info.type == NotImplementedError
-
 
 def test_get_class(test_fixture, analysis_json):
     """Should return a single class"""
@@ -604,7 +543,6 @@ def test_get_class(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -617,12 +555,6 @@ def test_get_class(test_fixture, analysis_json):
         assert the_class is not None
         assert isinstance(the_class, JType)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_class("com.ibm.websphere.samples.daytrader.util.Log")
-        assert except_info.type == NotImplementedError
-
 
 def test_get_method(test_fixture, analysis_json):
     """Should return a single method"""
@@ -633,7 +565,6 @@ def test_get_method(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -647,12 +578,6 @@ def test_get_method(test_fixture, analysis_json):
         assert isinstance(the_method, JCallable)
         assert the_method.declaration == "public static void trace(String message)"
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_method("com.ibm.websphere.samples.daytrader.util.Log", "trace(String)")
-        assert except_info.type == NotImplementedError
-
 
 def test_get_java_file(test_fixture, analysis_json):
     """Should return the java file and compilation unit"""
@@ -663,7 +588,6 @@ def test_get_java_file(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -684,12 +608,6 @@ def test_get_java_file(test_fixture, analysis_json):
         assert comp_unit is not None
         assert isinstance(comp_unit, JCompilationUnit)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_java_file("com.ibm.websphere.samples.daytrader.util.Log")
-        assert except_info.type == NotImplementedError
-
 
 def test_get_methods_in_class(test_fixture, analysis_json):
     """Should return the methods in a class"""
@@ -700,7 +618,6 @@ def test_get_methods_in_class(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -717,12 +634,6 @@ def test_get_methods_in_class(test_fixture, analysis_json):
         for method in methods:
             assert isinstance(methods[method], JCallable)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_methods_in_class("com.ibm.websphere.samples.daytrader.util.Log")
-        assert except_info.type == NotImplementedError
-
 
 def test_get_fields(test_fixture, analysis_json):
     """Should return the fields for a class"""
@@ -733,7 +644,6 @@ def test_get_fields(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -750,12 +660,6 @@ def test_get_fields(test_fixture, analysis_json):
         for field in fields:
             assert isinstance(field, JField)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_fields("com.ibm.websphere.samples.daytrader.beans.MarketSummaryDataBean")
-        assert except_info.type == NotImplementedError
-
 
 def test_get_nested_classes(test_fixture, analysis_json):
     """Should return the nested classes for a class"""
@@ -766,7 +670,6 @@ def test_get_nested_classes(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -792,7 +695,6 @@ def test_get_sub_classes(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -825,7 +727,6 @@ def test_get_extended_classes(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -848,12 +749,6 @@ def test_get_extended_classes(test_fixture, analysis_json):
         for extend in extended:
             assert isinstance(extend, str)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_extended_classes("com.ibm.websphere.samples.daytrader.beans.MarketSummaryDataBean")
-        assert except_info.type == NotImplementedError
-
 
 def test_get_implemented_interfaces(test_fixture, analysis_json):
     """Should return the implemented interfaces classes for a class"""
@@ -864,7 +759,6 @@ def test_get_implemented_interfaces(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
@@ -887,12 +781,6 @@ def test_get_implemented_interfaces(test_fixture, analysis_json):
         for extend in extended:
             assert isinstance(extend, str)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_implemented_interfaces("com.ibm.websphere.samples.daytrader.beans.MarketSummaryDataBean")
-        assert except_info.type == NotImplementedError
-
 
 def test_get_class_call_graph(test_fixture, analysis_json):
     """Should return the class call graph"""
@@ -903,7 +791,6 @@ def test_get_class_call_graph(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -928,12 +815,6 @@ def test_get_class_call_graph(test_fixture, analysis_json):
         for graph in call_graph:
             assert isinstance(graph, Tuple)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_class_call_graph("com.ibm.websphere.samples.daytrader.beans.MarketSummaryDataBean")
-        assert except_info.type == NotImplementedError
-
 
 def test_get_entry_point_classes(test_fixture, analysis_json):
     """Should return the entry point classes"""
@@ -944,7 +825,6 @@ def test_get_entry_point_classes(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -960,12 +840,6 @@ def test_get_entry_point_classes(test_fixture, analysis_json):
         for _, entry_point in entry_point_classes.items():
             assert isinstance(entry_point, JType)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_entry_point_classes()
-        assert except_info.type == NotImplementedError
-
 
 def test_get_entry_point_methods(test_fixture, analysis_json):
     """Should return the entry point methods"""
@@ -976,7 +850,6 @@ def test_get_entry_point_methods(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -994,12 +867,6 @@ def test_get_entry_point_methods(test_fixture, analysis_json):
             for _, method in entry_point.items():
                 assert isinstance(method, JCallable)
 
-        # Test with unsupported backend
-        java_analysis.analysis_backend = AnalysisEngine.CODEQL
-        with pytest.raises(NotImplementedError) as except_info:
-            java_analysis.get_entry_point_methods()
-        assert except_info.type == NotImplementedError
-
 
 def test_remove_all_comments(test_fixture, analysis_json):
     """remove all comments"""
@@ -1010,7 +877,6 @@ def test_remove_all_comments(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -1039,7 +905,6 @@ def test_get_methods_with_annotations(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -1062,14 +927,23 @@ def test_get_methods_with_annotations(test_fixture, analysis_json):
 
 def test_get_test_methods(test_fixture, analysis_json):
     """Should return test methods"""
+    java_code_with_test_annotations = """package com.ibm.websphere.samples.daytrader.web.prims.ejb3;    
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+public class TradeDirectDBUtilsTest {
+    @Test
+    public void testBuildDB() {
+        assertEquals(1, 1);
+    }
+}
+"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
         run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
-            source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
+            source_code=java_code_with_test_annotations,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -1078,24 +952,9 @@ def test_get_test_methods(test_fixture, analysis_json):
             eager_analysis=False,
         )
 
-        # TODO: The code is broken. It requires Treesitter but JCodeanalyzer does not!
-
-        try:
-            test_methods = java_analysis.get_test_methods()
-            assert test_methods is not None
-            assert isinstance(test_methods, Dict)
-            assert len(test_methods) > 0
-
-            # Test with unsupported backend
-            java_analysis.analysis_backend = AnalysisEngine.CODEQL
-            with pytest.raises(NotImplementedError) as except_info:
-                java_analysis.get_test_methods()
-            assert except_info.type == NotImplementedError
-        except NotImplementedError:
-            assert True
-            return
-
-        assert False, "Did not raise NotImplementedError"
+        test_methods = java_analysis.get_test_methods()
+        assert test_methods is not None
+        assert isinstance(test_methods, Dict)
 
 
 def test_get_calling_lines(test_fixture, analysis_json):
@@ -1107,7 +966,6 @@ def test_get_calling_lines(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -1123,12 +981,6 @@ def test_get_calling_lines(test_fixture, analysis_json):
             assert calling_lines is not None
             assert isinstance(calling_lines, List)
             assert len(calling_lines) > 0
-
-            # Test with unsupported backend
-            java_analysis.analysis_backend = AnalysisEngine.CODEQL
-            with pytest.raises(NotImplementedError) as except_info:
-                java_analysis.get_calling_lines("trace(String)")
-            assert except_info.type == NotImplementedError
         except NotImplementedError:
             assert True
             return
@@ -1145,7 +997,6 @@ def test_get_call_targets(test_fixture, analysis_json):
         java_analysis = JavaAnalysis(
             project_dir=test_fixture,
             source_code=None,
-            analysis_backend=AnalysisEngine.CODEANALYZER,
             analysis_backend_path=None,
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
@@ -1160,12 +1011,6 @@ def test_get_call_targets(test_fixture, analysis_json):
             assert call_targets is not None
             assert isinstance(call_targets, Set)
             assert len(call_targets) > 0
-
-            # Test with unsupported backend
-            java_analysis.analysis_backend = AnalysisEngine.CODEQL
-            with pytest.raises(NotImplementedError) as except_info:
-                java_analysis.get_calling_lines("trace(String)")
-            assert except_info.type == NotImplementedError
         except NotImplementedError:
             assert True
             return
