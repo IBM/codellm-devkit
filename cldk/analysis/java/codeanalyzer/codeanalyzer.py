@@ -1069,8 +1069,8 @@ class JCodeanalyzer:
             Dict[str, List[str]]: Dictionary of file paths and their corresponding comments.
         """
         comments = {}
-        for file_path, compilation_unit in self.get_symbol_table().items():
-            comments[file_path] = compilation_unit.comments
+        for file_path, _ in self.get_symbol_table().items():
+            comments[file_path] = self.get_comment_in_file(file_path)
         return comments
 
     def get_all_docstrings(self) -> List[Tuple[str, JComment]]:

@@ -64,7 +64,6 @@ def test_get_imports(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -87,7 +86,6 @@ def test_get_variables(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -110,7 +108,6 @@ def test_get_service_entry_point_classes(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -133,7 +130,6 @@ def test_get_service_entry_point_methods(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -156,7 +152,6 @@ def test_get_application_view(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -187,7 +182,6 @@ def test_get_symbol_table(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -211,7 +205,6 @@ def test_get_compilation_units(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -232,7 +225,6 @@ def test_get_class_hierarchy(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -255,7 +247,6 @@ def test_is_parsable(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -280,7 +271,6 @@ def test_get_raw_ast(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -308,7 +298,6 @@ def test_get_call_graph(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -333,7 +322,6 @@ def test_get_call_graph_json(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -360,7 +348,6 @@ def test_get_callers(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -406,7 +393,6 @@ def test_get_callees(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -457,7 +443,6 @@ def test_get_methods(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -482,7 +467,6 @@ def test_get_classes(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -507,7 +491,6 @@ def test_get_classes_by_criteria(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -547,7 +530,6 @@ def test_get_class(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -569,7 +551,6 @@ def test_get_method(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -592,7 +573,6 @@ def test_get_method_parameters(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -620,7 +600,6 @@ def test_get_java_file(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -650,15 +629,14 @@ def test_get_methods_in_class(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
-        # Test that there are 29 methods in the Log class
+        # Test that there are 30 methods in the Log class
         methods = java_analysis.get_methods_in_class("com.ibm.websphere.samples.daytrader.util.Log")
         assert methods is not None
         assert isinstance(methods, Dict)
-        assert len(methods) == 29
+        assert len(methods) == 30
         for method in methods:
             assert isinstance(methods[method], JCallable)
 
@@ -676,7 +654,6 @@ def test_get_fields(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -702,7 +679,6 @@ def test_get_nested_classes(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -727,7 +703,6 @@ def test_get_sub_classes(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -759,7 +734,6 @@ def test_get_extended_classes(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -791,7 +765,6 @@ def test_get_implemented_interfaces(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.symbol_table,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -823,7 +796,6 @@ def test_get_class_call_graph(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -857,7 +829,6 @@ def test_get_entry_point_classes(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -882,7 +853,6 @@ def test_get_entry_point_methods(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -909,7 +879,6 @@ def test_remove_all_comments(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -937,7 +906,6 @@ def test_get_methods_with_annotations(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -976,7 +944,6 @@ public class TradeDirectDBUtilsTest {
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -998,7 +965,6 @@ def test_get_calling_lines(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -1029,7 +995,6 @@ def test_get_call_targets(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -1059,7 +1024,6 @@ def test_get_all_comments(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
@@ -1090,7 +1054,6 @@ def test_get_all_docstrings(test_fixture, analysis_json):
             analysis_json_path=None,
             analysis_level=AnalysisLevel.call_graph,
             target_files=None,
-            use_graalvm_binary=False,
             eager_analysis=False,
         )
 
