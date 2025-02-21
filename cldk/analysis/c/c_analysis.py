@@ -18,10 +18,10 @@
 Analysis model for C projects
 """
 
+import os
 from pathlib import Path
 from typing import Dict, List, Optional
 import networkx as nx
-
 
 from cldk.analysis.c.clang import ClangAnalyzer
 from cldk.models.c import CApplication, CFunction, CTranslationUnit, CMacro, CTypedef, CStruct, CEnum, CVariable
@@ -36,7 +36,7 @@ class CAnalysis:
         self.c_application = self._init_application(project_dir)
 
     def _init_application(self, project_dir: Path) -> CApplication:
-        """Initializes the C application object.
+        """Should initialize the C application object.
 
         Args:
             project_dir (Path): Path to the project directory.

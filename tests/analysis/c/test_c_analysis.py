@@ -17,11 +17,10 @@
 """
 C/C++ Tests
 """
-from ipdb import set_trace
 from cldk.analysis.c.c_analysis import CAnalysis
 
 
 def test_get_c_application(test_fixture_binutils):
     """Should return a CAnalysis object"""
     analysis = CAnalysis(test_fixture_binutils)
-    set_trace()
+    assert isinstance(analysis, CAnalysis), "get_c_application should return a CAnalysis object"

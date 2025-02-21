@@ -31,7 +31,7 @@ lint: ## Run the linter
 .PHONY: test
 test: ## Run the unit tests
 	$(info Running tests...)
-	pytest --pspec --cov=cldk --cov-fail-under=50 --disable-warnings
+	pytest --pspec --cov=cldk --cov-fail-under=75 --disable-warnings
 
 ##@ Build
 

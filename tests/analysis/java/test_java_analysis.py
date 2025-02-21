@@ -35,7 +35,7 @@ from cldk.utils.analysis_engine import AnalysisEngine
 
 
 def test_get_symbol_table_is_not_null(test_fixture, analysis_json):
-    """return a symbol table that is not null"""
+    """Should return a symbol table that is not null"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -54,7 +54,7 @@ def test_get_symbol_table_is_not_null(test_fixture, analysis_json):
 
 
 # def test_get_class_call_graph(test_fixture, analysis_json):
-#     """return the class call graph"""
+#     """Should return the class call graph"""
 #     # Patch subprocess so that it does not run codeanalyzer
 #     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
 #         run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
@@ -76,7 +76,7 @@ def test_get_symbol_table_is_not_null(test_fixture, analysis_json):
 
 
 def test_get_imports(test_fixture, analysis_json):
-    """return NotImplemented for get_imports()"""
+    """Should return NotImplemented for get_imports()"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -100,7 +100,7 @@ def test_get_imports(test_fixture, analysis_json):
 
 
 def test_get_variables(test_fixture, analysis_json):
-    """return NotImplemented for get_variables()"""
+    """Should return NotImplemented for get_variables()"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -124,7 +124,7 @@ def test_get_variables(test_fixture, analysis_json):
 
 
 def test_get_service_entry_point_classes(test_fixture, analysis_json):
-    """return NotImplemented for get_service_entry_point_classes()"""
+    """Should return NotImplemented for get_service_entry_point_classes()"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -148,7 +148,7 @@ def test_get_service_entry_point_classes(test_fixture, analysis_json):
 
 
 def test_get_service_entry_point_methods(test_fixture, analysis_json):
-    """return NotImplemented for get_service_entry_point_methods()"""
+    """Should return NotImplemented for get_service_entry_point_methods()"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -172,7 +172,7 @@ def test_get_service_entry_point_methods(test_fixture, analysis_json):
 
 
 def test_get_application_view(test_fixture, analysis_json):
-    """return the application view"""
+    """Should return the application view"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -204,7 +204,7 @@ def test_get_application_view(test_fixture, analysis_json):
 
 
 def test_get_symbol_table(test_fixture, analysis_json):
-    """return the symbol table"""
+    """Should return the symbol table"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -229,7 +229,7 @@ def test_get_symbol_table(test_fixture, analysis_json):
 
 
 def test_get_compilation_units(test_fixture, analysis_json):
-    """return the compilation units"""
+    """Should return the compilation units"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -253,7 +253,7 @@ def test_get_compilation_units(test_fixture, analysis_json):
 
 
 def test_get_class_hierarchy(test_fixture, analysis_json):
-    """return the class hierarchy"""
+    """Should return the class hierarchy"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -303,7 +303,7 @@ def test_is_parsable(test_fixture, analysis_json):
 
 
 def test_get_raw_ast(test_fixture, analysis_json):
-    """return the raw AST"""
+    """Should return the raw AST"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -332,7 +332,7 @@ def test_get_raw_ast(test_fixture, analysis_json):
 
 
 def test_get_call_graph(test_fixture, analysis_json):
-    """return the Call Graph"""
+    """Should return the Call Graph"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -358,7 +358,7 @@ def test_get_call_graph(test_fixture, analysis_json):
 
 
 def test_get_call_graph_json(test_fixture, analysis_json):
-    """return the Call Graph as JSON"""
+    """Should return the Call Graph as JSON"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -386,7 +386,7 @@ def test_get_call_graph_json(test_fixture, analysis_json):
 
 
 def test_get_callers(test_fixture, analysis_json):
-    """return the callers"""
+    """Should return the callers"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -433,7 +433,7 @@ def test_get_callers(test_fixture, analysis_json):
 
 
 def test_get_callees(test_fixture, analysis_json):
-    """return the callees"""
+    """Should return the callees"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -485,7 +485,7 @@ def test_get_callees(test_fixture, analysis_json):
 
 
 def test_get_methods(test_fixture, analysis_json):
-    """return the methods"""
+    """Should return the methods"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -517,7 +517,7 @@ def test_get_methods(test_fixture, analysis_json):
 
 
 def test_get_classes(test_fixture, analysis_json):
-    """return the classes"""
+    """Should return the classes"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -549,7 +549,7 @@ def test_get_classes(test_fixture, analysis_json):
 
 
 def test_get_classes_by_criteria(test_fixture, analysis_json):
-    """return the classes by criteria"""
+    """Should return the classes by criteria"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -596,7 +596,7 @@ def test_get_classes_by_criteria(test_fixture, analysis_json):
 
 
 def test_get_class(test_fixture, analysis_json):
-    """return a single class"""
+    """Should return a single class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -625,7 +625,7 @@ def test_get_class(test_fixture, analysis_json):
 
 
 def test_get_method(test_fixture, analysis_json):
-    """return a single method"""
+    """Should return a single method"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -655,7 +655,7 @@ def test_get_method(test_fixture, analysis_json):
 
 
 def test_get_java_file(test_fixture, analysis_json):
-    """return the java file and compilation unit"""
+    """Should return the java file and compilation unit"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -692,7 +692,7 @@ def test_get_java_file(test_fixture, analysis_json):
 
 
 def test_get_methods_in_class(test_fixture, analysis_json):
-    """return the methods in a class"""
+    """Should return the methods in a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -725,7 +725,7 @@ def test_get_methods_in_class(test_fixture, analysis_json):
 
 
 def test_get_fields(test_fixture, analysis_json):
-    """return the fields for a class"""
+    """Should return the fields for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -758,7 +758,7 @@ def test_get_fields(test_fixture, analysis_json):
 
 
 def test_get_nested_classes(test_fixture, analysis_json):
-    """return the nested classes for a class"""
+    """Should return the nested classes for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -784,7 +784,7 @@ def test_get_nested_classes(test_fixture, analysis_json):
 
 
 def test_get_sub_classes(test_fixture, analysis_json):
-    """return the subclasses for a class"""
+    """Should return the subclasses for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -817,7 +817,7 @@ def test_get_sub_classes(test_fixture, analysis_json):
 
 
 def test_get_extended_classes(test_fixture, analysis_json):
-    """return the extended classes for a class"""
+    """Should return the extended classes for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -856,7 +856,7 @@ def test_get_extended_classes(test_fixture, analysis_json):
 
 
 def test_get_implemented_interfaces(test_fixture, analysis_json):
-    """return the implemented interfaces classes for a class"""
+    """Should return the implemented interfaces classes for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -895,7 +895,7 @@ def test_get_implemented_interfaces(test_fixture, analysis_json):
 
 
 def test_get_class_call_graph(test_fixture, analysis_json):
-    """return the class call graph"""
+    """Should return the class call graph"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -936,7 +936,7 @@ def test_get_class_call_graph(test_fixture, analysis_json):
 
 
 def test_get_entry_point_classes(test_fixture, analysis_json):
-    """return the entry point classes"""
+    """Should return the entry point classes"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -968,7 +968,7 @@ def test_get_entry_point_classes(test_fixture, analysis_json):
 
 
 def test_get_entry_point_methods(test_fixture, analysis_json):
-    """return the entry point methods"""
+    """Should return the entry point methods"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1031,7 +1031,7 @@ def test_remove_all_comments(test_fixture, analysis_json):
 
 
 def test_get_methods_with_annotations(test_fixture, analysis_json):
-    """return methods with annotations"""
+    """Should return methods with annotations"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1061,7 +1061,7 @@ def test_get_methods_with_annotations(test_fixture, analysis_json):
 
 
 def test_get_test_methods(test_fixture, analysis_json):
-    """return test methods"""
+    """Should return test methods"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1099,7 +1099,7 @@ def test_get_test_methods(test_fixture, analysis_json):
 
 
 def test_get_calling_lines(test_fixture, analysis_json):
-    """return calling lines"""
+    """Should return calling lines"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -1137,7 +1137,7 @@ def test_get_calling_lines(test_fixture, analysis_json):
 
 
 def test_get_call_targets(test_fixture, analysis_json):
-    """return calling targets"""
+    """Should return calling targets"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:

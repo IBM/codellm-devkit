@@ -19,6 +19,10 @@ Global Test Fixtures
 """
 
 import os
+
+os.putenv("ASAN_DISABLE", "1")
+os.putenv("ASAN_OPTIONS", "verify_asan_link_order=0")
+
 import json
 from pdb import set_trace
 import shutil
@@ -180,7 +184,6 @@ def test_fixture_binutils():
     # ------------------------------ [ TEST FIXTURE ]------------------------------
     # Binutils sample application path
     yield Path(test_data_path) / "binutils"
-    set_trace()
 
     # ---------------------------------[ TEARDOWN ]--------------------------------
     # Remove the binutils sample application that was downloaded for testing

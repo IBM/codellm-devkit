@@ -31,7 +31,7 @@ from cldk.models.java import JGraphEdges
 
 
 def test_init_japplication(test_fixture, codeanalyzer_jar_path, analysis_json):
-    """return the initialized JApplication"""
+    """Should return the initialized JApplication"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -52,7 +52,7 @@ def test_init_japplication(test_fixture, codeanalyzer_jar_path, analysis_json):
 
 
 def test_init_codeanalyzer_no_json_path(test_fixture, analysis_json):
-    """initialize the codeanalyzer without a json path"""
+    """Should initialize the codeanalyzer without a json path"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -73,7 +73,7 @@ def test_init_codeanalyzer_no_json_path(test_fixture, analysis_json):
 
 
 def test_init_codeanalyzer_with_json_path(test_fixture, analysis_json, analysis_json_fixture):
-    """initialize the codeanalyzer with a json path"""
+    """Should initialize the codeanalyzer with a json path"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -106,7 +106,7 @@ def test_init_codeanalyzer_with_json_path(test_fixture, analysis_json, analysis_
 
 
 def test_get_codeanalyzer_exec(test_fixture, codeanalyzer_jar_path, analysis_json):
-    """return the correct codeanalyzer location"""
+    """Should return the correct codeanalyzer location"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -142,7 +142,7 @@ def test_get_codeanalyzer_exec(test_fixture, codeanalyzer_jar_path, analysis_jso
 
 
 def test_generate_call_graph(test_fixture, analysis_json):
-    """generate a graph"""
+    """Should generate a graph"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -173,7 +173,7 @@ def test_generate_call_graph(test_fixture, analysis_json):
 
 
 def test_codeanalyzer_single_file(test_fixture, analysis_json):
-    """process a single file"""
+    """Should process a single file"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -194,7 +194,7 @@ def test_codeanalyzer_single_file(test_fixture, analysis_json):
 
 
 def test_get_application(test_fixture, analysis_json):
-    """return the application"""
+    """Should return the application"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -216,7 +216,7 @@ def test_get_application(test_fixture, analysis_json):
 
 
 def test_get_symbol_table(test_fixture, analysis_json):
-    """return the symbol table"""
+    """Should return the symbol table"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -240,7 +240,7 @@ def test_get_symbol_table(test_fixture, analysis_json):
 
 
 def test_get_application_view(test_fixture, analysis_json):
-    """return an application view"""
+    """Should return an application view"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -268,7 +268,7 @@ def test_get_application_view(test_fixture, analysis_json):
 
 
 def test_get_system_dependency_graph(test_fixture, analysis_json):
-    """return an system dependency graph"""
+    """Should return an system dependency graph"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -292,7 +292,7 @@ def test_get_system_dependency_graph(test_fixture, analysis_json):
 
 
 def test_get_call_graph(test_fixture, analysis_json):
-    """return a call graph"""
+    """Should return a call graph"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -319,7 +319,7 @@ def test_get_call_graph(test_fixture, analysis_json):
 
 
 def test_get_call_graph_json(test_fixture, analysis_json):
-    """return the call graph as json"""
+    """Should return the call graph as json"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -343,7 +343,7 @@ def test_get_call_graph_json(test_fixture, analysis_json):
 
 
 def test_get_all_callers(test_fixture, analysis_json):
-    """return all of the callers"""
+    """Should return all of the callers"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -380,7 +380,7 @@ def test_get_all_callers(test_fixture, analysis_json):
 
 
 def test_get_all_callees(test_fixture, analysis_json):
-    """return all of the callees"""
+    """Should return all of the callees"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -415,7 +415,7 @@ def test_get_all_callees(test_fixture, analysis_json):
 
 
 def test_get_all_classes(test_fixture, analysis_json):
-    """return all of the classes in an application"""
+    """Should return all of the classes in an application"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -442,7 +442,7 @@ def test_get_all_classes(test_fixture, analysis_json):
 
 
 def test_get_class(test_fixture, analysis_json):
-    """return a class given the qualified name"""
+    """Should return a class given the qualified name"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -464,7 +464,7 @@ def test_get_class(test_fixture, analysis_json):
 
 
 def test_get_method(test_fixture, analysis_json):
-    """return the method"""
+    """Should return the method"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -486,7 +486,7 @@ def test_get_method(test_fixture, analysis_json):
 
 
 def test_get_java_file(test_fixture, analysis_json):
-    """return the java file for a class"""
+    """Should return the java file for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -515,7 +515,7 @@ def test_get_java_file(test_fixture, analysis_json):
 
 
 def test_get_all_methods_in_class(test_fixture, analysis_json):
-    """return all of the methods for a class"""
+    """Should return all of the methods for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -542,7 +542,7 @@ def test_get_all_methods_in_class(test_fixture, analysis_json):
 
 
 def test_get_all_constructors(test_fixture, analysis_json):
-    """return all of the constructors for a class"""
+    """Should return all of the constructors for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -576,7 +576,7 @@ def test_get_all_constructors(test_fixture, analysis_json):
 
 
 def test_get_all_sub_classes(test_fixture, analysis_json):
-    """return all of the subclasses for a class"""
+    """Should return all of the subclasses for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -600,7 +600,7 @@ def test_get_all_sub_classes(test_fixture, analysis_json):
 
 
 def test_get_all_fields(test_fixture, analysis_json):
-    """return all of the fields for a class"""
+    """Should return all of the fields for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -629,7 +629,7 @@ def test_get_all_fields(test_fixture, analysis_json):
 
 
 def test_get_all_nested_classes(test_fixture, analysis_json):
-    """return all the nested classes for a class"""
+    """Should return all the nested classes for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -655,7 +655,7 @@ def test_get_all_nested_classes(test_fixture, analysis_json):
 
 
 def test_get_extended_classes(test_fixture, analysis_json):
-    """return all of the extended classes for a class"""
+    """Should return all of the extended classes for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -685,7 +685,7 @@ def test_get_extended_classes(test_fixture, analysis_json):
 
 
 def test_get_implemented_interfaces(test_fixture, analysis_json):
-    """return all of the implemented interfaces for a class"""
+    """Should return all of the implemented interfaces for a class"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -717,7 +717,7 @@ def test_get_implemented_interfaces(test_fixture, analysis_json):
 
 
 def test_get_class_call_graph_using_symbol_table(test_fixture, analysis_json):
-    """return the call graph using the symbol table"""
+    """Should return the call graph using the symbol table"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -734,8 +734,7 @@ def test_get_class_call_graph_using_symbol_table(test_fixture, analysis_json):
         )
 
         # Call without method signature
-        all_call_graph = code_analyzer.get_class_call_graph_using_symbol_table("com.ibm.websphere.samples.daytrader"
-                                                                               ".impl.direct.AsyncOrder", None)
+        all_call_graph = code_analyzer.get_class_call_graph_using_symbol_table("com.ibm.websphere.samples.daytrader" ".impl.direct.AsyncOrder", None)
         assert all_call_graph is not None
         assert isinstance(all_call_graph, List)
 
@@ -745,7 +744,7 @@ def test_get_class_call_graph_using_symbol_table(test_fixture, analysis_json):
 
 
 def test_get_class_call_graph(test_fixture, analysis_json):
-    """return the call graph"""
+    """Should return the call graph"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -781,7 +780,7 @@ def test_get_class_call_graph(test_fixture, analysis_json):
 
 
 def test_get_all_methods_in_application(test_fixture, analysis_json):
-    """return all of the methods in an application"""
+    """Should return all of the methods in an application"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
@@ -810,7 +809,7 @@ def test_get_all_methods_in_application(test_fixture, analysis_json):
 
 
 def test_get_all_entrypoint_methods_in_application(test_fixture, codeanalyzer_jar_path):
-    """return all of the entrypoint methods in an application"""
+    """Should return all of the entrypoint methods in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture,
         source_code=None,
@@ -836,7 +835,7 @@ def test_get_all_entrypoint_methods_in_application(test_fixture, codeanalyzer_ja
 
 
 def test_get_all_entrypoint_classes_in_the_application(test_fixture, codeanalyzer_jar_path):
-    """return all of the entrypoint classes in an application"""
+    """Should return all of the entrypoint classes in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture,
         source_code=None,
@@ -859,7 +858,7 @@ def test_get_all_entrypoint_classes_in_the_application(test_fixture, codeanalyze
 
 
 def test_get_all_get_crud_operations(test_fixture_pbw, codeanalyzer_jar_path):
-    """return all of the CRUD operations in an application"""
+    """Should return all of the CRUD operations in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture_pbw,
         source_code=None,
@@ -884,7 +883,7 @@ def test_get_all_get_crud_operations(test_fixture_pbw, codeanalyzer_jar_path):
 
 
 def test_get_all_get_crud_read_operations(test_fixture_pbw, codeanalyzer_jar_path):
-    """return all of the CRUD read operations in an application"""
+    """Should return all of the CRUD read operations in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture_pbw,
         source_code=None,
@@ -909,7 +908,7 @@ def test_get_all_get_crud_read_operations(test_fixture_pbw, codeanalyzer_jar_pat
 
 
 def test_get_all_get_crud_create_operations(test_fixture_pbw, codeanalyzer_jar_path):
-    """return all of the CRUD create operations in an application"""
+    """Should return all of the CRUD create operations in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture_pbw,
         source_code=None,
@@ -934,7 +933,7 @@ def test_get_all_get_crud_create_operations(test_fixture_pbw, codeanalyzer_jar_p
 
 
 def test_get_all_get_crud_update_operations(test_fixture_pbw, codeanalyzer_jar_path):
-    """return all of the CRUD update operations in an application"""
+    """Should return all of the CRUD update operations in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture_pbw,
         source_code=None,
@@ -959,7 +958,7 @@ def test_get_all_get_crud_update_operations(test_fixture_pbw, codeanalyzer_jar_p
 
 
 def test_get_all_get_crud_delete_operations(test_fixture_pbw, codeanalyzer_jar_path):
-    """return all of the CRUD delete operations in an application"""
+    """Should return all of the CRUD delete operations in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture_pbw,
         source_code=None,
@@ -984,7 +983,7 @@ def test_get_all_get_crud_delete_operations(test_fixture_pbw, codeanalyzer_jar_p
 
 
 def test_get_all_get_crud_operations_daytrader8(test_fixture, codeanalyzer_jar_path):
-    """return all of the CRUD operations in an application"""
+    """Should return all of the CRUD operations in an application"""
     code_analyzer = JCodeanalyzer(
         project_dir=test_fixture,
         source_code=None,

@@ -1,4 +1,5 @@
 import os
+from pdb import set_trace
 import platform
 from clang.cindex import Config
 from pathlib import Path
@@ -19,16 +20,27 @@ class ClangAnalyzer:
     """Analyzes C code using Clang's Python bindings."""
 
     def __init__(self, compilation_database_path: Optional[Path] = None):
+        # # Let's turn off Address sanitization for parsing code
+        # # Initialize libclang at module level
+        # try:
+        if platform.system() == "Darwin":
+            possible_paths = [
+                "/opt/homebrew/opt/llvm/lib/libclang.dylib",  # Apple Silicon
+                "/usr/local/opt/llvm/lib/libclang.dylib",  # Intel Mac
+                "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib",
+            ]
 
-        # Initialize libclang at module level
-        try:
-            Config.set_library_file(self.__find_libclang())
-        except Exception as e:
-            logger.error(f"Failed to initialize libclang: {e}")
-            raise Exception("Failed to initialize libclang")
+            # We could not find libclang. Raise an error and provide instructions.
+            if len(possible_paths) == 0:
+                raise RuntimeError("Install LLVM 18 using: brew install llvm@18")
 
-        logger.info("Successfully initialized libclang")
-        # Configure Clang before creating the Index
+            # Check each possible path and return the first one that exists
+            for path in possible_paths:
+                if os.path.exists(path):
+                    logger.info(f"Found libclang at: {path}")
+                    # Configure Clang before creating the Index
+                    Config.set_library_file(path)
+
         self.index = Index.create()
         self.compilation_database = None
         # TODO: Implement compilation database for C/C++ projects so that we can get compile arguments for each file
@@ -59,8 +71,8 @@ class ClangAnalyzer:
             from pathlib import Path
 
             lib_paths = [Path("/usr/lib"), Path("/usr/lib64")]
-            possible_paths = [str(p) for base in lib_paths if base.exists() for p in base.rglob("libclang*.so*")]
-
+            possible_paths = [str(p) for base in lib_paths if base.exists() for p in base.rglob("libclang*.so.17*")]
+            print(possible_paths)
             install_instructions = "Install libclang development package using your system's package manager"
         else:
             raise RuntimeError(f"Unsupported operating system: {system}")
@@ -98,7 +110,7 @@ class ClangAnalyzer:
         return translation_unit
 
     def _process_translation_unit(self, cursor, translation_unit: CTranslationUnit):
-        """Processes all declarations in a translation unit."""
+        """Should process all declarations in a translation unit."""
 
         for child in cursor.get_children():
             if child.location.file and str(child.location.file) != translation_unit.file_path:

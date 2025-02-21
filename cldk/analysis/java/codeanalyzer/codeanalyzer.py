@@ -153,7 +153,7 @@ class JCodeanalyzer:
 
     @staticmethod
     def _init_japplication(data: str) -> JApplication:
-        """return JApplication giving the stringified JSON as input.
+        """Should return JApplication giving the stringified JSON as input.
         Returns
         -------
         JApplication
@@ -165,7 +165,7 @@ class JCodeanalyzer:
         return JApplication(**json.loads(data))
 
     def _init_codeanalyzer(self, analysis_level=1) -> JApplication:
-        """Initializes the Codeanalyzer.
+        """Should initialize the Codeanalyzer.
 
         Args:
             analysis_level (int): The level of analysis to be performed (1 for symbol table, 2 for call graph).
@@ -657,7 +657,7 @@ class JCodeanalyzer:
         return graph_edges
 
     def __call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str, is_target_method: bool = False) -> nx.DiGraph:
-        """Generate call graph using symbol table
+        """Should generate call graph using symbol table
         Args:
             qualified_class_name: qualified class name
             method_signature: method signature
