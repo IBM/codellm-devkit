@@ -151,7 +151,7 @@ def test_get_method_details():
 
 
 def test_is_parsable():
-    """be able to parse the code"""
+    """Should be able to parse the code"""
     python_analysis = PythonAnalysis(
         analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
     )

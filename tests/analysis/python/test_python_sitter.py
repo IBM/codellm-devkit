@@ -66,7 +66,7 @@ class Calculator():
 
 
 def test_is_parsable():
-    """be able to parse the code"""
+    """Should be able to parse the code"""
     python_sitter = PythonSitter()
 
     code = "def is_parsable(self, code: str) -> bool: return True"

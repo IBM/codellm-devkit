@@ -44,7 +44,7 @@ def test_method_is_not_in_class(test_fixture):
 
 
 def test_is_parsable(test_fixture):
-    """be able to parse the file"""
+    """Should be able to parse the file"""
     java_sitter = JavaSitter()
 
     # Get a test source file and send its contents

@@ -277,7 +277,7 @@ def test_get_class_hierarchy(test_fixture, analysis_json):
 
 
 def test_is_parsable(test_fixture, analysis_json):
-    """be parsable"""
+    """Should be parsable"""
 
     # Patch subprocess so that it does not run codeanalyzer
     with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:

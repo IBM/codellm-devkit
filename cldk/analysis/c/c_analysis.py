@@ -56,7 +56,7 @@ class CAnalysis:
         return CApplication(translation_units=translation_units)
 
     def get_c_application(self) -> CApplication:
-        """returns the C application object.
+        """Obtain the C application object.
 
         Returns:
             CApplication: C application object.
@@ -90,7 +90,7 @@ class CAnalysis:
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_call_graph(self) -> nx.DiGraph:
-        """returns the call graph of the C code.
+        """Should return  the call graph of the C code.
 
         Returns:
             nx.DiGraph: The call graph of the C code.
@@ -98,7 +98,7 @@ class CAnalysis:
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_call_graph_json(self) -> str:
-        """returns a serialized call graph in json.
+        """Should return  a serialized call graph in json.
 
         Raises:
             NotImplementedError: Raised when this functionality is not suported.
@@ -110,7 +110,7 @@ class CAnalysis:
         raise NotImplementedError("Producing a call graph over a single file is not implemented yet.")
 
     def get_callers(self, function: CFunction) -> Dict:
-        """returns a dictionary of callers of the target method.
+        """Should return  a dictionary of callers of the target method.
 
         Args:
             function (CFunction): A CFunction object.
@@ -125,7 +125,7 @@ class CAnalysis:
         raise NotImplementedError("Generating all callers over a single file is not implemented yet.")
 
     def get_callees(self, function: CFunction) -> Dict:
-        """returns a dictionary of callees in a fuction.
+        """Should return  a dictionary of callees in a fuction.
 
         Args:
             function (CFunction): A CFunction object.
@@ -139,7 +139,7 @@ class CAnalysis:
         raise NotImplementedError("Generating all callees over a single file is not implemented yet.")
 
     def get_functions(self) -> Dict[str, CFunction]:
-        """returns all functions in the project.
+        """Should return  all functions in the project.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -151,7 +151,7 @@ class CAnalysis:
             return translation_unit.functions
 
     def get_function(self, function_name: str, file_name: Optional[str]) -> CFunction | List[CFunction]:
-        """returns a function object given the function name.
+        """Should return  a function object given the function name.
 
         Args:
             function_name (str): The name of the function.
@@ -163,7 +163,7 @@ class CAnalysis:
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_C_file(self, file_name: str) -> str:
-        """returns a class given qualified class name.
+        """Should return  a class given qualified class name.
 
         Args:
             file_name (str): The name of the file.
@@ -191,7 +191,7 @@ class CAnalysis:
         return self.c_application.translation_units.get(file_path)
 
     def get_functions_in_file(self, file_name: str) -> List[CFunction]:
-        """returns a dictionary of all methods of the given class.
+        """Should return  a dictionary of all methods of the given class.
 
         Args:
             file_name (str): The name of the file.
@@ -205,7 +205,7 @@ class CAnalysis:
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_macros(self) -> List[CMacro]:
-        """returns a list of all macros in the C code.
+        """Should return  a list of all macros in the C code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -216,7 +216,7 @@ class CAnalysis:
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_macros_in_file(self, file_name: str) -> List[CMacro] | None:
-        """returns a list of all macros in the given file.
+        """Should return  a list of all macros in the given file.
 
         Args:
             file_name (str): The name of the file.
@@ -231,7 +231,7 @@ class CAnalysis:
 
 
 def get_includes(self) -> List[str]:
-    """returns a list of all include statements across all files in the C code.
+    """Should return  a list of all include statements across all files in the C code.
 
     Returns:
         List[str]: A list of all include statements. Returns empty list if none found.
@@ -243,7 +243,7 @@ def get_includes(self) -> List[str]:
 
 
 def get_includes_in_file(self, file_name: str) -> List[str] | None:
-    """returns a list of all include statements in the given file.
+    """Should return  a list of all include statements in the given file.
 
     Args:
         file_name (str): The name of the file to search in.
@@ -257,7 +257,7 @@ def get_includes_in_file(self, file_name: str) -> List[str] | None:
 
 
 def get_macros(self) -> List[CMacro]:
-    """returns a list of all macro definitions across all files in the C code.
+    """Should return  a list of all macro definitions across all files in the C code.
 
     Returns:
         List[CMacro]: A list of all macro definitions. Returns empty list if none found.
@@ -269,7 +269,7 @@ def get_macros(self) -> List[CMacro]:
 
 
 def get_macros_in_file(self, file_name: str) -> List[CMacro] | None:
-    """returns a list of all macro definitions in the given file.
+    """Should return  a list of all macro definitions in the given file.
 
     Args:
         file_name (str): The name of the file to search in.
@@ -283,7 +283,7 @@ def get_macros_in_file(self, file_name: str) -> List[CMacro] | None:
 
 
 def get_typedefs(self) -> List[CTypedef]:
-    """returns a list of all typedef declarations across all files in the C code.
+    """Should return  a list of all typedef declarations across all files in the C code.
 
     Returns:
         List[CTypedef]: A list of all typedef declarations. Returns empty list if none found.
@@ -295,7 +295,7 @@ def get_typedefs(self) -> List[CTypedef]:
 
 
 def get_typedefs_in_file(self, file_name: str) -> List[CTypedef] | None:
-    """returns a list of all typedef declarations in the given file.
+    """Should return  a list of all typedef declarations in the given file.
 
     Args:
         file_name (str): The name of the file to search in.
@@ -309,7 +309,7 @@ def get_typedefs_in_file(self, file_name: str) -> List[CTypedef] | None:
 
 
 def get_structs(self) -> List[CStruct]:
-    """returns a list of all struct/union declarations across all files in the C code.
+    """Should return  a list of all struct/union declarations across all files in the C code.
 
     Returns:
         List[CStruct]: A list of all struct/union declarations. Returns empty list if none found.
@@ -321,7 +321,7 @@ def get_structs(self) -> List[CStruct]:
 
 
 def get_structs_in_file(self, file_name: str) -> List[CStruct] | None:
-    """returns a list of all struct/union declarations in the given file.
+    """Should return  a list of all struct/union declarations in the given file.
 
     Args:
         file_name (str): The name of the file to search in.
@@ -335,7 +335,7 @@ def get_structs_in_file(self, file_name: str) -> List[CStruct] | None:
 
 
 def get_enums(self) -> List[CEnum]:
-    """returns a list of all enum declarations across all files in the C code.
+    """Should return  a list of all enum declarations across all files in the C code.
 
     Returns:
         List[CEnum]: A list of all enum declarations. Returns empty list if none found.
@@ -347,7 +347,7 @@ def get_enums(self) -> List[CEnum]:
 
 
 def get_enums_in_file(self, file_name: str) -> List[CEnum] | None:
-    """returns a list of all enum declarations in the given file.
+    """Should return  a list of all enum declarations in the given file.
 
     Args:
         file_name (str): The name of the file to search in.
@@ -361,7 +361,7 @@ def get_enums_in_file(self, file_name: str) -> List[CEnum] | None:
 
 
 def get_globals(self, file_name: str) -> List[CVariable] | None:
-    """returns a list of all global variable declarations in the given file.
+    """Should return  a list of all global variable declarations in the given file.
 
     Args:
         file_name (str): The name of the file to search in.

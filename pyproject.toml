@@ -113,6 +113,7 @@ title = "Test Coverage Report"
 directory = "coverage_html_report"
 
 [tool.cldk.testing]
+sample-c-application = "tests/resources/c/application/"
 sample-application = "tests/resources/java/application/"
 sample-application-analysis-json = "tests/resources/java/analysis_json/"
 codeanalyzer-jar-path = "tests/resources/java/codeanalyzer_jars/"

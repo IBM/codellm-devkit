@@ -12,67 +12,22 @@ logger = logging.getLogger(__name__)
 
 # First, we only import Config from clang.cindex
 from clang.cindex import Config
-
-
-def find_libclang() -> str:
-    """
-    Locates the libclang library on the system based on the operating system.
-    This function runs before any other Clang functionality is used, ensuring
-    proper initialization of the Clang environment.
-    """
-    system = platform.system()
-
-    # On macOS, we check both Apple Silicon and Intel paths
-    if system == "Darwin":
-        possible_paths = [
-            "/opt/homebrew/opt/llvm/lib/libclang.dylib",  # Apple Silicon
-            "/usr/local/opt/llvm/lib/libclang.dylib",  # Intel Mac
-            "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib",
-        ]
-        install_instructions = "Install LLVM using: brew install llvm"
-
-    # On Linux, we check various common installation paths
-    elif system == "Linux":
-        from pathlib import Path
-        
-        lib_paths = [Path("/usr/lib"), Path("/usr/lib64")]
-        possible_paths = [
-            str(p) for base in lib_paths if base.exists()
-            for p in base.rglob("libclang*.so*")
-        ]
-
-        install_instructions = "Install libclang development package using your system's package manager"
-    else:
-        raise RuntimeError(f"Unsupported operating system: {system}")
-
-    # Check each possible path and return the first one that exists
-    for path in possible_paths:
-        if os.path.exists(path):
-            logger.info(f"Found libclang at: {path}")
-            return path
-
-    # If no library is found, provide clear installation instructions
-    raise RuntimeError(f"Could not find libclang library. \n" f"Please ensure LLVM is installed:\n{install_instructions}")
-
-
-# Initialize libclang at module level
-try:
-    libclang_path = find_libclang()
-    Config.set_library_file(libclang_path)
-    logger.info("Successfully initialized libclang")
-
-    # Now that libclang is initialized, we can safely import other Clang components
-    from clang.cindex import Index, TranslationUnit, CursorKind, TypeKind, CompilationDatabase
-
-except Exception as e:
-    logger.error(f"Failed to initialize libclang: {e}")
-    raise
+from clang.cindex import Index, TranslationUnit, CursorKind, TypeKind, CompilationDatabase
 
 
 class ClangAnalyzer:
     """Analyzes C code using Clang's Python bindings."""
 
     def __init__(self, compilation_database_path: Optional[Path] = None):
+
+        # Initialize libclang at module level
+        try:
+            Config.set_library_file(self.__find_libclang())
+        except Exception as e:
+            logger.error(f"Failed to initialize libclang: {e}")
+            raise Exception("Failed to initialize libclang")
+
+        logger.info("Successfully initialized libclang")
         # Configure Clang before creating the Index
         self.index = Index.create()
         self.compilation_database = None
@@ -80,6 +35,44 @@ class ClangAnalyzer:
         # and parse them correctly. This is useful for projects with complex build systems.
         if compilation_database_path:
             self.compilation_database = CompilationDatabase.fromDirectory(str(compilation_database_path))
+
+    def __find_libclang(self) -> str:
+        """
+        Locates the libclang library on the system based on the operating system.
+        This function runs before any other Clang functionality is used, ensuring
+        proper initialization of the Clang environment.
+        """
+
+        system = platform.system()
+
+        # On macOS, we check both Apple Silicon and Intel paths
+        if system == "Darwin":
+            possible_paths = [
+                "/opt/homebrew/opt/llvm/lib/libclang.dylib",  # Apple Silicon
+                "/usr/local/opt/llvm/lib/libclang.dylib",  # Intel Mac
+                "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib",
+            ]
+            install_instructions = "Install LLVM using: brew install llvm"
+
+        # On Linux, we check various common installation paths
+        elif system == "Linux":
+            from pathlib import Path
+
+            lib_paths = [Path("/usr/lib"), Path("/usr/lib64")]
+            possible_paths = [str(p) for base in lib_paths if base.exists() for p in base.rglob("libclang*.so*")]
+
+            install_instructions = "Install libclang development package using your system's package manager"
+        else:
+            raise RuntimeError(f"Unsupported operating system: {system}")
+
+        # Check each possible path and return the first one that exists
+        for path in possible_paths:
+            if os.path.exists(path):
+                logger.info(f"Found libclang at: {path}")
+                return path
+
+        # If no library is found, provide clear installation instructions
+        raise RuntimeError(f"Could not find libclang library. \n" f"Please ensure LLVM is installed:\n{install_instructions}")
 
     def analyze_file(self, file_path: Path) -> CTranslationUnit:
         """Analyzes a single C source file using Clang."""
