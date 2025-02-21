@@ -24,7 +24,6 @@ import networkx as nx
 
 from tree_sitter import Tree
 
-from cldk.analysis import SymbolTable, CallGraph
 from cldk.analysis.commons.treesitter import TreesitterJava
 from cldk.models.java import JCallable
 from cldk.models.java import JApplication
@@ -32,7 +31,7 @@ from cldk.models.java.models import JCRUDOperation, JCompilationUnit, JMethodDet
 from cldk.analysis.java.codeanalyzer import JCodeanalyzer
 
 
-class JavaAnalysis(SymbolTable, CallGraph):
+class JavaAnalysis:
 
     def __init__(
         self,

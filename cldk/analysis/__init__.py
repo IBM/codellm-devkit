@@ -18,11 +18,13 @@
 Analysis package
 """
 
+from enum import Enum
 
-from .call_graph import CallGraph
-from .program_dependence_graph import ProgramDependenceGraph
-from .system_dependence_graph import SystemDependenceGraph
-from .symbol_table import SymbolTable
-from .analysis_level import AnalysisLevel
 
-__all__ = ["CallGraph", "ProgramDependenceGraph", "SystemDependenceGraph", "SymbolTable", "AnalysisLevel"]
+class AnalysisLevel(str, Enum):
+    """Analysis levels"""
+
+    symbol_table = "symbol table"
+    call_graph = "call graph"
+    program_dependency_graph = "program dependency graph"
+    system_dependency_graph = "system dependency graph"

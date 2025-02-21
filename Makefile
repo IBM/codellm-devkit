@@ -19,7 +19,7 @@ venv: ## Create a Python virtual environment
 install: ## Install Python dependencies in virtual environment
 	$(info Installing dependencies...)
 	poetry config virtualenvs.in-project true
-	poetry install
+	poetry install --all-extras
 
 .PHONY: lint
 lint: ## Run the linter

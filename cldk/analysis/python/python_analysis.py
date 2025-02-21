@@ -21,12 +21,11 @@ Python module
 from pathlib import Path
 from typing import List
 
-from cldk.analysis import SymbolTable
 from cldk.analysis.commons.treesitter import TreesitterPython
 from cldk.models.python.models import PyMethod, PyImport, PyModule, PyClass
 
 
-class PythonAnalysis(SymbolTable):
+class PythonAnalysis:
     """Python Analysis Class"""
 
     def __init__(
