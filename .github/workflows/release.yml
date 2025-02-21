@@ -1,0 +1,64 @@
+name: Python Poetry Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install Dependencies
+        run: poetry install --no-root
+
+      - name: Run Tests
+        id: build
+        continue-on-error: true  # Allow workflow continuation on failure
+        run: poetry run make test
+
+      - name: Delete tag on failure
+        if: steps.build.outcome != 'success'
+        run: |
+          git push --delete origin ${GITHUB_REF#refs/tags/}
+          exit 1  # Fail the workflow
+
+      - name: Build Package
+        run: poetry build
+
+      - name: Build Changelog
+        id: gen_changelog
+        uses: mikepenz/release-changelog-builder-action@v5
+        with:
+          failOnError: "true"
+          configuration: .github/workflows/release_config.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Release on GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          body: ${{ steps.gen_changelog.outputs.changelog }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
