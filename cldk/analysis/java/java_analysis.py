@@ -27,7 +27,7 @@ from tree_sitter import Tree
 from cldk.analysis.commons.treesitter import TreesitterJava
 from cldk.models.java import JCallable
 from cldk.models.java import JApplication
-from cldk.models.java.models import JCRUDOperation, JCompilationUnit, JMethodDetail, JType, JField
+from cldk.models.java.models import JCRUDOperation, JComment, JCompilationUnit, JMethodDetail, JType, JField
 from cldk.analysis.java.codeanalyzer import JCodeanalyzer
 
 
@@ -41,7 +41,6 @@ class JavaAnalysis:
         analysis_json_path: str | Path | None,
         analysis_level: str,
         target_files: List[str] | None,
-        use_graalvm_binary: bool,
         eager_analysis: bool,
     ) -> None:
         """Initialization method for Java Analysis backend.
@@ -52,7 +51,6 @@ class JavaAnalysis:
             analysis_backend_path (str | None): The path to the analysis_backend, defaults to None and in the case of codeql, it is assumed that the cli is installed and available in the PATH. In the case of codeanalyzer the codeanalyzer.jar is downloaded from the lastest release.
             analysis_json_path (str | Path | None): The path save the to the analysis database (analysis.json), defaults to None. If None, the analysis database is not persisted.
             analysis_level (str): Analysis level (symbol-table, call-graph)
-            use_graalvm_binary (bool): A flag indicating whether to use the GraalVM binary for SDG analysis, defaults to False. If False, the default Java binary is used and one needs to have Java 17 or higher installed.
             eager_analysis (bool): A flag indicating whether to perform eager analysis, defaults to False. If True, the analysis is performed eagerly. That is, the analysis.json file is created during analysis every time even if it already exists.
 
         Raises:
@@ -69,7 +67,6 @@ class JavaAnalysis:
         self.analysis_json_path = analysis_json_path
         self.analysis_backend_path = analysis_backend_path
         self.eager_analysis = eager_analysis
-        self.use_graalvm_binary = use_graalvm_binary
         self.target_files = target_files
         self.treesitter_java: TreesitterJava = TreesitterJava()
         # Initialize the analysis analysis_backend
@@ -79,7 +76,6 @@ class JavaAnalysis:
             eager_analysis=self.eager_analysis,
             analysis_level=self.analysis_level,
             analysis_json_path=self.analysis_json_path,
-            use_graalvm_binary=self.use_graalvm_binary,
             analysis_backend_path=self.analysis_backend_path,
             target_files=self.target_files,
         )
@@ -326,6 +322,21 @@ class JavaAnalysis:
             JCallable: A method for the given qualified method name.
         """
         return self.backend.get_method(qualified_class_name, qualified_method_name)
+
+    def get_method_parameters(self, qualified_class_name: str, qualified_method_name: str) -> List[str]:
+        """Should return  a list of method parameters given qualified class and method names.
+
+        Args:
+            qualified_class_name (str): The qualified name of the class.
+            qualified_method_name (str): The qualified name of the method.
+
+        Raises:
+            NotImplementedError: Raised when we do not support this function.
+
+        Returns:
+            JCallable: A method for the given qualified method name.
+        """
+        return self.backend.get_method_parameters(qualified_class_name, qualified_method_name)
 
     def get_java_file(self, qualified_class_name: str) -> str:
         """Should return  a class given qualified class name.
@@ -606,3 +617,54 @@ class JavaAnalysis:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all delete operations in the source code.
         """
         return self.backend.get_all_delete_operations()
+
+    # Some APIs to process comments
+    def get_comments_in_a_method(self, qualified_class_name: str, method_signature: str) -> List[JComment]:
+        """Get all comments in a method.
+
+        Args:
+            qualified_class_name (str): Qualified name of the class.
+            method_signature (str): Signature of the method.
+
+        Returns:
+            List[str]: List of comments in the method.
+        """
+        return self.backend.get_comments_in_a_method(qualified_class_name, method_signature)
+
+    def get_comments_in_a_class(self, qualified_class_name: str) -> List[JComment]:
+        """Get all comments in a class.
+
+        Args:
+            qualified_class_name (str): Qualified name of the class.
+
+        Returns:
+            List[str]: List of comments in the class.
+        """
+        return self.backend.get_comments_in_a_class(qualified_class_name)
+
+    def get_comment_in_file(self, file_path: str) -> List[JComment]:
+        """Get all comments in a file.
+
+        Args:
+            file_path (str): Path to the file.
+
+        Returns:
+            List[str]: List of comments in the file.
+        """
+        return self.backend.get_comment_in_file(file_path)
+
+    def get_all_comments(self) -> Dict[str, List[JComment]]:
+        """Get all comments in the Java application.
+
+        Returns:
+            Dict[str, List[str]]: Dictionary of file paths and their corresponding comments.
+        """
+        return self.backend.get_all_comments()
+
+    def get_all_docstrings(self) -> Dict[str, List[JComment]]:
+        """Get all docstrings in the Java application.
+
+        Returns:
+            Dict[str, List[str]]: Dictionary of file paths and their corresponding docstrings.
+        """
+        return self.backend.get_all_docstrings()

@@ -60,7 +60,6 @@ class CLDK:
         target_files: List[str] | None = None,
         analysis_backend_path: str | None = None,
         analysis_json_path: str | Path = None,
-        use_graalvm_binary: bool = False,
     ) -> JavaAnalysis:
         """
         Initialize the preprocessor based on the specified language.
@@ -116,7 +115,6 @@ class CLDK:
                 analysis_level=analysis_level,
                 analysis_backend_path=analysis_backend_path,
                 analysis_json_path=analysis_json_path,
-                use_graalvm_binary=use_graalvm_binary,
                 target_files=target_files,
                 eager_analysis=eager,
             )

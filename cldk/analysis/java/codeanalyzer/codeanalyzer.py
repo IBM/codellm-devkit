@@ -31,7 +31,7 @@ from cldk.analysis import AnalysisLevel
 from cldk.analysis.commons.treesitter import TreesitterJava
 from cldk.models.java import JGraphEdges
 from cldk.models.java.enums import CRUDOperationType
-from cldk.models.java.models import JApplication, JCRUDOperation, JCallable, JField, JMethodDetail, JType, JCompilationUnit, JGraphEdgesST
+from cldk.models.java.models import JApplication, JCRUDOperation, JCallable, JCallableParameter, JComment, JField, JMethodDetail, JType, JCompilationUnit, JGraphEdgesST
 from cldk.utils.exceptions.exceptions import CodeanalyzerExecutionException
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,6 @@ class JCodeanalyzer:
         analysis_json_path (str or Path, optional): The path to save the intermediate code analysis outputs.
             If None, the analysis will be read from the pipe.
         analysis_level (str): The level of analysis ('symbol_table' or 'call_graph').
-        use_graalvm_binary (bool): If True, the GraalVM binary will be used instead of the codeanalyzer jar.
         eager_analysis (bool): If True, the analysis will be performed every time the object is created.
 
     Methods:
@@ -92,7 +91,6 @@ class JCodeanalyzer:
         analysis_backend_path: Union[str, Path, None],
         analysis_json_path: Union[str, Path, None],
         analysis_level: str,
-        use_graalvm_binary: bool,
         eager_analysis: bool,
         target_files: List[str] | None,
     ) -> None:
@@ -100,7 +98,6 @@ class JCodeanalyzer:
         self.source_code = source_code
         self.analysis_backend_path = analysis_backend_path
         self.analysis_json_path = analysis_json_path
-        self.use_graalvm_binary = use_graalvm_binary
         self.eager_analysis = eager_analysis
         self.analysis_level = analysis_level
         self.target_files = target_files
@@ -128,27 +125,22 @@ class JCodeanalyzer:
             List[str]: The executable command for codeanalyzer.
 
         Notes:
-            - If the use_graalvm_binary flag is set, the codeanalyzer binary from GraalVM will be used.
             - If the analysis_backend_path is provided, the codeanalyzer jar from that path will be used.
             - If not provided, the latest codeanalyzer jar from GitHub will be downloaded.
         """
 
-        if self.use_graalvm_binary:
-            with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.bin") / "codeanalyzer") as codeanalyzer_bin_path:
-                codeanalyzer_exec = shlex.split(codeanalyzer_bin_path.__str__())
+        if self.analysis_backend_path:
+            analysis_backend_path = Path(self.analysis_backend_path)
+            logger.info(f"Using codeanalyzer jar from {analysis_backend_path}")
+            codeanalyzer_jar_file = next(analysis_backend_path.rglob("codeanalyzer-*.jar"), None)
+            if codeanalyzer_jar_file is None:
+                raise CodeanalyzerExecutionException("Codeanalyzer jar not found in the provided path.")
+            codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
         else:
-            if self.analysis_backend_path:
-                analysis_backend_path = Path(self.analysis_backend_path)
-                logger.info(f"Using codeanalyzer jar from {analysis_backend_path}")
-                codeanalyzer_jar_file = next(analysis_backend_path.rglob("codeanalyzer-*.jar"), None)
-                if codeanalyzer_jar_file is None:
-                    raise CodeanalyzerExecutionException("Codeanalyzer jar not found in the provided path.")
+            # Since the path to codeanalyzer.jar we will use the default jar from the cldk/analysis/java/codeanalyzer/jar folder
+            with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.jar")) as codeanalyzer_jar_path:
+                codeanalyzer_jar_file = next(codeanalyzer_jar_path.rglob("codeanalyzer-*.jar"), None)
                 codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
-            else:
-                # Since the path to codeanalyzer.jar we will use the default jar from the cldk/analysis/java/codeanalyzer/jar folder
-                with resources.as_file(resources.files("cldk.analysis.java.codeanalyzer.jar")) as codeanalyzer_jar_path:
-                    codeanalyzer_jar_file = next(codeanalyzer_jar_path.rglob("codeanalyzer-*.jar"), None)
-                    codeanalyzer_exec = shlex.split(f"java -jar {codeanalyzer_jar_file}")
         return codeanalyzer_exec
 
     @staticmethod
@@ -496,6 +488,29 @@ class JCodeanalyzer:
                 for cd in ci.callable_declarations.keys():
                     if cd == method_signature:
                         return ci.callable_declarations[cd]
+
+    def get_method_parameters(self, qualified_class_name, method_signature) -> List[JCallableParameter]:
+        """Should return  a dictionary of method parameters given the qualified class name and method signature.
+
+        Args:
+            qualified_class_name (str): The qualified name of the class.
+            method_signature (str): The signature of the method.
+
+        Returns:
+            Dict[str, str]: A dictionary of method parameters for the given qualified class name and method signature.
+        """
+        return self.get_method(qualified_class_name, method_signature).parameters
+
+    def get_parameters_from_callable(self, callable: JCallable) -> List[JCallableParameter]:
+        """Should return  a dictionary of method parameters given the callable.
+
+        Args:
+            callable (JCallable): The callable object.
+
+        Returns:
+            Dict[str, str]: A dictionary of method parameters for the given callable.
+        """
+        return callable.parameters
 
     def get_java_file(self, qualified_class_name) -> str:
         """Should return  java file name given the qualified class name.
@@ -1006,3 +1021,66 @@ class JCodeanalyzer:
                         }
                     )
         return crud_delete_operations
+
+    # Some APIs to process comments
+    def get_comments_in_a_method(self, qualified_class_name: str, method_signature: str) -> List[JComment]:
+        """Get all comments in a method.
+
+        Args:
+            qualified_class_name (str): Qualified name of the class.
+            method_signature (str): Signature of the method.
+
+        Returns:
+            List[str]: List of comments in the method.
+        """
+        callable = self.get_method(qualified_class_name, method_signature)
+        return callable.comments
+
+    def get_comments_in_a_class(self, qualified_class_name: str) -> List[JComment]:
+        """Get all comments in a class.
+
+        Args:
+            qualified_class_name (str): Qualified name of the class.
+
+        Returns:
+            List[str]: List of comments in the class.
+        """
+        klass = self.get_class(qualified_class_name)
+        return klass.comments
+
+    def get_comment_in_file(self, file_path: str) -> List[JComment]:
+        """Get all comments in a file.
+
+        Args:
+            file_path (str): Path to the file.
+
+        Returns:
+            List[str]: List of comments in the file.
+        """
+        compilation_unit = self.get_symbol_table().get(file_path, None)
+        if compilation_unit is None:
+            raise CodeanalyzerExecutionException(f"File {file_path} not found in the symbol table.")
+        return compilation_unit.comments
+
+    def get_all_comments(self) -> Dict[str, List[JComment]]:
+        """Get all comments in the Java application.
+
+        Returns:
+            Dict[str, List[str]]: Dictionary of file paths and their corresponding comments.
+        """
+        comments = {}
+        for file_path, _ in self.get_symbol_table().items():
+            comments[file_path] = self.get_comment_in_file(file_path)
+        return comments
+
+    def get_all_docstrings(self) -> List[Tuple[str, JComment]]:
+        """Get all docstrings in the Java application.
+
+        Returns:
+            Dict[str, List[str]]: Dictionary of file paths and their corresponding docstrings.
+        """
+        docstrings = []
+        for file_path, list_of_comments in self.get_all_comments().items():
+            docstrings += [(file_path, docstring) for docstring in list_of_comments if docstring.is_javadoc]
+
+        return docstrings
