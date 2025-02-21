@@ -15,22 +15,21 @@
 ################################################################################
 
 """
-PythonSitter module
+TreesitterPython module
 """
 
-import glob
 import os
 from pathlib import Path
 from typing import List
 
-from tree_sitter import Language, Parser, Query, Node, Tree
+from tree_sitter import Language, Parser, Node, Tree
 import tree_sitter_python as tspython
 from cldk.models.python.models import PyMethod, PyClass, PyArg, PyImport, PyModule, PyCallSite
-from cldk.models.treesitter import Captures
-from cldk.utils.treesitter.tree_sitter_utils import TreeSitterUtils
+from cldk.analysis.commons.treesitter.models import Captures
+from cldk.analysis.commons.treesitter.utils.treesitter_utils import TreeSitterUtils
 
 
-class PythonSitter:
+class TreesitterPython:
     """
     Tree sitter for Python use cases.
     """
@@ -49,6 +48,7 @@ class PythonSitter:
         Returns:
             True if the code is parsable, False otherwise
         """
+
         def syntax_error(node):
             if node.type == "ERROR":
                 return True

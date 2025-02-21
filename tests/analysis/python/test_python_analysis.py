@@ -23,7 +23,6 @@ from tree_sitter import Tree
 import pytest
 
 from cldk.analysis.python import PythonAnalysis
-from cldk.utils.analysis_engine import AnalysisEngine
 from cldk.models.python.models import PyClass, PyImport, PyMethod, PyModule
 
 PYTHON_CODE = """
@@ -66,33 +65,9 @@ class Calculator():
 """
 
 
-def test_not_implemented():
-    """Should return raise a not implemented exception"""
-    # test with CodeQL
-    with pytest.raises(NotImplementedError) as except_info:
-        _ = PythonAnalysis(
-            analysis_backend=AnalysisEngine.CODEQL, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-        )
-    assert except_info.type == NotImplementedError
-
-    # test with CodeAnalyzer
-    with pytest.raises(NotImplementedError) as except_info:
-        _ = PythonAnalysis(
-            analysis_backend=AnalysisEngine.CODEANALYZER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-        )
-    assert except_info.type == NotImplementedError
-
-    # Test with unknown backend
-    with pytest.raises(NotImplementedError) as except_info:
-        _ = PythonAnalysis(analysis_backend="unknown", eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
-    assert except_info.type == NotImplementedError
-
-
 def test_get_methods():
     """Should return all of the methods"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     all_methods = python_analysis.get_methods()
     assert all_methods is not None
@@ -104,9 +79,7 @@ def test_get_methods():
 
 def test_get_functions():
     """Should return all of the functions"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     all_functions = python_analysis.get_functions()
     assert all_functions is not None
@@ -118,9 +91,7 @@ def test_get_functions():
 
 def test_get_all_modules(tmp_path):
     """Should return all of the modules"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=tmp_path, source_code=None, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=tmp_path, source_code=None, analysis_backend_path=None, analysis_json_path=None)
 
     # set up some temporary modules
     temp_file_path = os.path.join(tmp_path, "hello.py")
@@ -140,9 +111,7 @@ def test_get_all_modules(tmp_path):
 
 def test_get_method_details():
     """Should return the method details"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     method_details = python_analysis.get_method_details("add(self, a, b)")
     assert method_details is not None
@@ -152,9 +121,7 @@ def test_get_method_details():
 
 def test_is_parsable():
     """Should be able to parse the code"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     code = "def is_parsable(self, code: str) -> bool: return True"
     is_parsable = python_analysis.is_parsable(code)
@@ -167,9 +134,7 @@ def test_is_parsable():
 
 def test_get_raw_ast():
     """Should return the raw AST"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     raw_ast = python_analysis.get_raw_ast(PYTHON_CODE)
     assert raw_ast is not None
@@ -179,9 +144,7 @@ def test_get_raw_ast():
 
 def test_get_imports():
     """Should return all of the imports"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     all_imports = python_analysis.get_imports()
     assert all_imports is not None
@@ -193,9 +156,7 @@ def test_get_imports():
 
 def test_get_variables():
     """Should return all of the variables"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     with pytest.raises(NotImplementedError) as except_info:
         python_analysis.get_variables()
@@ -204,9 +165,7 @@ def test_get_variables():
 
 def test_get_classes():
     """Should return all of the classes"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     all_classes = python_analysis.get_classes()
     assert all_classes is not None
@@ -219,9 +178,7 @@ def test_get_classes():
 
 def test_get_classes_by_criteria():
     """Should return all of the classes that match the criteria"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     with pytest.raises(NotImplementedError) as except_info:
         python_analysis.get_classes_by_criteria()
@@ -230,9 +187,7 @@ def test_get_classes_by_criteria():
 
 def test_get_sub_classes():
     """Should return all of the subclasses"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     with pytest.raises(NotImplementedError) as except_info:
         python_analysis.get_sub_classes()
@@ -241,9 +196,7 @@ def test_get_sub_classes():
 
 def test_get_nested_classes():
     """Should return all of the nested classes"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     with pytest.raises(NotImplementedError) as except_info:
         python_analysis.get_nested_classes()
@@ -252,9 +205,7 @@ def test_get_nested_classes():
 
 def test_get_constructors():
     """Should return all of the constructors"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     with pytest.raises(NotImplementedError) as except_info:
         python_analysis.get_constructors()
@@ -263,9 +214,7 @@ def test_get_constructors():
 
 def test_get_methods_in_class():
     """Should return all of the methods in the class"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     with pytest.raises(NotImplementedError) as except_info:
         python_analysis.get_methods_in_class()
@@ -274,9 +223,7 @@ def test_get_methods_in_class():
 
 def test_get_fields():
     """Should return all of the fields in the class"""
-    python_analysis = PythonAnalysis(
-        analysis_backend=AnalysisEngine.TREESITTER, eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None
-    )
+    python_analysis = PythonAnalysis(eager_analysis=True, project_dir=None, source_code=PYTHON_CODE, analysis_backend_path=None, analysis_json_path=None)
 
     with pytest.raises(NotImplementedError) as except_info:
         python_analysis.get_fields()

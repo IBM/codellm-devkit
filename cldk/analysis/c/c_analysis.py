@@ -142,7 +142,7 @@ class CAnalysis:
         """Should return  all functions in the project.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, Dict[str, JCallable]]: Dictionary of dictionaries of all methods in the C code with qualified class name as key and dictionary of methods in that class.
@@ -169,7 +169,7 @@ class CAnalysis:
             file_name (str): The name of the file.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             str: C file name containing the given qualified class.
@@ -183,7 +183,7 @@ class CAnalysis:
             file_path (str): Absolute path to C source file
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             CTranslationUnit: Compilation unit object for C source file
@@ -197,7 +197,7 @@ class CAnalysis:
             file_name (str): The name of the file.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, JCallable]: A dictionary of all constructors of the given class.
@@ -208,7 +208,7 @@ class CAnalysis:
         """Should return  a list of all macros in the C code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[CMacro]: A list of all macros in the C code.
@@ -222,7 +222,7 @@ class CAnalysis:
             file_name (str): The name of the file.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[CMacro]: A list of all macros in the given file. Returns None if no macros are found.

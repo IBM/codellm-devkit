@@ -28,7 +28,7 @@ from typing import Union
 import networkx as nx
 
 from cldk.analysis import AnalysisLevel
-from cldk.analysis.java.treesitter import JavaSitter
+from cldk.analysis.commons.treesitter import TreesitterJava
 from cldk.models.java import JGraphEdges
 from cldk.models.java.enums import CRUDOperationType
 from cldk.models.java.models import JApplication, JCRUDOperation, JCallable, JField, JMethodDetail, JType, JCompilationUnit, JGraphEdgesST
@@ -303,7 +303,7 @@ class JCodeanalyzer:
             NotImplementedError("Call graph generation using symbol table is not implemented yet.")
         else:
             sdg = self.get_system_dependency_graph()
-            tsu = JavaSitter()
+            tsu = TreesitterJava()
             edge_list = [
                 (
                     (jge.source.method.signature, jge.source.klass),
@@ -511,6 +511,16 @@ class JCodeanalyzer:
             if (qualified_class_name) in v.type_declarations.keys():
                 return k
 
+    def get_compilation_units(self) -> List[JCompilationUnit]:
+        """Get all the compilation units in the symbol table.
+
+        Returns:
+            List[JCompilationUnit]: A list of compilation units.
+        """
+        if self.application is None:
+            self.application = self._init_codeanalyzer()
+        return self.get_symbol_table().values()
+
     def get_java_compilation_unit(self, file_path: str) -> JCompilationUnit:
         """Given the path of a Java source file, returns the compilation unit object from the symbol table.
 
@@ -672,7 +682,7 @@ class JCodeanalyzer:
             sdg = self.__raw_call_graph_using_symbol_table_target_method(target_class_name=qualified_class_name, target_method_signature=method_signature)
         else:
             sdg = self.__raw_call_graph_using_symbol_table(qualified_class_name=qualified_class_name, method_signature=method_signature)
-        tsu = JavaSitter()
+        tsu = TreesitterJava()
         edge_list = [
             (
                 (jge.source.method.signature, jge.source.klass),
@@ -895,7 +905,7 @@ class JCodeanalyzer:
         """Should return  a dictionary of all CRUD operations in the source code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, List[str]]: A dictionary of all CRUD operations in the source code.
@@ -912,7 +922,7 @@ class JCodeanalyzer:
         """Should return  a list of all read operations in the source code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[Dict[str, Union[str, JCallable, List[CRUDOperation]]]]:: A list of all read operations in the source code.
@@ -934,7 +944,7 @@ class JCodeanalyzer:
         """Should return  a list of all create operations in the source code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[Dict[str, Union[str, JCallable, List[CRUDOperation]]]]: A list of all create operations in the source code.
@@ -956,7 +966,7 @@ class JCodeanalyzer:
         """Should return  a list of all update operations in the source code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[Dict[str, Union[str, JCallable, List[CRUDOperation]]]]: A list of all update operations in the source code.
@@ -979,7 +989,7 @@ class JCodeanalyzer:
         """Should return  a list of all delete operations in the source code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[Dict[str, Union[str, JCallable, List[CRUDOperation]]]]: A list of all delete operations in the source code.

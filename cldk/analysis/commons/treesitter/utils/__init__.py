@@ -15,9 +15,8 @@
 ################################################################################
 
 """
-CodeQL package
+Treesitter package
 """
+from .treesitter_utils import TreeSitterUtils
 
-from .codeql import JCodeQL
-
-__all__ = ["JCodeQL"]
+__all__ = ["TreeSitterUtils"]

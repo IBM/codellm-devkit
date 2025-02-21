@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import List
 
 from cldk.analysis import SymbolTable
-from cldk.analysis.python.treesitter import PythonSitter
+from cldk.analysis.commons.treesitter import TreesitterPython
 from cldk.models.python.models import PyMethod, PyImport, PyModule, PyClass
 
 
@@ -31,7 +31,6 @@ class PythonAnalysis(SymbolTable):
 
     def __init__(
         self,
-        analysis_backend: str,
         eager_analysis: bool,
         project_dir: str | Path | None,
         source_code: str | None,
@@ -45,16 +44,7 @@ class PythonAnalysis(SymbolTable):
         self.analysis_backend_path = analysis_backend_path
         self.eager_analysis = eager_analysis
         self.use_graalvm_binary = use_graalvm_binary
-
-        # Initialize the analysis analysis_backend
-        if analysis_backend.lower() == "codeql":
-            raise NotImplementedError("Support for {analysis_backend} has not been implemented yet.")
-        elif analysis_backend.lower() == "codeanalyzer":
-            raise NotImplementedError("Support for {analysis_backend} has not been implemented yet.")
-        elif analysis_backend.lower() == "treesitter":
-            self.analysis_backend: PythonSitter = PythonSitter()
-        else:
-            raise NotImplementedError("Support for {analysis_backend} has not been implemented yet.")
+        self.analysis_backend: TreesitterPython = TreesitterPython()
 
     def get_methods(self) -> List[PyMethod]:
         """
@@ -96,7 +86,7 @@ class PythonAnalysis(SymbolTable):
         Returns:
             True if the code is parsable, False otherwise
         """
-        return PythonSitter().is_parsable(source_code)
+        return TreesitterPython().is_parsable(source_code)
 
     def get_raw_ast(self, source_code: str) -> str:
         """
@@ -107,7 +97,7 @@ class PythonAnalysis(SymbolTable):
         Returns:
             Tree: the raw AST
         """
-        return PythonSitter().get_raw_ast(source_code)
+        return TreesitterPython().get_raw_ast(source_code)
 
     def get_imports(self) -> List[PyImport]:
         """

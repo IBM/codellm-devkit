@@ -19,19 +19,17 @@ Java module
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Set, Union
+from typing import Dict, List, Tuple, Set, Union
 import networkx as nx
 
 from tree_sitter import Tree
 
-from cldk.analysis import SymbolTable, CallGraph, AnalysisLevel
-from cldk.analysis.java.treesitter import JavaSitter
+from cldk.analysis import SymbolTable, CallGraph
+from cldk.analysis.commons.treesitter import TreesitterJava
 from cldk.models.java import JCallable
 from cldk.models.java import JApplication
 from cldk.models.java.models import JCRUDOperation, JCompilationUnit, JMethodDetail, JType, JField
 from cldk.analysis.java.codeanalyzer import JCodeanalyzer
-from cldk.analysis.java.codeql import JCodeQL
-from cldk.utils.analysis_engine import AnalysisEngine
 
 
 class JavaAnalysis(SymbolTable, CallGraph):
@@ -40,7 +38,6 @@ class JavaAnalysis(SymbolTable, CallGraph):
         self,
         project_dir: str | Path | None,
         source_code: str | None,
-        analysis_backend: str,
         analysis_backend_path: str | None,
         analysis_json_path: str | Path | None,
         analysis_level: str,
@@ -53,7 +50,6 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Args:
             project_dir (str | Path | None): The directory path of the project.
             source_code (str | None): Java file for single source file analysis.
-            analysis_backend (str): The analysis_backend used for analysis. Currently 'codeql' and 'codeanalyzer' are supported.
             analysis_backend_path (str | None): The path to the analysis_backend, defaults to None and in the case of codeql, it is assumed that the cli is installed and available in the PATH. In the case of codeanalyzer the codeanalyzer.jar is downloaded from the lastest release.
             analysis_json_path (str | Path | None): The path save the to the analysis database (analysis.json), defaults to None. If None, the analysis database is not persisted.
             analysis_level (str): Analysis level (symbol-table, call-graph)
@@ -75,24 +71,19 @@ class JavaAnalysis(SymbolTable, CallGraph):
         self.analysis_backend_path = analysis_backend_path
         self.eager_analysis = eager_analysis
         self.use_graalvm_binary = use_graalvm_binary
-        self.analysis_backend = analysis_backend
         self.target_files = target_files
+        self.treesitter_java: TreesitterJava = TreesitterJava()
         # Initialize the analysis analysis_backend
-        if analysis_backend.lower() == "codeql":
-            self.analysis_backend: JCodeQL = JCodeQL(self.project_dir, self.analysis_json_path)
-        elif analysis_backend.lower() == "codeanalyzer":
-            self.backend: JCodeanalyzer = JCodeanalyzer(
-                project_dir=self.project_dir,
-                source_code=self.source_code,
-                eager_analysis=self.eager_analysis,
-                analysis_level=self.analysis_level,
-                analysis_json_path=self.analysis_json_path,
-                use_graalvm_binary=self.use_graalvm_binary,
-                analysis_backend_path=self.analysis_backend_path,
-                target_files=self.target_files,
-            )
-        else:
-            raise NotImplementedError(f"Support for {analysis_backend} has not been implemented yet.")
+        self.backend: JCodeanalyzer = JCodeanalyzer(
+            project_dir=self.project_dir,
+            source_code=self.source_code,
+            eager_analysis=self.eager_analysis,
+            analysis_level=self.analysis_level,
+            analysis_json_path=self.analysis_json_path,
+            use_graalvm_binary=self.use_graalvm_binary,
+            analysis_backend_path=self.analysis_backend_path,
+            target_files=self.target_files,
+        )
 
     def get_imports(self) -> List[str]:
         """Should return  all the imports in the source code.
@@ -159,15 +150,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             List[JCompilationUnit]: Compilation units of the Java code.
         """
-
-        # TODO: This code is broken:
-        # JCodeanalyzer does not have a get_compilation_units() method
-        # Commenting out until implemented
-
-        # if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-        #     raise NotImplementedError("Support for this functionality has not been implemented yet.")
-        # return self.backend.get_compilation_units()
-        raise NotImplementedError("Support for this functionality has not been implemented yet.")
+        return self.backend.get_compilation_units()
 
     def get_class_hierarchy(self) -> nx.DiGraph:
         """Should return  class hierarchy of the java code.
@@ -179,8 +162,6 @@ class JavaAnalysis(SymbolTable, CallGraph):
             nx.DiGraph: The class hierarchy of the Java code.
         """
 
-        if self.backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         raise NotImplementedError("Class hierarchy is not implemented yet.")
 
     def is_parsable(self, source_code: str) -> bool:
@@ -192,7 +173,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             True if the code is parsable, False otherwise
         """
-        return JavaSitter().is_parsable(source_code)
+        return self.treesitter_java.is_parsable(source_code)
 
     def get_raw_ast(self, source_code: str) -> Tree:
         """
@@ -203,7 +184,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         Returns:
             Tree: the raw AST
         """
-        return JavaSitter().get_raw_ast(source_code)
+        return self.treesitter_java.get_raw_ast(source_code)
 
     def get_call_graph(self) -> nx.DiGraph:
         """Should return  the call graph of the Java code.
@@ -267,26 +248,22 @@ class JavaAnalysis(SymbolTable, CallGraph):
         """Should return  all methods in the Java code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, Dict[str, JCallable]]: Dictionary of dictionaries of all methods in the Java code with qualified class name as key and dictionary of methods in that class.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_all_methods_in_application()
 
     def get_classes(self) -> Dict[str, JType]:
         """Should return  all classes in the Java code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, JType]: A dictionary of all classes in the Java code, with qualified class names as keys.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_all_classes()
 
     def get_classes_by_criteria(self, inclusions=None, exclusions=None) -> Dict[str, JType]:
@@ -297,15 +274,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             exclusions (List, optional): exclusion criteria for the classes. Defaults to None.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, JType]: A dict of all classes in the Java code, with qualified class names as keys
         """
-
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
-
         if exclusions is None:
             exclusions = []
         if inclusions is None:
@@ -332,14 +305,12 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_class_name (str): The qualified name of the class.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             JType: Class object for the given qualified class name.
         """
 
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_class(qualified_class_name)
 
     def get_method(self, qualified_class_name: str, qualified_method_name: str) -> JCallable:
@@ -350,13 +321,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_method_name (str): The qualified name of the method.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             JCallable: A method for the given qualified method name.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_method(qualified_class_name, qualified_method_name)
 
     def get_java_file(self, qualified_class_name: str) -> str:
@@ -366,13 +335,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_class_name (str): The qualified name of the class.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             str: Java file name containing the given qualified class.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_java_file(qualified_class_name)
 
     def get_java_compilation_unit(self, file_path: str) -> JCompilationUnit:
@@ -382,13 +349,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             file_path (str): Absolute path to Java source file
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             JCompilationUnit: Compilation unit object for Java source file
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_java_compilation_unit(file_path)
 
     def get_methods_in_class(self, qualified_class_name) -> Dict[str, JCallable]:
@@ -398,13 +363,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_class_name (str): qualified class name
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, JCallable]: A dictionary of all constructors of the given class.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_all_methods_in_class(qualified_class_name)
 
     def get_constructors(self, qualified_class_name) -> Dict[str, JCallable]:
@@ -414,13 +377,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_class_name (str): qualified class name
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, JCallable]: A dictionary of all constructors of the given class.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_all_constructors(qualified_class_name)
 
     def get_fields(self, qualified_class_name) -> List[JField]:
@@ -430,13 +391,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_class_name (str): qualified class name
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[JField]: A list of all fields of the given class.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_all_fields(qualified_class_name)
 
     def get_nested_classes(self, qualified_class_name) -> List[JType]:
@@ -446,13 +405,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_class_name (str): qualified class name
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[JType]: A list of nested classes for the given class.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_all_nested_classes(qualified_class_name)
 
     def get_sub_classes(self, qualified_class_name) -> Dict[str, JType]:
@@ -472,13 +429,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_class_name (str): The qualified name of the class.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[str]: A list of extended classes for the given class.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_extended_classes(qualified_class_name)
 
     def get_implemented_interfaces(self, qualified_class_name: str) -> List[str]:
@@ -488,13 +443,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             qualified_class_name (str): The qualified name of the class.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[str]: A list of implemented interfaces for the given class.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_implemented_interfaces(qualified_class_name)
 
     def __get_class_call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
@@ -505,13 +458,11 @@ class JavaAnalysis(SymbolTable, CallGraph):
             method_signature (str | None, optional): The signature of the method in the class.. Defaults to None.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[Tuple[JMethodDetail, JMethodDetail]]: An edge list of the call graph for the given class and method.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph_using_symbol_table(qualified_class_name, method_signature)
 
     def get_class_call_graph(self, qualified_class_name: str, method_signature: str | None = None, using_symbol_table: bool = False) -> List[Tuple[JMethodDetail, JMethodDetail]]:
@@ -523,48 +474,42 @@ class JavaAnalysis(SymbolTable, CallGraph):
             using_symbol_table (bool, optional): Generate call graph using symbol table. Defaults to False.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[Tuple[JMethodDetail, JMethodDetail]]: An edge list of the call graph for the given class and method.
         """
         if using_symbol_table:
             return self.__get_class_call_graph_using_symbol_table(qualified_class_name=qualified_class_name, method_signature=method_signature)
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_class_call_graph(qualified_class_name, method_signature)
 
     def get_entry_point_classes(self) -> Dict[str, JType]:
         """Should return  a dictionary of all entry point classes in the Java code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, JType]: A dict of all entry point classes in the Java code, with qualified class names as keys
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_all_entry_point_classes()
 
     def get_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
         """Should return  a dictionary of all entry point methods in the Java code with qualified class name as key and dictionary of methods in that class as value
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, Dict[str, JCallable]]: A dictionary of dictionaries of entry point methods in the Java code.
         """
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.TREESITTER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
         return self.backend.get_all_entry_point_methods()
 
     def remove_all_comments(self) -> str:
         """Remove all comments from the source code.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             str: The source code with all comments removed.
@@ -578,7 +523,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
             annotations (List[str]): List of annotation strings.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, List[Dict]]: Dictionary with annotations as keys and a list of dictionaries containing method names and bodies, as values.
@@ -587,21 +532,16 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_test_methods(self) -> Dict[str, str]:
-        """Should return  a dictionary of method names and method bodies.
-
-        Args:
-            source_class_code (str): String containing code for a java class.
+        """Should return  a dictionary of method names and method bodies
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             Dict[str, str]: Dictionary of method names and method bodies.
         """
 
-        if self.analysis_backend in [AnalysisEngine.CODEQL, AnalysisEngine.CODEANALYZER]:
-            raise NotImplementedError("Support for this functionality has not been implemented yet.")
-        return self.backend.get_test_methods(self.source_code)
+        return self.treesitter_java.get_test_methods(source_class_code=self.source_code)
 
     def get_calling_lines(self, target_method_name: str) -> List[int]:
         """Should return  a list of line numbers in source method block where target method is called.
@@ -610,7 +550,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
             target_method_name (str): target method  name.
 
         Raises:
-            NotImplementedError: Raised when current AnalysisEngine does not support this function.
+            NotImplementedError: Raised when we do not support this function.
 
         Returns:
             List[int]: List of line numbers within in source method code block.

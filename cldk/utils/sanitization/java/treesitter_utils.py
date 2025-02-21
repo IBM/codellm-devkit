@@ -22,10 +22,10 @@ import re
 from copy import deepcopy
 from typing import Dict, List, Any, LiteralString
 
-from cldk.analysis.java.treesitter import JavaSitter
-from cldk.models.treesitter import Captures
+from cldk.analysis.commons.treesitter.treesitter_java import TreesitterJava
+from cldk.analysis.commons.treesitter.models import Captures
 
-java_sitter = JavaSitter()
+java_sitter = TreesitterJava()
 
 
 def _replace_in_source(

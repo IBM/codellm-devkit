@@ -22,8 +22,8 @@ import logging
 from copy import deepcopy
 from typing import Dict, List, Set
 
-from cldk.analysis.java.treesitter import JavaSitter
-from cldk.models.treesitter import Captures
+from cldk.analysis.commons.treesitter import TreesitterJava
+from cldk.analysis.commons.treesitter.models import Captures
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class TreesitterSanitizer:
     def __init__(self, source_code):
         self.source_code = source_code
         self.sanitized_code = deepcopy(self.source_code)
-        self.__javasitter = JavaSitter()
+        self.__javasitter = TreesitterJava()
 
     def keep_only_focal_method_and_its_callees(self, focal_method: str) -> str:
         """Remove all methods except the focal method and its callees.

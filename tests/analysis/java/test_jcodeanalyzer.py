@@ -372,7 +372,7 @@ def test_get_all_callers(test_fixture, analysis_json):
         # Call using symbol table
 
         # TODO: This currently doesn't work. Code has bad call as seen in this error message:
-        # TypeError: JavaSitter.get_calling_lines() missing 1 required positional argument: 'is_target_method_a_constructor'
+        # TypeError: TreesitterJava.get_calling_lines() missing 1 required positional argument: 'is_target_method_a_constructor'
         all_callers = code_analyzer.get_all_callers("com.ibm.websphere.samples.daytrader.util.Log", "log(String)", True)
         assert all_callers is not None
         assert isinstance(all_callers, Dict)
@@ -406,7 +406,7 @@ def test_get_all_callees(test_fixture, analysis_json):
         # Call using the symbol table
 
         # TODO: Throws the following exception
-        # TypeError: JavaSitter.get_calling_lines() missing 1 required positional argument: 'is_target_method_a_constructor'
+        # TypeError: TreesitterJava.get_calling_lines() missing 1 required positional argument: 'is_target_method_a_constructor'
         all_callees = code_analyzer.get_all_callees("com.ibm.websphere.samples.daytrader.util.Log", "printCollection(String, Collection)", True)
         assert all_callees is not None
         assert isinstance(all_callees, Dict)
