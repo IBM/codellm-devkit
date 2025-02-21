@@ -229,7 +229,7 @@ class JavaSitter:
             return self.safe_ascend(node.parent, ascend_count - 1)
 
     def get_call_targets(self, method_body: str, declared_methods: dict) -> Set[str]:
-        """Generate a list of call targets from the method body.
+        """Should generate a list of call targets from the method body.
 
         Uses simple name resolution for finding the call targets. Nothing sophisticated here. Just a simple search
         over the AST.

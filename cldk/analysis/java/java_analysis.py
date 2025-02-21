@@ -95,7 +95,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
             raise NotImplementedError(f"Support for {analysis_backend} has not been implemented yet.")
 
     def get_imports(self) -> List[str]:
-        """returns all the imports in the source code.
+        """Should return  all the imports in the source code.
 
         Raises:
             NotImplementedError: Raised when this functionality is not suported.
@@ -114,7 +114,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_service_entry_point_classes(self, **kwargs):
-        """returns all service entry point classes.
+        """Should return  all service entry point classes.
 
         Raises:
             NotImplementedError: Raised when this functionality is not suported.
@@ -122,7 +122,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_service_entry_point_methods(self, **kwargs):
-        """returns all the service entry point methods.
+        """Should return  all the service entry point methods.
 
         Raises:
             NotImplementedError: Raised when this functionality is not suported.
@@ -130,7 +130,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_application_view(self) -> JApplication:
-        """returns application view of the java code.
+        """Should return  application view of the java code.
 
         Raises:
             NotImplementedError: Raised when this functionality is not suported.
@@ -143,7 +143,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_application_view()
 
     def get_symbol_table(self) -> Dict[str, JCompilationUnit]:
-        """returns symbol table.
+        """Should return  symbol table.
 
         Returns:
             Dict[str, JCompilationUnit]: Symbol table
@@ -151,7 +151,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_symbol_table()
 
     def get_compilation_units(self) -> List[JCompilationUnit]:
-        """returns a list of all compilation units in the java code.
+        """Should return  a list of all compilation units in the java code.
 
         Raises:
             NotImplementedError: Raised when this functionality is not supported.
@@ -170,7 +170,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_class_hierarchy(self) -> nx.DiGraph:
-        """returns class hierarchy of the java code.
+        """Should return  class hierarchy of the java code.
 
         Raises:
             NotImplementedError: Raised when this functionality is not suported.
@@ -206,7 +206,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return JavaSitter().get_raw_ast(source_code)
 
     def get_call_graph(self) -> nx.DiGraph:
-        """returns the call graph of the Java code.
+        """Should return  the call graph of the Java code.
 
         Returns:
             nx.DiGraph: The call graph of the Java code.
@@ -214,7 +214,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_call_graph()
 
     def get_call_graph_json(self) -> str:
-        """returns a serialized call graph in json.
+        """Should return  a serialized call graph in json.
 
         Raises:
             NotImplementedError: Raised when this functionality is not suported.
@@ -227,7 +227,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_call_graph_json()
 
     def get_callers(self, target_class_name: str, target_method_declaration: str, using_symbol_table: bool = False) -> Dict:
-        """returns a dictionary of callers of the target method.
+        """Should return  a dictionary of callers of the target method.
 
         Args:
             target_class_name (str): Qualified target class name.
@@ -246,7 +246,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_callers(target_class_name, target_method_declaration, using_symbol_table)
 
     def get_callees(self, source_class_name: str, source_method_declaration: str, using_symbol_table: bool = False) -> Dict:
-        """returns a dictionary of callees by the given method in the given class.
+        """Should return  a dictionary of callees by the given method in the given class.
 
         Args:
             source_class_name (str): Qualified class name where the given method is.
@@ -264,7 +264,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_callees(source_class_name, source_method_declaration, using_symbol_table)
 
     def get_methods(self) -> Dict[str, Dict[str, JCallable]]:
-        """returns all methods in the Java code.
+        """Should return  all methods in the Java code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -277,7 +277,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_methods_in_application()
 
     def get_classes(self) -> Dict[str, JType]:
-        """returns all classes in the Java code.
+        """Should return  all classes in the Java code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -290,7 +290,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_classes()
 
     def get_classes_by_criteria(self, inclusions=None, exclusions=None) -> Dict[str, JType]:
-        """returns a dictionary of all classes with the given criteria, in the Java code.
+        """Should return  a dictionary of all classes with the given criteria, in the Java code.
 
         Args:
             inclusions (List, optional): inlusion criteria for the classes. Defaults to None.
@@ -326,7 +326,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return class_dict
 
     def get_class(self, qualified_class_name: str) -> JType:
-        """returns a class object given qualified class name.
+        """Should return  a class object given qualified class name.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -343,7 +343,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_class(qualified_class_name)
 
     def get_method(self, qualified_class_name: str, qualified_method_name: str) -> JCallable:
-        """returns a method object given qualified class and method names.
+        """Should return  a method object given qualified class and method names.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -360,7 +360,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_method(qualified_class_name, qualified_method_name)
 
     def get_java_file(self, qualified_class_name: str) -> str:
-        """returns a class given qualified class name.
+        """Should return  a class given qualified class name.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -392,7 +392,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_java_compilation_unit(file_path)
 
     def get_methods_in_class(self, qualified_class_name) -> Dict[str, JCallable]:
-        """returns a dictionary of all methods of the given class.
+        """Should return  a dictionary of all methods of the given class.
 
         Args:
             qualified_class_name (str): qualified class name
@@ -408,7 +408,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_methods_in_class(qualified_class_name)
 
     def get_constructors(self, qualified_class_name) -> Dict[str, JCallable]:
-        """returns a dictionary of all constructors of the given class.
+        """Should return  a dictionary of all constructors of the given class.
 
         Args:
             qualified_class_name (str): qualified class name
@@ -424,7 +424,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_constructors(qualified_class_name)
 
     def get_fields(self, qualified_class_name) -> List[JField]:
-        """returns a dictionary of all fields of the given class
+        """Should return  a dictionary of all fields of the given class
 
         Args:
             qualified_class_name (str): qualified class name
@@ -440,7 +440,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_fields(qualified_class_name)
 
     def get_nested_classes(self, qualified_class_name) -> List[JType]:
-        """returns a dictionary of all nested classes of the given class
+        """Should return  a dictionary of all nested classes of the given class
 
         Args:
             qualified_class_name (str): qualified class name
@@ -456,7 +456,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_nested_classes(qualified_class_name)
 
     def get_sub_classes(self, qualified_class_name) -> Dict[str, JType]:
-        """returns a dictionary of all sub-classes of the given class
+        """Should return  a dictionary of all sub-classes of the given class
 
         Args:
             qualified_class_name (str): qualified class name
@@ -467,7 +467,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_sub_classes(qualified_class_name=qualified_class_name)
 
     def get_extended_classes(self, qualified_class_name) -> List[str]:
-        """returns a list of all extended classes for the given class.
+        """Should return  a list of all extended classes for the given class.
         Args:
             qualified_class_name (str): The qualified name of the class.
 
@@ -482,7 +482,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_extended_classes(qualified_class_name)
 
     def get_implemented_interfaces(self, qualified_class_name: str) -> List[str]:
-        """returns a list of all implemented interfaces for the given class.
+        """Should return  a list of all implemented interfaces for the given class.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -535,7 +535,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_class_call_graph(qualified_class_name, method_signature)
 
     def get_entry_point_classes(self) -> Dict[str, JType]:
-        """returns a dictionary of all entry point classes in the Java code.
+        """Should return  a dictionary of all entry point classes in the Java code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -548,7 +548,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_entry_point_classes()
 
     def get_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
-        """returns a dictionary of all entry point methods in the Java code with qualified class name as key and dictionary of methods in that class as value
+        """Should return  a dictionary of all entry point methods in the Java code with qualified class name as key and dictionary of methods in that class as value
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -572,7 +572,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.remove_all_comments(self.source_code)
 
     def get_methods_with_annotations(self, annotations: List[str]) -> Dict[str, List[Dict]]:
-        """returns a dictionary of method names and method bodies.
+        """Should return  a dictionary of method names and method bodies.
 
         Args:
             annotations (List[str]): List of annotation strings.
@@ -587,7 +587,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_test_methods(self) -> Dict[str, str]:
-        """returns a dictionary of method names and method bodies.
+        """Should return  a dictionary of method names and method bodies.
 
         Args:
             source_class_code (str): String containing code for a java class.
@@ -604,7 +604,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_test_methods(self.source_code)
 
     def get_calling_lines(self, target_method_name: str) -> List[int]:
-        """returns a list of line numbers in source method block where target method is called.
+        """Should return  a list of line numbers in source method block where target method is called.
 
         Args:
             target_method_name (str): target method  name.
@@ -629,7 +629,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         raise NotImplementedError("Support for this functionality has not been implemented yet.")
 
     def get_all_crud_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """returns a dictionary of all CRUD operations in the source code.
+        """Should return  a dictionary of all CRUD operations in the source code.
 
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all CRUD operations in the source code.
@@ -637,7 +637,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_crud_operations()
 
     def get_all_create_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """returns a list of all create operations in the source code.
+        """Should return  a list of all create operations in the source code.
 
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all create operations in the source code.
@@ -645,7 +645,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_create_operations()
 
     def get_all_read_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """returns a list of all read operations in the source code.
+        """Should return  a list of all read operations in the source code.
 
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all read operations in the source code.
@@ -653,7 +653,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_read_operations()
 
     def get_all_update_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """returns a list of all update operations in the source code.
+        """Should return  a list of all update operations in the source code.
 
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all update operations in the source code.
@@ -661,7 +661,7 @@ class JavaAnalysis(SymbolTable, CallGraph):
         return self.backend.get_all_update_operations()
 
     def get_all_delete_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """returns a list of all delete operations in the source code.
+        """Should return  a list of all delete operations in the source code.
 
         Returns:
             List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]: A list of all delete operations in the source code.

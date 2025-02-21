@@ -44,7 +44,7 @@ def test_method_is_not_in_class(test_fixture):
 
 
 def test_is_parsable(test_fixture):
-    """be able to parse the file"""
+    """Should be able to parse the file"""
     java_sitter = JavaSitter()
 
     # Get a test source file and send its contents
@@ -63,7 +63,7 @@ def test_is_parsable(test_fixture):
 
 
 def test_get_raw_ast(test_fixture):
-    """return the raw AST"""
+    """Should return the raw AST"""
     java_sitter = JavaSitter()
 
     # Get a test source file and send its contents
@@ -78,7 +78,7 @@ def test_get_raw_ast(test_fixture):
 
 
 def test_get_all_imports(test_fixture):
-    """return all of the imports"""
+    """Should return all of the imports"""
     java_sitter = JavaSitter()
 
     # Get a test source file and send its contents
@@ -97,7 +97,7 @@ def test_get_all_imports(test_fixture):
 
 
 def test_get_package_name(test_fixture):
-    """return the package name"""
+    """Should return the package name"""
     java_sitter = JavaSitter()
 
     # Get a test source file and send its contents
@@ -112,7 +112,7 @@ def test_get_package_name(test_fixture):
 
 
 def test_get_class_name(test_fixture):
-    """return the class name"""
+    """Should return the class name"""
     java_sitter = JavaSitter()
 
     # Get a test source file and send its contents
@@ -127,7 +127,7 @@ def test_get_class_name(test_fixture):
 
 
 def test_get_superclass(test_fixture):
-    """return the superclass name"""
+    """Should return the superclass name"""
     java_sitter = JavaSitter()
 
     # Get a test source file with no supper class
@@ -157,7 +157,7 @@ def test_get_superclass(test_fixture):
 
 
 def test_get_all_interfaces(test_fixture):
-    """return all interfaces"""
+    """Should return all interfaces"""
     java_sitter = JavaSitter()
 
     # Get a test source file with interfaces
@@ -184,7 +184,7 @@ def test_get_all_interfaces(test_fixture):
 
 
 def test_get_method_name_from_declaration():
-    """return the method name from a declarations"""
+    """Should return the method name from a declarations"""
     java_sitter = JavaSitter()
 
     declaration = "public Future<?> submitOrder(Integer orderID, boolean twoPhase)"
@@ -195,7 +195,7 @@ def test_get_method_name_from_declaration():
 
 
 def test_get_method_name_from_invocation():
-    """return the method name from an invocation"""
+    """Should return the method name from an invocation"""
     java_sitter = JavaSitter()
 
     invocation = "asyncOrder.setProperties(orderID,twoPhase);"
@@ -206,7 +206,7 @@ def test_get_method_name_from_invocation():
 
 
 def test_get_identifier_from_arbitrary_statement():
-    """return the method name from an arbitrary statement"""
+    """Should return the method name from an arbitrary statement"""
     java_sitter = JavaSitter()
 
     arbitrary_statement = "asyncOrder.setProperties(orderID,twoPhase);"
@@ -295,7 +295,7 @@ def test_get_calling_lines():
 
 
 def test_get_test_methods(test_fixture):
-    """return the test methods"""
+    """Should return the test methods"""
     java_sitter = JavaSitter()
 
     # TODO: Need to find an example with test methods
@@ -312,7 +312,7 @@ def test_get_test_methods(test_fixture):
 
 
 def test_get_methods_with_annotations(test_fixture):
-    """return methods with annotations"""
+    """Should return methods with annotations"""
     java_sitter = JavaSitter()
 
     # Get a test source file with annotations
@@ -333,7 +333,7 @@ def test_get_methods_with_annotations(test_fixture):
 
 
 def test_get_all_type_invocations(test_fixture):
-    """return all of the type invocations"""
+    """Should return all of the type invocations"""
     java_sitter = JavaSitter()
 
     # Get a test source file
@@ -376,7 +376,7 @@ def test_get_method_return_type():
 
 
 def test_get_lexical_tokens(test_fixture):
-    """return the lexical tokens"""
+    """Should return the lexical tokens"""
     java_sitter = JavaSitter()
 
     # Get a test source file

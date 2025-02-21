@@ -74,7 +74,7 @@ class JCodeQL:
 
     @staticmethod
     def _init_codeql_db(project_dir: Union[str, Path], codeql_db: Union[str, Path, None]) -> Path:
-        """Initializes the CodeQL database.
+        """Should initialize the CodeQL database.
 
         Parameters
         ----------

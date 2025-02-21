@@ -66,11 +66,11 @@ class Captures:
         return self.captures[index]
 
     def __iter__(self):
-        """return an iterator over the captures."""
+        """Should return an iterator over the captures."""
         return iter(self.captures)
 
     def __len__(self) -> int:
-        """return the number of captures."""
+        """Should return the number of captures."""
         return len(self.captures)
 
     def __add__(self, other: "Captures") -> "Captures":
