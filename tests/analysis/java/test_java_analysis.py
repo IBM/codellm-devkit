@@ -30,7 +30,7 @@ import networkx as nx
 from cldk import CLDK
 from cldk.analysis import AnalysisLevel
 from cldk.analysis.java import JavaAnalysis
-from cldk.models.java.models import JCallable, JCompilationUnit, JField, JMethodDetail, JApplication, JType
+from cldk.models.java.models import JCallable, JCallableParameter, JComment, JCompilationUnit, JField, JMethodDetail, JApplication, JType
 
 
 def test_get_symbol_table_is_not_null(test_fixture, analysis_json):
@@ -579,6 +579,34 @@ def test_get_method(test_fixture, analysis_json):
         assert the_method.declaration == "public static void trace(String message)"
 
 
+def test_get_method_parameters(test_fixture, analysis_json):
+    """Should return a method parameters"""
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        java_analysis = JavaAnalysis(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.symbol_table,
+            target_files=None,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+        )
+
+        the_method_parameters = java_analysis.get_method_parameters("com.ibm.websphere.samples.daytrader.util.Log", "trace(String)")
+        assert the_method_parameters is not None
+        assert isinstance(the_method_parameters, List)
+        assert len(the_method_parameters) == 1
+        the_method_parameter: JCallableParameter = the_method_parameters[0]
+        the_method_parameter.start_line >= 0
+        the_method_parameter.end_line >= 0
+        the_method_parameter.start_column >= 0
+        the_method_parameter.end_column >= 0
+
+
 def test_get_java_file(test_fixture, analysis_json):
     """Should return the java file and compilation unit"""
 
@@ -1016,3 +1044,61 @@ def test_get_call_targets(test_fixture, analysis_json):
             return
 
         assert False, "Did not raise NotImplementedError"
+
+
+def test_get_all_comments(test_fixture, analysis_json):
+    """Should return all comments"""
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        java_analysis = JavaAnalysis(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.call_graph,
+            target_files=None,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+        )
+
+        all_comments = java_analysis.get_all_comments()
+        assert all_comments is not None
+        assert isinstance(all_comments, Dict)
+        assert len(all_comments) > 0
+        for file_name, list_of_comments in all_comments.items():
+            print(f"File name: {file_name}")
+            assert isinstance(list_of_comments, List)
+            assert len(list_of_comments) > 0
+            for comment in list_of_comments:
+                assert isinstance(comment, JComment)
+                if comment.content:
+                    print(f"Comment: {comment.content}")
+
+
+def test_get_all_docstrings(test_fixture, analysis_json):
+    """Should return all docstrings"""
+
+    # Patch subprocess so that it does not run codeanalyzer
+    with patch("cldk.analysis.java.codeanalyzer.codeanalyzer.subprocess.run") as run_mock:
+        run_mock.return_value = MagicMock(stdout=analysis_json, returncode=0)
+        java_analysis = JavaAnalysis(
+            project_dir=test_fixture,
+            source_code=None,
+            analysis_backend_path=None,
+            analysis_json_path=None,
+            analysis_level=AnalysisLevel.call_graph,
+            target_files=None,
+            use_graalvm_binary=False,
+            eager_analysis=False,
+        )
+
+        all_docstrings = java_analysis.get_all_docstrings()
+        assert all_docstrings is not None
+        assert isinstance(all_docstrings, List)
+        assert len(all_docstrings) > 0
+        for file_name, docstring in all_docstrings:
+            print(f"File name: {file_name}")
+            assert isinstance(docstring, JComment)
+            print(f"Docstring: {docstring.content}")

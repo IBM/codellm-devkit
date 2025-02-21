@@ -17,18 +17,58 @@
 """
 Models module
 """
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, field_validator
 from cldk.models.java.enums import CRUDOperationType, CRUDQueryType
 
 _CALLABLES_LOOKUP_TABLE = dict()
 
 
+class JComment(BaseModel):
+    """Represents a comment in Java code.
+
+    Attributes:
+        content (str): The content of the comment.
+        start_line (int): The starting line number of the comment in the source file.
+        end_line (int): The ending line number of the comment in the source file.
+        start_column (int): The starting column of the comment in the source file.
+        end_column (int): The ending column of the comment in the source file.
+        is_javadoc (bool): A flag indicating whether the comment is a Javadoc comment.
+    """
+
+    content: str | None = None
+    start_line: int = -1
+    end_line: int = -1
+    start_column: int = -1
+    end_column: int = -1
+    is_javadoc: bool = False
+
+
+class JRecordComponent(BaseModel):
+    """Represents a component of a Java record.
+
+    Attributes:
+        comment (JComment): The comment associated with the component.
+        name (str): The name of the component.
+        type (str): The type of the component.
+        annotations (List[str]): The annotations applied to the component.
+        modifiers (List[str]): The modifiers applied to the component.
+    """
+
+    comment: JComment | None
+    name: str
+    type: str
+    modifiers: List[str]
+    annotations: List[str]
+    default_value: Union[str, None, Any] = None
+    is_var_args: bool = False
+
+
 class JField(BaseModel):
     """Represents a field in a Java class or interface.
 
     Attributes:
-        comment (str): The comment associated with the field.
+        comment (JComment): The comment associated with the field.
         name (str): The name of the field.
         type (str): The type of the field.
         start_line (int): The starting line number of the field in the source file.
@@ -38,7 +78,7 @@ class JField(BaseModel):
         annotations (List[str]): The annotations applied to the field.
     """
 
-    comment: str
+    comment: JComment | None
     type: str
     start_line: int
     end_line: int
@@ -55,12 +95,20 @@ class JCallableParameter(BaseModel):
         type (str): The type of the parameter.
         annotations (List[str]): The annotations applied to the parameter.
         modifiers (List[str]): The modifiers applied to the parameter.
+        start_line (int): The starting line number of the parameter in the source file.
+        end_line (int): The ending line number of the parameter in the source file.
+        start_column (int): The starting column of the parameter in the source file.
+        end_column (int): The ending column of the parameter in the source file.
     """
 
     name: str | None
     type: str
     annotations: List[str]
     modifiers: List[str]
+    start_line: int
+    end_line: int
+    start_column: int
+    end_column: int
 
 
 class JEnumConstant(BaseModel):
@@ -105,6 +153,7 @@ class JCallSite(BaseModel):
     """Represents a call site.
 
     Attributes:
+        comment (JComment): The comment associated with the call site.
         method_name (str): The name of the method called at the call site.
         receiver_expr (str): Expression for the receiver of the method call.
         receiver_type (str): Name of type declaring the called method.
@@ -125,6 +174,7 @@ class JCallSite(BaseModel):
         end_column (int): The ending column of the call site.
     """
 
+    comment: JComment | None
     method_name: str
     receiver_expr: str = ""
     receiver_type: str
@@ -149,6 +199,7 @@ class JVariableDeclaration(BaseModel):
     """Represents a variable declaration.
 
     Attributes:
+        comment (JComment): The comment associated with the variable declaration.
         name (str): The name of the variable.
         type (str): The type of the variable.
         initializer (str): The initialization expression (if present) for the variable declaration.
@@ -158,6 +209,7 @@ class JVariableDeclaration(BaseModel):
         end_column (int): The ending column of the declaration.
     """
 
+    comment: JComment | None
     name: str
     type: str
     initializer: str
@@ -167,6 +219,40 @@ class JVariableDeclaration(BaseModel):
     end_column: int
 
 
+class InitializationBlock(BaseModel):
+    """Represents an initialization block in Java.
+
+    Attributes:
+        file_path (str): The path to the source file.
+        comments (List[JComment]): The comments associated with the block.
+        annotations (List[str]): The annotations applied to the block.
+        thrown_exceptions (List[str]): Exceptions declared via "throws".
+        code (str): The code block.
+        start_line (int): The starting line number of the block in the source file.
+        end_line (int): The ending line number of the block in the source file.
+        is_static (bool): A flag indicating whether the block is static.
+        referenced_types (List[str]): The types referenced within the block.
+        accessed_fields (List[str]): Fields accessed in the block.
+        call_sites (List[JCallSite]): Call sites in the block.
+        variable_declarations (List[JVariableDeclaration]): Local variable declarations in the block.
+        cyclomatic_complexity (int): Cyclomatic complexity of the block.
+    """
+
+    file_path: str
+    comments: List[JComment]
+    annotations: List[str]
+    thrown_exceptions: List[str]
+    code: str
+    start_line: int
+    end_line: int
+    is_static: bool
+    referenced_types: List[str]
+    accessed_fields: List[str]
+    call_sites: List[JCallSite]
+    variable_declarations: List[JVariableDeclaration]
+    cyclomatic_complexity: int
+
+
 class JCallable(BaseModel):
     """Represents a callable entity such as a method or constructor in Java.
 
@@ -174,7 +260,7 @@ class JCallable(BaseModel):
         signature (str): The signature of the callable.
         is_implicit (bool): A flag indicating whether the callable is implicit (e.g., a default constructor).
         is_constructor (bool): A flag indicating whether the callable is a constructor.
-        comment (str): The comment associated with the callable.
+        comment (List[JComment]): A list of comments associated with the callable.
         annotations (List[str]): The annotations applied to the callable.
         modifiers (List[str]): The modifiers applied to the callable (e.g., public, static).
         thrown_exceptions (List[str]): Exceptions declared via "throws".
@@ -197,7 +283,7 @@ class JCallable(BaseModel):
     signature: str
     is_implicit: bool
     is_constructor: bool
-    comment: str
+    comments: List[JComment]
     annotations: List[str]
     modifiers: List[str]
     thrown_exceptions: List[str] = []
@@ -236,7 +322,7 @@ class JType(BaseModel):
         is_annotation_declaration (bool): A flag indicating whether the object is an annotation declaration.
         is_record_declaration (bool): A flag indicating whether this object is a record declaration.
         is_concrete_class (bool): A flag indicating whether this is a concrete class.
-        comment (str): The comment of the class or interface.
+        comments (List[JComment]): A list of comments associated with the class/type.
         extends_list (List[str]): The list of classes or interfaces that the object extends.
         implements_list (List[str]): The list of interfaces that the object implements.
         modifiers (List[str]): The list of modifiers of the object.
@@ -258,29 +344,31 @@ class JType(BaseModel):
     is_annotation_declaration: bool = False
     is_record_declaration: bool = False
     is_concrete_class: bool = False
-    comment: str
+    comments: List[JComment] | None = []
     extends_list: List[str] | None = []
     implements_list: List[str] | None = []
     modifiers: List[str] | None = []
     annotations: List[str] | None = []
     parent_type: str
-    is_entrypoint_class: bool = False
     nested_type_declerations: List[str] | None = []
     callable_declarations: Dict[str, JCallable] = {}
     field_declarations: List[JField] = []
     enum_constants: List[JEnumConstant] | None = []
+    record_components: List[JRecordComponent] | None = []
+    initialization_blocks: List[InitializationBlock] | None = []
+    is_entrypoint_class: bool = False
 
 
 class JCompilationUnit(BaseModel):
     """Represents a compilation unit in Java.
 
     Attributes:
-        comment (str): A comment associated with the compilation unit.
+        comments (List[JComment]): A list of comments in the compilation unit.
         imports (List[str]): A list of import statements in the compilation unit.
         type_declarations (Dict[str, JType]): A dictionary mapping type names to their corresponding JType representations.
     """
 
-    comment: str
+    comments: List[JComment]
     imports: List[str]
     type_declarations: Dict[str, JType]
     is_modified: bool = False
@@ -342,6 +430,7 @@ class JGraphEdges(BaseModel):
         j_callable = _CALLABLES_LOOKUP_TABLE.get(
             (type_declaration, signature),
             JCallable(
+                comments=[],
                 signature=signature,
                 is_implicit=True,
                 is_constructor="<init>" in value["callable_declaration"],
@@ -350,7 +439,10 @@ class JGraphEdges(BaseModel):
                 modifiers=[],
                 thrown_exceptions=[],
                 declaration="",
-                parameters=[JCallableParameter(name=None, type=t, annotations=[], modifiers=[]) for t in value["callable_declaration"].split("(")[1].split(")")[0].split(",")],
+                parameters=[
+                    JCallableParameter(name=None, type=t, annotations=[], modifiers=[], start_column=-1, end_column=-1, start_line=-1, end_line=-1)
+                    for t in value["callable_declaration"].split("(")[1].split(")")[0].split(",")
+                ],
                 code="",
                 start_line=-1,
                 end_line=-1,
