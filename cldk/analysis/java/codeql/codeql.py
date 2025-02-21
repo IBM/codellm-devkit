@@ -21,7 +21,7 @@ CodeQL module
 from pathlib import Path
 import shlex
 import subprocess
-from networkx import DiGraph
+
 from pandas import DataFrame
 from cldk.models.java import JApplication
 from cldk.analysis.java.codeql.backend import CodeQLQueryRunner
@@ -158,7 +158,7 @@ class JCodeQL:
     @staticmethod
     def __process_class_hierarchy_pairs_to_tree(
         query_result: DataFrame,
-    ) -> DiGraph:
+    ) -> nx.DiGraph:
         """
         Processes the query result into a directed graph representing the class hierarchy of the application.
 
@@ -169,17 +169,17 @@ class JCodeQL:
 
         Returns
         -------
-        DiGraph
+        nx.DiGraph
             A directed graph representing the class hierarchy of the application.
         """
         return nx.from_pandas_edgelist(query_result, "class", "superclass", create_using=nx.DiGraph())
 
-    def _build_call_graph(self) -> DiGraph:
+    def _build_call_graph(self) -> nx.DiGraph:
         """Builds the call graph of the application.
 
         Returns
         -------
-        DiGraph
+        nx.DiGraph
             A directed graph representing the call graph of the application.
         """
         query = []
@@ -250,9 +250,9 @@ class JCodeQL:
             )
 
         # Process the query results into JMethod instances
-        callgraph: DiGraph = self.__process_call_edges_to_callgraph(query_result)
+        callgraph: nx.DiGraph = self.__process_call_edges_to_callgraph(query_result)
         return callable
 
     @staticmethod
-    def __process_call_edges_to_callgraph(query_result: DataFrame) -> DiGraph:
+    def __process_call_edges_to_callgraph(query_result: DataFrame) -> nx.DiGraph:
         pass

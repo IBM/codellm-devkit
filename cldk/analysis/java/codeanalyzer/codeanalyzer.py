@@ -26,7 +26,6 @@ from typing import Any, Dict, List, Tuple
 from typing import Union
 
 import networkx as nx
-from networkx import DiGraph
 
 from cldk.analysis import AnalysisLevel
 from cldk.analysis.java.treesitter import JavaSitter
@@ -76,13 +75,13 @@ class JCodeanalyzer:
         get_system_dependency_graph() -> list[JGraphEdges]:
             Runs the codeanalyzer to get the system dependency graph.
 
-        _generate_call_graph(using_symbol_table: bool) -> DiGraph:
+        _generate_call_graph(using_symbol_table: bool) -> nx.DiGraph:
             Generates the call graph of the Java code.
 
-        get_class_hierarchy() -> DiGraph:
+        get_class_hierarchy() -> nx.DiGraph:
             Returns the class hierarchy of the Java code.
 
-        get_call_graph() -> DiGraph:
+        get_call_graph() -> nx.DiGraph:
             Returns the call graph of the Java code.
     """
 
@@ -108,12 +107,12 @@ class JCodeanalyzer:
         self.application = self._init_codeanalyzer(analysis_level=1 if analysis_level == AnalysisLevel.symbol_table else 2)
         # Attributes related the Java code analysis...
         if analysis_level == AnalysisLevel.call_graph:
-            self.call_graph: DiGraph = self._generate_call_graph(using_symbol_table=False)
+            self.call_graph: nx.DiGraph = self._generate_call_graph(using_symbol_table=False)
         else:
-            self.call_graph: DiGraph | None = None
+            self.call_graph: nx.DiGraph | None = None
 
     def _get_application(self) -> JApplication:
-        """Returns the application view of the Java code.
+        """returns the application view of the Java code.
 
         Returns:
             JApplication: The application view of the Java code.
@@ -123,7 +122,7 @@ class JCodeanalyzer:
         return self.application
 
     def _get_codeanalyzer_exec(self) -> List[str]:
-        """Returns the executable command for codeanalyzer.
+        """returns the executable command for codeanalyzer.
 
         Returns:
             List[str]: The executable command for codeanalyzer.
@@ -154,7 +153,7 @@ class JCodeanalyzer:
 
     @staticmethod
     def _init_japplication(data: str) -> JApplication:
-        """Return JApplication giving the stringified JSON as input.
+        """return JApplication giving the stringified JSON as input.
         Returns
         -------
         JApplication
@@ -255,7 +254,7 @@ class JCodeanalyzer:
             raise CodeanalyzerExecutionException(str(e)) from e
 
     def get_symbol_table(self) -> Dict[str, JCompilationUnit]:
-        """Returns the symbol table of the Java code.
+        """returns the symbol table of the Java code.
 
         Returns:
             Dict[str, JCompilationUnit]: The symbol table of the Java code.
@@ -265,7 +264,7 @@ class JCodeanalyzer:
         return self.application.symbol_table
 
     def get_application_view(self) -> JApplication:
-        """Returns the application view of the Java code.
+        """returns the application view of the Java code.
 
         Returns:
             JApplication: The application view of the Java code.
@@ -290,14 +289,14 @@ class JCodeanalyzer:
 
         return self.application.system_dependency_graph
 
-    def _generate_call_graph(self, using_symbol_table) -> DiGraph:
+    def _generate_call_graph(self, using_symbol_table) -> nx.DiGraph:
         """Generates the call graph of the Java code.
 
         Args:
             using_symbol_table (bool): Whether to use the symbol table for generating the call graph.
 
         Returns:
-            DiGraph: The call graph of the Java code.
+            nx.DiGraph: The call graph of the Java code.
         """
         cg = nx.DiGraph()
         if using_symbol_table:
@@ -334,18 +333,18 @@ class JCodeanalyzer:
             cg.add_edges_from(edge_list)
         return cg
 
-    def get_class_hierarchy(self) -> DiGraph:
-        """Returns the class hierarchy of the Java code.
+    def get_class_hierarchy(self) -> nx.DiGraph:
+        """returns the class hierarchy of the Java code.
 
         Returns:
-            DiGraph: The class hierarchy of the Java code.
+            nx.DiGraph: The class hierarchy of the Java code.
         """
 
-    def get_call_graph(self) -> DiGraph:
-        """Returns the call graph of the Java code.
+    def get_call_graph(self) -> nx.DiGraph:
+        """returns the call graph of the Java code.
 
         Returns:
-            DiGraph: The call graph of the Java code.
+            nx.DiGraph: The call graph of the Java code.
         """
         if self.analysis_level == "symbol_table":
             self.call_graph = self._generate_call_graph(using_symbol_table=True)
@@ -440,7 +439,7 @@ class JCodeanalyzer:
         return callee_detail_dict
 
     def get_all_methods_in_application(self) -> Dict[str, Dict[str, JCallable]]:
-        """Returns a dictionary of all methods in the Java code with qualified class name as the key
+        """returns a dictionary of all methods in the Java code with qualified class name as the key
             and a dictionary of methods in that class as the value.
 
         Returns:
@@ -454,7 +453,7 @@ class JCodeanalyzer:
         return class_method_dict
 
     def get_all_classes(self) -> Dict[str, JType]:
-        """Returns a dictionary of all classes in the Java code.
+        """returns a dictionary of all classes in the Java code.
 
         Returns:
             Dict[str, JType]: A dictionary of all classes in the Java code, with qualified class names as keys.
@@ -467,7 +466,7 @@ class JCodeanalyzer:
         return class_dict
 
     def get_class(self, qualified_class_name) -> JType:
-        """Returns a class given the qualified class name.
+        """returns a class given the qualified class name.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -481,7 +480,7 @@ class JCodeanalyzer:
                 return v.type_declarations.get(qualified_class_name)
 
     def get_method(self, qualified_class_name, method_signature) -> JCallable:
-        """Returns a method given the qualified method name.
+        """returns a method given the qualified method name.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -499,7 +498,7 @@ class JCodeanalyzer:
                         return ci.callable_declarations[cd]
 
     def get_java_file(self, qualified_class_name) -> str:
-        """Returns java file name given the qualified class name.
+        """returns java file name given the qualified class name.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -527,7 +526,7 @@ class JCodeanalyzer:
         return self.application.symbol_table[file_path]
 
     def get_all_methods_in_class(self, qualified_class_name) -> Dict[str, JCallable]:
-        """Returns a dictionary of all methods in the given class.
+        """returns a dictionary of all methods in the given class.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -542,7 +541,7 @@ class JCodeanalyzer:
         return methods
 
     def get_all_constructors(self, qualified_class_name) -> Dict[str, JCallable]:
-        """Returns a dictionary of all constructors of the given class.
+        """returns a dictionary of all constructors of the given class.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -557,7 +556,7 @@ class JCodeanalyzer:
         return constructors
 
     def get_all_sub_classes(self, qualified_class_name) -> Dict[str, JType]:
-        """Returns a dictionary of all sub-classes of the given class.
+        """returns a dictionary of all sub-classes of the given class.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -574,7 +573,7 @@ class JCodeanalyzer:
         return sub_classes
 
     def get_all_fields(self, qualified_class_name) -> List[JField]:
-        """Returns a list of all fields of the given class.
+        """returns a list of all fields of the given class.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -589,7 +588,7 @@ class JCodeanalyzer:
         return ci.field_declarations
 
     def get_all_nested_classes(self, qualified_class_name) -> List[JType]:
-        """Returns a list of all nested classes for the given class.
+        """returns a list of all nested classes for the given class.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -605,7 +604,7 @@ class JCodeanalyzer:
         return [self.get_class(c) for c in nested_classes]  # Assuming qualified nested class names
 
     def get_extended_classes(self, qualified_class_name) -> List[str]:
-        """Returns a list of all extended classes for the given class.
+        """returns a list of all extended classes for the given class.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -620,7 +619,7 @@ class JCodeanalyzer:
         return ci.extends_list
 
     def get_implemented_interfaces(self, qualified_class_name) -> List[str]:
-        """Returns a list of all implemented interfaces for the given class.
+        """returns a list of all implemented interfaces for the given class.
 
         Args:
             qualified_class_name (str): The qualified name of the class.
@@ -635,7 +634,7 @@ class JCodeanalyzer:
         return ci.implements_list
 
     def get_class_call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str | None = None) -> (List)[Tuple[JMethodDetail, JMethodDetail]]:
-        """Returns call graph using symbol table. The analysis will not be
+        """returns call graph using symbol table. The analysis will not be
         complete as symbol table has known limitation of resolving types
         Args:
             qualified_class_name: qualified name of the class
@@ -657,7 +656,7 @@ class JCodeanalyzer:
             graph_edges.append((source, target))
         return graph_edges
 
-    def __call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str, is_target_method: bool = False) -> DiGraph:
+    def __call_graph_using_symbol_table(self, qualified_class_name: str, method_signature: str, is_target_method: bool = False) -> nx.DiGraph:
         """Generate call graph using symbol table
         Args:
             qualified_class_name: qualified class name
@@ -665,7 +664,7 @@ class JCodeanalyzer:
             is_target_method: is the input method is a target method. By default, it is the source method
 
         Returns:
-            DiGraph: call graph
+            nx.DiGraph: call graph
         """
         cg = nx.DiGraph()
         sdg = None
@@ -860,8 +859,19 @@ class JCodeanalyzer:
 
         return graph_edges
 
+    def remove_all_comments(self, src_code: str) -> str:
+        """Remove all comments in the source code.
+
+        Args:
+            src_code (str): Original source code.
+
+        Returns:
+            str: The same source code without comments.
+        """
+        raise NotImplementedError("This function is not implemented yet.")
+
     def get_all_entry_point_methods(self) -> Dict[str, Dict[str, JCallable]]:
-        """Returns a dictionary of all entry point methods in the Java code.
+        """returns a dictionary of all entry point methods in the Java code.
 
         Returns:
             Dict[str, Dict[str, JCallable]]: A dictionary of all entry point methods in the Java code.
@@ -872,7 +882,7 @@ class JCodeanalyzer:
         return {typename: {method: callable for _, method, callable in group} for typename, group in groupby(methods, key=lambda x: x[0])}
 
     def get_all_entry_point_classes(self) -> Dict[str, JType]:
-        """Returns a dictionary of all entry point classes in the Java code.
+        """returns a dictionary of all entry point classes in the Java code.
 
         Returns:
             Dict[str, JType]: A dictionary of all entry point classes in the Java code,
@@ -882,7 +892,7 @@ class JCodeanalyzer:
         return {typename: klass for typename, klass in self.get_all_classes().items() if klass.is_entrypoint_class}
 
     def get_all_crud_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """Returns a dictionary of all CRUD operations in the source code.
+        """returns a dictionary of all CRUD operations in the source code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -899,7 +909,7 @@ class JCodeanalyzer:
         return crud_operations
 
     def get_all_read_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """Returns a list of all read operations in the source code.
+        """returns a list of all read operations in the source code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -921,7 +931,7 @@ class JCodeanalyzer:
         return crud_read_operations
 
     def get_all_create_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """Returns a list of all create operations in the source code.
+        """returns a list of all create operations in the source code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -943,7 +953,7 @@ class JCodeanalyzer:
         return crud_create_operations
 
     def get_all_update_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """Returns a list of all update operations in the source code.
+        """returns a list of all update operations in the source code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.
@@ -966,7 +976,7 @@ class JCodeanalyzer:
         return crud_update_operations
 
     def get_all_delete_operations(self) -> List[Dict[str, Union[JType, JCallable, List[JCRUDOperation]]]]:
-        """Returns a list of all delete operations in the source code.
+        """returns a list of all delete operations in the source code.
 
         Raises:
             NotImplementedError: Raised when current AnalysisEngine does not support this function.

@@ -145,6 +145,10 @@ class JavaSitter:
         superclass: Captures = self.frame_query_and_capture_output(query="(class_declaration (superclass (type_identifier) @superclass))", code_to_process=source_code)
 
         if len(superclass) == 0:
+            # In some cases where we have `class A extends B<C>`, the superclass is a generic type.
+            superclass: Captures = self.frame_query_and_capture_output(query="(class_declaration (superclass (generic_type) @superclass))", code_to_process=source_code)
+
+        if len(superclass) == 0:
             return ""
 
         return superclass[0].node.text.decode()
@@ -269,10 +273,6 @@ class JavaSitter:
             source method code
 
         target_method_code : str
-            target method code
-
-        is_target_method_a_constructor : bool
-            True if target method is a constructor, False otherwise.
 
         Returns:
         --------

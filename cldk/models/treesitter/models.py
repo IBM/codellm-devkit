@@ -66,9 +66,22 @@ class Captures:
         return self.captures[index]
 
     def __iter__(self):
-        """Return an iterator over the captures."""
+        """return an iterator over the captures."""
         return iter(self.captures)
 
     def __len__(self) -> int:
-        """Return the number of captures."""
+        """return the number of captures."""
         return len(self.captures)
+
+    def __add__(self, other: "Captures") -> "Captures":
+        """Concatenate two Captures objects.
+        Parameters
+        ----------
+        other : Captures
+            The other Captures object to concatenate.
+        Returns
+        -------
+        Captures
+            The concatenated Captures object.
+        """
+        return self.captures + other.captures
