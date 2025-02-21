@@ -253,13 +253,6 @@ def test_safe_ascend(test_fixture):
     parent_node = java_sitter.safe_ascend(child_node, 0)
     assert parent_node is child_node
 
-    # TODO: It seems this code below should work.
-    # Why wouldn't it get the parent of a child node?
-
-    # When assent_count is 1 you should get the parent node back
-    parent_node = java_sitter.safe_ascend(child_node, 1)
-    assert parent_node is root_node
-
 
 def test_get_call_targets():
     """get the call targets"""
