@@ -52,7 +52,7 @@ from __future__ import annotations
 import logging
 from functools import partial
 from pathlib import Path
-from typing import Dict, Iterator, List, Sequence, Tuple, Union
+from typing import Dict, FrozenSet, Iterator, List, Mapping, Sequence, Tuple, Union
 
 import networkx as nx
 
@@ -61,10 +61,10 @@ from codeanalyzer.options import AnalysisOptions, EmitTarget
 from codeanalyzer.schema import Analysis, model_dump_json
 
 from cldk.analysis import AnalysisLevel
-from cldk.analysis.commons.graphs import call_reaches
+from cldk.analysis.commons.graphs import call_reaches, under_callable
 from cldk.analysis.commons.levels import ANALYZER_LEVELS, LEVEL_NAMES, analyzer_level
 from cldk.analysis.commons.resolve import CallableCandidate, body_node_kind, resolve_callable_signature, resolve_value_name, resolve_within, value_candidate
-from cldk.analysis.commons.results import BodyRef, CallableRef, Diagnostic, EdgePage, EntrypointCoverage, FlowPaths, LocateResult, ModuleRef, Slice, SliceNode, TypeRef
+from cldk.analysis.commons.results import BodyRef, CallableRef, Diagnostic, EdgePage, EntrypointCoverage, FlowPath, FlowPaths, LocateResult, ModuleRef, Slice, SliceNode, TypeRef
 from cldk.utils.exceptions import CodeanalyzerUsageException
 from cldk.analysis.python.backend import (
     CDG_ORDER,
@@ -301,12 +301,29 @@ def _resolve_callee(
     return cs if resolved == cs.callee_signature else cs.model_copy(update={"callee_signature": resolved})
 
 
+def _decorator_covers(c: PyCallable, line: int) -> bool:
+    """Whether ``line`` sits on (or between) the decorators applied to ``c`` -- at or after the first
+    recorded decorator's line and above ``c.start_line``, the ``def`` line. The same predicate the
+    Neo4j backend's ``PY_DECORATED_BY`` disjunct evaluates, so the two backends admit the same
+    callable for a decorator position (#408).
+
+    A decorator whose ``span`` was not recorded (every analysis from codeanalyzer-python 1.5.1 or
+    earlier) is skipped: nothing is inferred from the decorator's mere presence, so such a position
+    stays module scope exactly as before. Line-level only, deliberately -- the span starts at the
+    decorator *expression*, one column past the ``@``, so a column test would miss the ``@`` itself.
+    """
+    return any(d.span is not None and d.span.start[0] <= line < c.start_line for d in c.decorators)
+
+
 def _find_innermost(module: PyModule, line: int) -> Tuple[PyCallable, "PyClass | None"] | None:
     """The callable (and its immediate owning class, if any) whose span most tightly contains
     ``line`` — innermost first, so a closure nested inside a method wins over the method itself.
 
     Only real callable spans count: a blank line, a comment, or a gap between two callables' spans
-    contains no callable and must never snap to the nearest one (see :meth:`locate`).
+    contains no callable and must never snap to the nearest one (see :meth:`locate`). The one
+    widening is a decorator line: ``start_line`` is the ``def`` line and the AST puts decorators
+    above it, so :func:`_decorator_covers` admits the callable a decorator at that position applies
+    to (#408). The rank stays the def-based width, which is what the Neo4j backend ranks on too.
 
     Equal line widths tie — ``def one(self): return lambda: 2`` nests two callables on one line — and
     lines are all the Neo4j projection carries, so the tie breaks on the *longer signature*: a nested
@@ -322,7 +339,7 @@ def _find_innermost(module: PyModule, line: int) -> Tuple[PyCallable, "PyClass |
         nonlocal best, best_rank
         if c.start_line < 0 or c.end_line < 0:
             return
-        if not (c.start_line <= line <= c.end_line):
+        if not (c.start_line <= line <= c.end_line or _decorator_covers(c, line)):
             return
         rank = (c.end_line - c.start_line, -len(c.signature), c.signature)
         if best_rank is None or rank < best_rank:
@@ -1289,10 +1306,16 @@ class PyCodeanalyzer(PythonAnalysisBackend):
                         )
             # Endpoints here are already global (``emit_l4`` resolved them through the endpoint
             # functions' identity maps), so they are used as-is -- joining them again would mint
-            # ids that name nothing.
+            # ids that name nothing. ``var`` is read off the edge exactly as the intra-procedural
+            # branch above reads it: until the rc.5 analyzer pin (codeanalyzer-python 1.5.1) these
+            # two lists declared the property and the projection wrote nothing, so a hardcoded
+            # ``None`` was the truth; the pin bump made it a lie, and a lie with consequences --
+            # a call-crossing variable was invisible to ``_edge_vars_in`` (so a real sanitizer was
+            # refused as nonexistent) and ``allow_edge``'s ``var == c["var"]`` could never cut at a
+            # call boundary, which is the capability this branch was rebased onto the new pins for.
             for rel, edges in (("PY_PARAM_IN", self.application.param_in), ("PY_PARAM_OUT", self.application.param_out)):
                 for e in edges or []:
-                    link(e.src, e.dst, (rel, None, ()))
+                    link(e.src, e.dst, (rel, getattr(e, "var", None), ()))
             self._sdg_cache = ({"forward": forward, "backward": backward}, nodes)
         return self._sdg_cache
 
@@ -1432,6 +1455,88 @@ class PyCodeanalyzer(PythonAnalysisBackend):
         described[a.ref] = a
         paths = [flow_path([described[a.ref]] + [described[ref] for ref, _ in walk], [label for _, label in walk], via=VIA) for walk in walks[:max_paths]]
         return FlowPaths(paths=paths, complete=len(walks) <= max_paths)
+
+    def _taint_walk(
+        self,
+        srcs: Sequence[SliceNode],
+        dsts: Sequence[SliceNode],
+        *,
+        cuts: List[Dict[str, str]],
+        cut_callables: List[str],
+        depth: int | None,
+        max_paths: int,
+    ) -> Tuple[List[Tuple[str, str, FlowPath]], Mapping[Tuple[str, str], List[Diagnostic]]]:
+        """The sanitized shortest walks, in process (see :meth:`PythonAnalysisBackend._taint_walk`).
+
+        ``self._require_dataflow()`` first, per :meth:`PythonAnalysisBackend.taint`'s own note: the
+        level gate is a local backend's to ask, because the graph backends have no level to measure.
+        It is first so that a *direct* call to this hook is diagnosed by level rather than by an empty
+        walk. Through ``taint()`` it never fires -- resolution runs before the walk and the
+        ``formal_in`` ports it addresses exist only at level 4, so a shallow caller hears
+        ``SelectorNotInGraph`` naming their value instead. The gate is the backstop for the day that
+        stops being true; see that method's docstring for why the backstop matters.
+
+        One :func:`~cldk.analysis.commons.graphs.shortest_walks` call **per pair**, which is what
+        makes ``max_paths + 1`` a per-pair cap here the way ``collect(p)[0..$cap]`` is one over
+        Cypher -- a single walk over the flattened source and sink lists would let one prolific pair
+        starve the rest. Pairs are deduplicated by resolved position first, for the same reason
+        :func:`~cldk.analysis.commons.graphs.taint_verdict` deduplicates the requested ones: two
+        selectors naming one position are one pair, and walking it twice would report each witness
+        twice and make a cap of *m* yield *2m*. The graph side gets that free from ``a.id IN $srcs``.
+
+        Both cuts are :func:`~cldk.analysis.commons.graphs.shortest_walks`' predicates rather than a
+        filter over the walks it returns, which is the property the whole design rests on: the
+        breadth-first pass must measure the shortest *satisfying* distance, or a sanitized short
+        route hides a clean longer one and the pair comes back refuted. ``allow_edge`` reads the
+        hop's **start** node, mirroring the Cypher predicate's ``startNode(r)`` term, so a variable
+        cut severs only the callable the caller named it in. Both are ``None`` when nothing is
+        sanitized -- the documented "no filtering" default, and no per-node cost on the common call.
+
+        The ledger comes back empty, and the graph backend's twin states the reason in full
+        (:meth:`~cldk.analysis.python.neo4j.neo4j_backend.PyNeo4jBackend._taint_walk`). In short: a
+        signal does exist here, as ``PyCallsite.callee_signature is None`` -- the leg-4b fixture's
+        ``scrub`` has two call sites and exactly one reads that way, matching the 5-of-6 the graph
+        measures -- so this is a refusal to file rather than an absence to report. Filing a
+        diagnostic voids ``exhausted`` for the whole batch (Ruling I), and a signal that cannot yet
+        be told apart from an ordinary call into a library would void every refutation in every
+        application that makes one. Same consequence, equally uncatchable from in here: a pair whose
+        flow leaves through an unresolved call is certified ``exhausted``.
+        """
+        self._require_dataflow()
+        adjacency, nodes = self._sdg()
+        allow_node = (lambda nid: not under_callable(nid, cut_callables)) if cut_callables else None
+        allow_edge = (lambda frm, _rel, var: not any(var == c["var"] and under_callable(frm, (c["prefix"],)) for c in cuts)) if cuts else None
+        pairs: Dict[Tuple[str, str], SliceNode] = {}
+        for a in srcs:
+            for b in dsts:
+                pairs.setdefault((a.ref, b.ref), a)
+        rows = []
+        for (src_ref, dst_ref), a in pairs.items():
+            walks = self._shortest_walks(adjacency["forward"], src_ref, dst_ref, depth, max_paths + 1, allow_edge=allow_edge, allow_node=allow_node)
+            described = {ref: _local_slice_node(nodes[ref], ref) for walk in walks for ref, _ in walk if ref in nodes}
+            described[src_ref] = a
+            rows.extend((src_ref, dst_ref, flow_path([described[src_ref]] + [described[ref] for ref, _ in walk], [label for _, label in walk], via=VIA)) for walk in walks)
+        return rows, {}
+
+    def _edge_vars_in(self, callable_id: str) -> FrozenSet[str]:
+        """The edge variables scoped to this callable (see :meth:`PythonAnalysisBackend._edge_vars_in`).
+
+        Off the adjacency this backend already builds and caches, so a variable sanitizer costs a
+        scan of it and no second traversal. Edges *leaving* a node under ``callable_id`` -- the same
+        ``startNode`` scoping the cut itself uses, so this validates exactly the domain the cut can
+        match. Four of the five relationship types carry no ``var``; those ``None``s are dropped,
+        because ``resolve_sanitizers`` refuses a blank variable before it asks.
+
+        "Under ``callable_id``" is
+        :func:`~cldk.analysis.commons.graphs.under_callable` and not ``startswith``, for Ruling K's
+        reason and to make the sentence above true: with a bare prefix test this domain would include
+        every variable of a sibling callable whose name merely starts with this one, and a sanitizer
+        naming one of those would be *accepted* here and then sever nothing in ``allow_edge``, which
+        is delimited. That direction only over-reports, so it cannot manufacture a false refutation,
+        but it hands the caller a sanitizer they believe is in force and is not.
+        """
+        forward = self._sdg()[0]["forward"]
+        return frozenset(var for src, outs in forward.items() if under_callable(src, (callable_id,)) for labels in outs.values() for _rel, var, _prov in labels if var)
 
     def paths_between(self, src: str, dst: str, *, src_within: str, dst_within: str, depth: int | None = None, max_paths: int = DEFAULT_MAX_PATHS) -> FlowPaths:
         """How a value reaches another value (see :meth:`PythonAnalysisBackend.paths_between`)."""

@@ -5,6 +5,143 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.0.0] - 2026-10-15
+
+CLDK 2.0 gives Python, Java and TypeScript one agent-facing query surface — addressing, per-callable
+control and data flow, slices, call-graph and value-flow predicates, entrypoints and the
+repository-artifact layer — answered identically from an `analysis.json` or an attached Neo4j graph.
+No code changes since `v2.0.0-rc.8` except the README split into a user page, `docs/architecture.md`
+and `docs/citations.md` (#416). The rc sections below are the full record; this section lists what
+breaks for code written against **1.5.0**, each with its migration step.
+
+### Breaking (since 1.5.0)
+
+- **C support is removed** (`CLDK.c()`, `cldk.analysis.c`, `cldk.models.c`; rc.2). There is no
+  replacement; pin `cldk<2` if you need it.
+- **Java needs the `java` extra.** The analyzer ships as the `codeanalyzer-java` wheel with its own
+  JVM, not a jar in this repo (rc.3). Install with `pip install "cldk[java]"`.
+- **Every Neo4j graph must be re-emitted, into a wiped database.** The `can://` id grammar now puts the
+  application outermost (`can://<app>/<lang>/...`, rc.4), and each backend refuses a graph below its
+  floor at attach with `GraphSchemaMismatch`, rather than answering with zero rows. The floors are
+  `codeanalyzer-python` 1.5.0, `codeanalyzer-typescript` 1.5.2 and `codeanalyzer-java` 3.2.0 (rc.6).
+  Re-emit with the pinned analyzer (`--emit neo4j`); there is no in-place upgrade.
+- **Java and TypeScript models mirror schema v2** (rc.3). A 1.x `analysis.json` is refused rather than
+  parsed: re-run the analysis with the pinned analyzer. For Java, `get_call_graph()` nodes are
+  `"<type fqn>.<signature>"` strings rather than `(signature, klass)` tuples — read the class from
+  `cg.nodes[key]["method_detail"].klass`. Local and anonymous class names carry their declaring callable
+  — take class keys from `get_all_classes()` rather than composing them. `JGraphEdges` is
+  `{src, dst, prov, weight}`. For TypeScript, `TSCallable` and `TSModule` lost their per-file fields (v2
+  keys modules by path).
+- **Java's single-file `source_code` mode is gone** (rc.3). Analyze the project directory.
+- **`PyCallableOverview.path` is repo-relative**, not an absolute path (rc.2). Stop stripping a
+  project-root prefix off it.
+- **Accessors that only ever raised `NotImplementedError` are removed**: fifteen on `PythonAnalysis`
+  (rc.2) and `get_entry_point_methods` / `get_service_entry_point_methods` on `TypeScriptAnalysis`
+  (rc.3). Use `get_entrypoints()` / `get_entrypoint_classes()`.
+
+### Analyzer pins
+
+`codeanalyzer-python==1.5.3`, `codeanalyzer-typescript==1.6.0`, `codeanalyzer-java==3.3.3` (extra).
+
+## [v2.0.0-rc.8] - 2026-09-16
+
+### Fixed
+
+- **`locate` places a position on a decorator line on the decorated callable, on both Python
+  backends** (`python-sdk#408`). `PyCallable.start_line` is the `def` line (`ast.FunctionDef.lineno`)
+  and Python's AST puts decorators above it, so `@http.route(...)` sat inside no callable span and
+  came back as `module_scope`. Both backends now read where the decorator is *applied*:
+  `_find_innermost` admits the callable whose `decorators[].span` starts at or before the line and
+  above its `def`; `_LOCATE_QUERY` gains one `EXISTS` disjunct over `PY_DECORATED_BY.start_line`,
+  which codeanalyzer-python 1.5.2 emits. Ranking is unchanged (the def-based width), so a decorator
+  on a nested callable resolves to the nested one. Three things deliberately stay as they were: a
+  position between two callables with no decorator over it is still `module_scope` (this is not a
+  nearest-callable fallback); a **class** decorator is still `module_scope` (a result with `type`
+  set and `callable` unset is a new shape and needs its own decision); and an analysis or graph from
+  codeanalyzer-python 1.5.1 or earlier, which records no decorator span, answers exactly as before.
+  Measured on odoo-slim-19 re-emitted by 1.5.3, 40 positions, median of 5, same graph both ways:
+  71.0 ms placing 20/40 → 70.2 ms placing 40/40; the plan still seeks `pysymbol_id`.
+
+### Changed
+
+- `codeanalyzer-python` pin `1.5.2` → **`1.5.3`** (`dependencies` and `[tool.backend-versions]`,
+  `python-sdk#410`). Two analyzer fixes, neither moving the schema (`schema_version` and the graph
+  `SCHEMA_VERSION` stay `2.0.0`; `PyNeo4jBackend._ANALYZER_FLOOR` stays `1.5.0`):
+  - the analyzer no longer ingests its own output (codeanalyzer-python#207). `discover_artifacts`
+    had no idea where the run writes, so an output or cache directory inside the input made run N
+    inventory run N-1's `analysis.json` and embed it whole. This SDK's default `cache_dir` is
+    `<project>/.codeanalyzer`, inside the input, so every local run was exposed.
+  - one body node per call site when two calls share a start position (codeanalyzer-python#215).
+    `getattr(o, n)(x)` starts the outer application and the inner `getattr` at the same column, and
+    the position-keyed `body` kept the inner one. Keys now carry a `/2`, `/3` disambiguator,
+    outermost first; `body_key_column` already splits on `/` and needed no change. A key that used
+    to collide now names the **outer** call, and a call whose callee is itself a call carries
+    `callee_signature: null` with `method_name: "<unknown>"`.
+
+### Verification
+
+The Python tier offline (`tests/analysis/python`, mocked Neo4j and the in-process analyzer):
+482 passed, 168 skipped, on 1.5.2 and on 1.5.3 alike — every skip is a live-Neo4j tier. No fixture
+expectation moved.
+
+## [v2.0.0-rc.7] - 2026-09-11
+
+The Java facade learns the view layer codeanalyzer-java 3.3.0–3.3.2 added, and the 2.0 line takes up
+everything rc.6 shipped from `main` (the 3.2.0 text model and the sibling-analyzer pins) — this is
+the first release cut from `release/2.0` that contains rc.6.
+
+### Added
+
+**Java view dispatches** (`python-sdk#404`, spec `codellm-devkit/.github`
+`docs/design/specs/2026-09-11-java-view-templates-and-dispatch.md`). JSP, Facelets and Thymeleaf
+templates are artifacts with `roles: ["view-template"]`, and the analyzer now says which code reaches
+one. Three accessors on `JavaAnalysis`, both backends:
+
+- `get_view_dispatches(view=None) -> List[JViewDispatch]` — every resolved dispatch: the body node
+  that hands the request over (a `forward` / `include` / `sendRedirect` call, a `ModelAndView`
+  construction or `setViewName`, or a Spring controller's `return`) and the artifact it reaches,
+  with `via` naming the mechanism and `prov` the tier. `literal` and `dataflow` mean exactly one
+  target; `table` (3.3.1) is a may-dispatch over a static string table, one edge per entry, from
+  the same site. `view` filters by a segment-aligned suffix of the artifact's path.
+- `get_view_dispatchers(path) -> List[JCallableOverview]` — the same edges resolved to the callables
+  that own the dispatching sites.
+- `get_unresolved_view_dispatches() -> List[JViewDispatchUnresolved]` — what closed on nothing (a
+  variable target, a servlet URL, a view name matching two templates), with its reason and the tiers
+  attempted. JSON-only: the graph has no node for a target that resolved to nothing, so the Neo4j
+  backend refuses this one rather than answering `[]`.
+
+Two models, `JViewDispatch` and `JViewDispatchUnresolved`, on `JApplication.view_dispatches` /
+`.view_dispatches_unresolved`; the Neo4j backend reads `J_DISPATCHES_TO` back into the former.
+
+One rule stated because it is the only one of its kind: **this layer is gated on the analyzer
+generation.** The 3.1.0 config trio is probed by an always-present sibling key; 3.3.x added none —
+both lists are written only when non-empty and the edge type is declared only once an edge exists —
+so a pre-3.3.0 analysis is refused from `analyzer.version` (wire) / `analyzer_version` (graph) instead,
+because `[]` off a 3.2.0 analysis would say "reaches no view" where the truth is that nothing looked.
+
+Measured on daytrader8 with 3.3.3: 37 edges at level 1–2 (3 `literal`, 34 `table`), 54 at level 4,
+19 of 23 JSPs reached; the `TradeConfig.webUI` table's 17 on-disk pages all reached.
+
+### Changed
+
+- `codeanalyzer-java` pin `3.2.0` → **`3.3.3`** (the `java` extra and `[tool.backend-versions]`).
+  3.3.0 adds the view-template role, `J_DISPATCHES_TO`, and `argument_expr` on `return` body nodes;
+  3.3.1 the table tier; 3.3.2 narrows the Jakarta entrypoint finder to lifecycle methods, so
+  helpers taking servlet-typed parameters are no longer entrypoints and the interprocedural
+  config-use and view-dispatch tiers bind their parameters (daytrader8 entrypoint marks
+  135 → 196: 21 helpers dropped, 82 `init`/`destroy`/`doFilter`/`onMessage` gained); 3.3.3 fixes
+  the `NullPointerException` 3.3.0–3.3.2 threw on any unbuilt project with a dispatch call, which
+  this SDK's `test_java_degradation.py` was the first to hit (codeanalyzer-java#265).
+- `release/2.0` absorbed `main` at rc.6.
+
+### Verification
+
+The Java suite offline on both backends over a1 with the layer injected (edges, suffix filter,
+dispatcher resolution, the JSON-only refusal on the graph, the pre-3.3.0 refusal, the empty answer
+on a 3.3.x payload that reaches nothing, and the answered-once check across backends); the public
+surface pins the three signatures; e2e against the 3.3.3 wheel on daytrader8 at level 1 and 2
+asserts the 37 edges, the 19 views, the three unresolved URLs and the 38 view-template artifacts.
+
 ## [v2.0.0-rc.6] - 2026-09-10
 
 The Java Neo4j backend stops being the lossy one about source text. Until now a graph-backed Java
