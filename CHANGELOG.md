@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.0.0] - 2026-10-15
+
+CLDK 2.0 gives Python, Java and TypeScript one agent-facing query surface — addressing, per-callable
+control and data flow, slices, call-graph and value-flow predicates, entrypoints and the
+repository-artifact layer — answered identically from an `analysis.json` or an attached Neo4j graph.
+No code changes since `v2.0.0-rc.8` except the README split into a user page, `docs/architecture.md`
+and `docs/citations.md` (#416). The rc sections below are the full record; this section lists what
+breaks for code written against **1.5.0**, each with its migration step.
+
+### Breaking (since 1.5.0)
+
+- **C support is removed** (`CLDK.c()`, `cldk.analysis.c`, `cldk.models.c`; rc.2). There is no
+  replacement; pin `cldk<2` if you need it.
+- **Java needs the `java` extra.** The analyzer ships as the `codeanalyzer-java` wheel with its own
+  JVM, not a jar in this repo (rc.3). Install with `pip install "cldk[java]"`.
+- **Every Neo4j graph must be re-emitted, into a wiped database.** The `can://` id grammar now puts the
+  application outermost (`can://<app>/<lang>/...`, rc.4), and each backend refuses a graph below its
+  floor at attach with `GraphSchemaMismatch`, rather than answering with zero rows. The floors are
+  `codeanalyzer-python` 1.5.0, `codeanalyzer-typescript` 1.5.2 and `codeanalyzer-java` 3.2.0 (rc.6).
+  Re-emit with the pinned analyzer (`--emit neo4j`); there is no in-place upgrade.
+- **Java and TypeScript models mirror schema v2** (rc.3). A 1.x `analysis.json` is refused rather than
+  parsed: re-run the analysis with the pinned analyzer. For Java, `get_call_graph()` nodes are
+  `"<type fqn>.<signature>"` strings rather than `(signature, klass)` tuples — read the class from
+  `cg.nodes[key]["method_detail"].klass`. Local and anonymous class names carry their declaring callable
+  — take class keys from `get_all_classes()` rather than composing them. `JGraphEdges` is
+  `{src, dst, prov, weight}`. For TypeScript, `TSCallable` and `TSModule` lost their per-file fields (v2
+  keys modules by path).
+- **Java's single-file `source_code` mode is gone** (rc.3). Analyze the project directory.
+- **`PyCallableOverview.path` is repo-relative**, not an absolute path (rc.2). Stop stripping a
+  project-root prefix off it.
+- **Accessors that only ever raised `NotImplementedError` are removed**: fifteen on `PythonAnalysis`
+  (rc.2) and `get_entry_point_methods` / `get_service_entry_point_methods` on `TypeScriptAnalysis`
+  (rc.3). Use `get_entrypoints()` / `get_entrypoint_classes()`.
+
+### Analyzer pins
+
+`codeanalyzer-python==1.5.3`, `codeanalyzer-typescript==1.6.0`, `codeanalyzer-java==3.3.3` (extra).
+
 ## [v2.0.0-rc.8] - 2026-09-16
 
 ### Fixed
