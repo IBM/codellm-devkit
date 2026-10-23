@@ -50,7 +50,7 @@ from __future__ import annotations
 import re
 from abc import abstractmethod
 from functools import cached_property
-from typing import ClassVar, Dict, Iterable, List, Mapping, NamedTuple, Optional, Sequence, Set, Tuple, Union
+from typing import ClassVar, Collection, Dict, Iterable, List, Mapping, NamedTuple, Optional, Sequence, Set, Tuple, Union
 
 import networkx as nx
 
@@ -65,22 +65,25 @@ from cldk.analysis.commons.bounds import (
     check_distinct_endpoints,
     check_max_nodes,
     check_max_paths,
+    reject_bare_string,
 )
-from cldk.analysis.commons.graphs import as_slice_node, call_reaches, cone_sinks, edge_sort_key, flow_path, sdg_rel_pattern, sdg_rels, shortest_walks, slice_resolved, via_table
+from cldk.analysis.commons.graphs import as_slice_node, call_reaches, cone_sinks, edge_sort_key, flow_path, sdg_rel_pattern, sdg_rels, shortest_walks, slice_resolved, taint_verdict, via_table
 from cldk.analysis.commons.keys import body_key_column, resolve_module_key
-from cldk.analysis.commons.resolve import CallableCandidate, resolve_callable_signature, resolve_value_name, resolve_within
+from cldk.analysis.commons.resolve import CallableCandidate, resolve_callable_signature, resolve_sanitizers, resolve_value_name, resolve_within
 from cldk.analysis.commons.results import (
     BodyRef,
     CallableRef,
     Diagnostic,
     EdgePage,
     EntrypointCoverage,
+    FlowPath,
     FlowPaths,
     LocateResult,
     ModuleRef,
     Slice,
     SliceNode,
     Span,
+    TaintResult,
     TypeRef,
 )
 from cldk.analysis.commons.treesitter import TreesitterJava
@@ -106,6 +109,8 @@ from cldk.models.java.models import (
     JLocalVariable,
     JMethodDetail,
     JType,
+    JViewDispatch,
+    JViewDispatchUnresolved,
 )
 from cldk.models.java.projections import JCallableOverview, JClassOverview
 from cldk.utils.exceptions.exceptions import CodeanalyzerExecutionException, CodeanalyzerUsageException, SelectorNotInGraph
@@ -149,6 +154,29 @@ CONFIG_OVERLAY_UNAVAILABLE = (
     "application-scope overlays (config_uses, config_reads_unresolved, entrypoint_report), so an empty answer here would say "
     "'this application reads no configuration' where the truth is that nothing looked. Re-analyse, or re-emit your Neo4j graph, with "
     "codeanalyzer-java 3.1.0 or newer. get_config_keys() is unaffected: the keys a config artifact declares are read at every generation."
+)
+
+#: Why the three view-dispatch accessors refuse on an analysis that predates the pass.
+#: codeanalyzer-java 3.3.0 (spec 2026-09-11, codeanalyzer-java#259) added the view-dispatch layer;
+#: 3.3.1 (#261) its table tier. Unlike the 3.1.0 trio there is **no unconditional witness** for it:
+#: both lists are written only when non-empty, ``J_DISPATCHES_TO`` is declared only once an edge
+#: exists, and the release added no always-present key. So this is the one overlay decided from the
+#: analyzer generation — ``analyzer.version`` on the wire, ``analyzer_version`` on the ``:JApplication``
+#: anchor — because the alternative, answering ``[]`` off a 3.2.0 analysis, would say "this
+#: application reaches no view" where the truth is that nothing looked (D7).
+VIEW_DISPATCH_UNAVAILABLE = (
+    "the view-dispatch layer cannot be answered for application {app!r}: this analysis was produced by codeanalyzer-java {version}, and the "
+    "layer (view_dispatches, view_dispatches_unresolved, J_DISPATCHES_TO) exists only from 3.3.0. An empty answer here would say 'this "
+    "application reaches no view' where the truth is that nothing looked. Re-analyse, or re-emit your Neo4j graph, with codeanalyzer-java "
+    "3.3.0 or newer. get_artifacts() is unaffected."
+)
+
+#: What the graph backend raises from ``get_unresolved_view_dispatches``: the projection carries no
+#: node for a target that resolved to nothing, so the record is reachable from ``analysis.json`` only.
+VIEW_DISPATCH_UNRESOLVED_JSON_ONLY = (
+    "unresolved view dispatches for application {app!r} are not in the graph: codeanalyzer-java writes view_dispatches_unresolved into "
+    "analysis.json only (a target that resolved to no artifact has no node to project an edge to), so this backend cannot tell 'every "
+    "dispatch resolved' from 'the record is elsewhere'. Read them off the local codeanalyzer backend."
 )
 
 #: What ``get_external_symbols`` raises on a payload whose run never homed out-of-project call
@@ -235,19 +263,20 @@ def java_body_node_kind(node_id: str, kind: str, parameters: Sequence[JCallableP
     return kind, None
 
 
-#: Why the four forward value accessors refuse (D7), **when they do**. Up to codeanalyzer-java
+#: Why the five forward value accessors refuse (D7), **when they do**. Up to codeanalyzer-java
 #: 3.0.2 the L4 port lattice was emitted *disconnected* from the statement dependence graph: not
 #: one of the reference graph's 134,742 ``J_DDG`` and 46,936 ``J_CDG`` edges had a
 #: :data:`PORT_KINDS` vertex at either end, so a ``formal_in`` — the only thing
 #: :meth:`JavaAnalysisBackend.resolve_value` ever returns — had **out-degree zero** and every
 #: forward traversal seeded on one ended where it started. That made ``flows_to_call`` and
-#: ``flows_to_argument`` ``False`` for every input, ``paths_between`` empty for every input and
-#: ``slice_forward`` the seed alone — each indistinguishable from a proved absence of flow, which
-#: is exactly the ambiguous empty D7 forbids. They raise instead.
+#: ``flows_to_argument`` ``False`` for every input, ``paths_between`` empty for every input,
+#: ``slice_forward`` the seed alone and ``taint`` every requested pair refuted — each
+#: indistinguishable from a proved absence of flow, which is exactly the ambiguous empty D7
+#: forbids. They raise instead.
 #:
 #: **codeanalyzer-java 3.0.3 joins the two layers** (codeanalyzer-java#227): ``@formal_in:k → use``,
 #: ``return → @formal_out``, ``statement → <call>/actual_in:i`` and ``<call>/actual_out →
-#: statement``. On output from 3.0.3 the probe below answers ``True`` and all four accessors
+#: statement``. On output from 3.0.3 the probe below answers ``True`` and all five accessors
 #: answer, with no change here — which is the point of asking the *data* rather than the analyzer
 #: version. The refusal is kept because it can still fire honestly: the Neo4j floor is 3.0.1, so a
 #: graph emitted by 3.0.1 or 3.0.2 is still attachable, and ``--l3-engine wala`` leaves
@@ -1234,6 +1263,102 @@ class JavaAnalysisBackend(AnalysisBackend[JApplication, JCompilationUnit, JType,
                 found[row.key] = row
         return [JCallableOverview.of(r.key, r.type, r.callable, path=r.path) for r in found.values()]
 
+    # -----[ the view-dispatch layer (codeanalyzer-java 3.3.0, python-sdk#404) ]-----
+    @abstractmethod
+    def _analyzer_generation(self) -> Tuple[int, int, int] | None:
+        """The ``(major, minor, patch)`` of the codeanalyzer-java that produced this analysis —
+        ``analyzer.version`` off the wire, ``analyzer_version`` off the ``:JApplication`` anchor —
+        or ``None`` when it cannot be read. The one version-shaped probe in this contract, and
+        :data:`VIEW_DISPATCH_UNAVAILABLE` says why it has to be one."""
+
+    def _view_overlay(self) -> Tuple[List[JViewDispatch], List[JViewDispatchUnresolved]]:
+        """This analysis's view-dispatch lists, or raise if the analyzer predates the pass.
+
+        Raises:
+            CodeanalyzerExecutionException: The analysis was produced by codeanalyzer-java older
+                than 3.3.0, or by one whose version cannot be read (:data:`VIEW_DISPATCH_UNAVAILABLE`).
+        """
+        generation = self._analyzer_generation()
+        if generation is None or generation < (3, 3, 0):
+            version = "unknown" if generation is None else ".".join(map(str, generation))
+            raise CodeanalyzerExecutionException(VIEW_DISPATCH_UNAVAILABLE.format(app=self._application_name, version=version))
+        app = self.get_application_view()
+        return list(app.view_dispatches or []), list(app.view_dispatches_unresolved or [])
+
+    def _view_artifact_paths(self) -> Dict[str, str]:
+        """``artifact id -> repo-relative path`` for every inventoried artifact."""
+        return {a.id: path for path, a in self.get_application_view().artifacts.items()}
+
+    @staticmethod
+    def _view_matches(path: str, view: str) -> bool:
+        """Segment-aligned suffix match: ``quoteDataPrimitive.jsp`` and
+        ``src/main/webapp/quoteDataPrimitive.jsp`` both name the same artifact; ``DataPrimitive.jsp``
+        names nothing. Never a substring (E8)."""
+        return path == view or path.endswith("/" + view)
+
+    def get_view_dispatches(self, view: str | None = None) -> List[JViewDispatch]:
+        """Every view dispatch the analyzer resolved: a body node that hands the request to a view
+        template, and the artifact it reaches.
+
+        Args:
+            view: Restrict to one view, matched as a segment-aligned suffix of the artifact's
+                repo-relative path (``home.jsp``, ``WEB-INF/jsp/home.jsp``, or the whole path).
+                ``None`` returns every edge.
+
+        Returns:
+            :class:`~cldk.models.java.models.JViewDispatch`, sorted by ``(src, dst)``. ``prov`` is
+            the tier that closed the target — see the model's note on ``["table"]``, the one
+            many-per-site kind. Empty means the pass ran and resolved nothing.
+
+        Raises:
+            CodeanalyzerExecutionException: See :meth:`_view_overlay`.
+        """
+        dispatches, _ = self._view_overlay()
+        if view is None:
+            return dispatches
+        paths = self._view_artifact_paths()
+        return [d for d in dispatches if self._view_matches(paths.get(d.dst, ""), view)]
+
+    def get_unresolved_view_dispatches(self) -> List[JViewDispatchUnresolved]:
+        """Every detected dispatch that closed on no artifact — a variable target, a servlet URL,
+        a view name matching two templates — kept first class so a page nobody can trace stays as
+        visible as one that resolves.
+
+        Returns:
+            :class:`~cldk.models.java.models.JViewDispatchUnresolved`, sorted by
+            ``(site, reason, target)``; ``prov`` lists every tier attempted.
+
+        Raises:
+            CodeanalyzerExecutionException: See :meth:`_view_overlay`; and on the Neo4j backend
+                always (:data:`VIEW_DISPATCH_UNRESOLVED_JSON_ONLY`), because the projection carries
+                no node for a target that resolved to nothing.
+        """
+        _, unresolved = self._view_overlay()
+        return unresolved
+
+    def get_view_dispatchers(self, path: str) -> List[JCallableOverview]:
+        """Overviews of every callable that dispatches to one view — :meth:`get_view_dispatches`
+        resolved from body nodes back to the callables that own them.
+
+        Args:
+            path: The view's repo-relative path or any segment-aligned suffix of it, matched as in
+                :meth:`get_view_dispatches`.
+
+        Returns:
+            One overview per distinct callable, in the addressing index's order; a callable that
+            reaches the view from several sites (or through a table's many entries) appears once.
+            Empty means nothing dispatches to it.
+
+        Raises:
+            CodeanalyzerExecutionException: See :meth:`_view_overlay`.
+        """
+        found: Dict[str, _Addressed] = {}
+        for edge in self.get_view_dispatches(path):
+            row = self._addressing.by_id.get(edge.src.rpartition("@")[0])
+            if row is not None:
+                found[row.key] = row
+        return [JCallableOverview.of(r.key, r.type, r.callable, path=r.path) for r in found.values()]
+
     # -----[ the type-kind leaf accessors (J-7) ]-----
     def get_interfaces(self) -> Dict[str, JType]:
         """Every interface, keyed by qualified name — the subset of :meth:`get_all_classes` whose
@@ -1511,9 +1636,9 @@ class JavaAnalysisBackend(AnalysisBackend[JApplication, JCompilationUnit, JType,
     # ONE COMPLETENESS PROTOCOL. Truncation is reported by ``complete`` on ``EdgePage`` / ``Slice``
     # / ``FlowPaths``, never by silently returning less.
     #
-    # FOUR ACCESSORS REFUSE ON A DISCONNECTED PORT LATTICE RATHER THAN ANSWERING A CONSTANT.
+    # FIVE ACCESSORS REFUSE ON A DISCONNECTED PORT LATTICE RATHER THAN ANSWERING A CONSTANT.
     # Asked of the analysis, never of the analyzer version: codeanalyzer-java joins the port lattice
-    # to the statement graph from 3.0.3, and on such output all four answer with no change here.
+    # to the statement graph from 3.0.3, and on such output all five answer with no change here.
     # See :data:`PORTS_DISCONNECTED`.
     # =====================================================================================
     @property
@@ -1988,6 +2113,188 @@ class JavaAnalysisBackend(AnalysisBackend[JApplication, JCompilationUnit, JType,
         ``flows_to_call`` a fact about their *targets* rather than an agreement between two walks.
         """
 
+    # -----[ taint: many sources, many sinks, one traversal ]-----
+    def taint(
+        self,
+        sources: Sequence[Tuple[str, str]],
+        sinks: Sequence[Tuple[str, str]],
+        sanitizers: Sequence[Tuple[str, str] | str] = (),
+        *,
+        depth: int | None = None,
+        max_paths: int = DEFAULT_MAX_PATHS,
+    ) -> TaintResult:
+        """Which of these sources reach which of these sinks, and what to make of the ones that do not.
+
+        The verb triage needs, and the one nothing else on this surface stands in for.
+        :meth:`paths_between` *proves* a flow; a caller who gets ``[]`` back from it cannot tell "no
+        flow exists" from "the flow left the resolved graph". ``taint()`` runs m sources against n
+        sinks in one traversal and reports that distinction **per pair**: the witnesses in
+        :attr:`~cldk.analysis.commons.results.FlowPaths.paths`, the pairs an absence claim can be
+        built on in :attr:`~cldk.analysis.commons.results.TaintResult.exhausted`, and everything
+        else explained in :attr:`~cldk.analysis.commons.results.TaintResult.unresolved`.
+
+        **Sources, sinks and sanitizers are the caller's to supply.** This SDK ships no framework
+        catalogue and derives no default set: a per-language vocabulary of taint sources is policy
+        that rots, and this accessor is the mechanism.
+
+        **A sanitizer is two mechanisms wearing one word**, told apart by shape. A bare ``str`` cuts
+        a *callable* on the path -- what a transforming sanitizer is, since it sits on the data path
+        and is naturally named as the method it is. The name is resolved with
+        :meth:`resolve_callable`, so it is the method *this application* declares around
+        ``StringEscapeUtils.escapeHtml4`` or a parameterised ``PreparedStatement`` bind, not the
+        library call that method delegates to. A
+        ``(name, within)`` pair cuts a *variable* inside that callable, which is the only thing that
+        severs a *validating* guard, because a guard never appears on the data path at all. Both
+        cuts are applied **inside** the search rather than to the rows it returns, so what comes back
+        is the shortest *unsanitized* route: filtering afterwards would report nothing for a source
+        whose ten shortest paths are sanitized and whose eleventh is not -- a false refutation, the
+        one output this accessor must never produce, because in triage it closes a live alert.
+
+        **The order of the checks is part of the contract**, cheapest-to-be-wrong-about first: the
+        bounds before any name, the names before any sanitizer, the sanitizers before the walk. A
+        caller with a typo in ``depth`` hears about ``depth`` rather than about a name, and pays for
+        no round trip to learn it.
+
+        **Two deliberate divergences from :meth:`paths_between`.** A pair whose source and sink are
+        the *same position* is skipped with a diagnostic rather than raised -- ``paths_between``
+        raises there (:func:`~cldk.analysis.commons.bounds.check_distinct_endpoints`), and raising
+        would discard a forty-pair batch over one degenerate pair that a caller assembling sources
+        programmatically produces by accident. And an explicit ``depth`` yields **no** ``exhausted``
+        pair, ever: a pair with no path within five hops is not refuted, it is unmeasured, and
+        conflating the two is the bounded-boolean error.
+
+        **Refused on a disconnected port lattice**, as the other four forward value accessors are
+        (:data:`PORTS_DISCONNECTED`), and *after* the arguments and the names are judged: a caller
+        learns about their own typo before they learn about a gap in the analysis. The gate is asked
+        of the data -- whether this application's ``formal_in`` vertices have any outgoing SDG edge
+        at all -- and never of the analyzer's version, so output that connects the two layers makes
+        this answer with no change here.
+
+        **The level gate is asked here**, which is Java's one divergence from the other two languages:
+        :meth:`_require_dataflow` exists on *this* contract -- a no-op on the graph backend, since
+        ``--emit neo4j`` is always full depth, and the real check on the in-memory one -- so asking it
+        costs nothing and buys the message that names both levels. Without it a local analysis below
+        the dependence level resolved its names, reached the port-lattice gate and was told
+        :data:`PORTS_DISCONNECTED`: a true sentence about what the *analyzer emitted*, pointing the
+        caller at codeanalyzer-java#227, when the remedy is
+        ``analysis_level='system_dependency_graph'``. The Python and TypeScript ABCs carry no such
+        method, and there the gate opens each :meth:`_taint_walk` instead.
+
+        Args:
+            sources: The values taint enters at, each ``(name, within)`` -- the addressing
+                :meth:`resolve_value` and :meth:`paths_between` already use.
+            sinks: The values it must not reach, addressed the same way.
+            sanitizers: Bare names cut callables; ``(name, within)`` pairs cut variables (above).
+            depth: Most hops a path may take; ``None`` (the default) for no bound, because a bound
+                turns a refutation into an artefact of the budget -- and ``exhausted`` is empty
+                whenever it is set.
+            max_paths: Most witnesses **per pair**, not per call: with one sink and forty sources a
+                flat cap lets one prolific pair starve the other thirty-nine, and in triage the
+                per-source witness is the answer. A pair is a pair of *resolved positions*, so two
+                selectors naming the same one are one pair and neither double the witnesses nor the
+                cap.
+
+        Returns:
+            A :class:`~cldk.analysis.commons.results.TaintResult`: ``paths`` are the witnesses,
+            ``exhausted`` the pairs searched to exhaustion with a clean ledger, ``roots`` and
+            ``resolved`` what every name matched, ``unresolved`` the ledger, and ``complete`` is the
+            whole batch's flag: ``True`` only when nothing was truncated **and** the ledger is empty,
+            so one skipped or blocked pair makes it ``False`` however cleanly the rest answered --
+            and where nothing was truncated, a bigger ``max_paths`` returns that same ``False``. A
+            pair is named in
+            ``exhausted`` by the two strings the caller passed, so two sources sharing a name in
+            different callables read as one pair there -- ``roots`` is what tells them apart.
+
+        Raises:
+            AmbiguousName: A name, or a sanitizer's ``within``, matched more than one thing.
+            CodeanalyzerExecutionException: :data:`PORTS_DISCONNECTED` -- this analysis's port lattice
+                carries no dependence edge, so every pair would come back refuted for a reason that
+                has nothing to do with the program.
+            CodeanalyzerUsageException: (local backend) built below
+                ``analysis_level="program_dependency_graph"``, where there is no dependence edge to
+                walk at all -- reported as the level rather than as the port lattice, which is a
+                different fact.
+            SelectorNotInGraph: A name matched nothing, or a sanitizer's shape disagrees with what it
+                resolves to.
+            TypeError: ``sources`` or ``sinks`` is a bare string, which would unpack into a pair.
+            ValueError: ``depth`` is not a positive ``int``, ``max_paths`` is below 1, ``sources`` or
+                ``sinks`` is empty (refused, not answered ``[]``), or a sanitizer names a blank
+                variable.
+        """
+        check_depth(depth)
+        check_max_paths(max_paths)
+        reject_bare_string("sources", sources)
+        reject_bare_string("sinks", sinks)
+        if not sources:
+            raise ValueError("sources= names nothing to taint from; pass at least one (name, within) pair")
+        if not sinks:
+            raise ValueError("sinks= names nothing to taint to; pass at least one (name, within) pair")
+        srcs = [self.resolve_value(name, within=within) for name, within in sources]
+        dsts = [self.resolve_value(name, within=within) for name, within in sinks]
+        cuts, cut_callables = resolve_sanitizers(sanitizers, resolve_callable=self.resolve_callable, edge_vars_in=self._edge_vars_in)
+        self._require_dataflow()
+        self._require_connected_ports("taint")
+        rows, blocked = self._taint_walk(srcs, dsts, cuts=cuts, cut_callables=cut_callables, depth=depth, max_paths=max_paths)
+        return taint_verdict(sources, sinks, srcs, dsts, rows=rows, blocked=blocked, depth=depth, max_paths=max_paths)
+
+    @abstractmethod
+    def _taint_walk(
+        self,
+        srcs: Sequence[SliceNode],
+        dsts: Sequence[SliceNode],
+        *,
+        cuts: List[Dict[str, str]],
+        cut_callables: List[str],
+        depth: int | None,
+        max_paths: int,
+    ) -> Tuple[List[Tuple[str, str, FlowPath]], Mapping[Tuple[str, str], List[Diagnostic]]]:
+        """The sanitized shortest walks between every source and every sink, and what stopped a pair.
+
+        Rows are ``(source ref, sink ref, path)`` triples, shortest-first within a pair and in
+        :func:`~cldk.analysis.commons.graphs.hop_sort_key` order among equals, capped at
+        ``max_paths + 1`` **per pair** -- the extra row is what lets :meth:`taint` report truncation
+        without a second counting traversal, and the per-pair cap is why one prolific pair cannot
+        starve the rest. Grouping and trimming are :meth:`taint`'s, so a walk returns what it found.
+
+        The second element is the frontier ledger, **keyed by the ``(source ref, sink ref)`` pair it
+        implicates**. The key is the association, not the message: ``exhausted`` is decided from
+        these keys, and recovering a pair by parsing prose back out of a ``Diagnostic`` would
+        resurrect exactly the derivation that field is stored to avoid.
+
+        **An unresolved dispatch is a property of a callable frontier, not of a pair**, and this
+        mapping has no key meaning "every pair" -- so a walk that meets one files the same diagnostic
+        under *each* ``(source ref, sink ref)`` key it affects, not under one of them and not under a
+        key of its own devising. Filing under one arm is not equivalent and the difference is not
+        laxity: :meth:`taint` reads every key it is handed, so nothing is dropped either way, but a
+        key no requested pair claims costs **every** pair its ``exhausted`` certification, because
+        nothing on the receiving side can attribute a stray key to a pair. Filing per affected pair
+        is what keeps the verdict as precise as the walk's own knowledge; the signature cannot say
+        so, which is why it is said here.
+
+        **The level gate is not this method's**, unlike Python's and TypeScript's walks: Java has
+        :meth:`_require_dataflow` on the ABC, so :meth:`taint` asks it before the walk is ever
+        entered and an implementation that asked again would only be answering a question already
+        answered. Nor is the port-lattice gate: :meth:`taint` opens
+        :meth:`_require_connected_ports` too, in the same place the five sibling flow accessors do.
+
+        ``@abstractmethod`` now that every backend has one (Ruling G): it shipped as a concrete stub
+        so a backend without an implementation was refused when it was *called* rather than when it
+        was constructed, and the last implementation closed that window.
+        """
+
+    @abstractmethod
+    def _edge_vars_in(self, callable_id: str) -> Collection[str]:
+        """The variable names carried by SDG edges scoped to this callable -- the domain a variable
+        sanitizer is checked against.
+
+        Not :meth:`resolve_value`, which addresses ``formal_in`` port vertices only: most real edge
+        variables are locals (``cleaned``, ``answer``, ``result``), so validating a sanitizer through
+        the resolver would refuse a legitimate one for not being a parameter. One ``DISTINCT r.var``
+        query on the graph side, the adjacency already built on the local side.
+
+        ``@abstractmethod`` for :meth:`_taint_walk`'s reason, and since the same commit.
+        """
+
     # -----[ the two facts a backend supplies about its own analysis ]-----
     def _require_dataflow(self) -> None:
         """Refuse when this analysis was built below the pass that computes cfg/cdg/ddg.
@@ -2011,7 +2318,7 @@ class JavaAnalysisBackend(AnalysisBackend[JApplication, JCompilationUnit, JType,
             raise CodeanalyzerUsageException(IMPLICIT_CALLABLE.format(key=key, tail=tail))
 
     def _require_connected_ports(self, accessor: str) -> None:
-        """Refuse the four forward value accessors while the port lattice carries no dependence
+        """Refuse the forward value accessors while the port lattice carries no dependence
         edge (:data:`PORTS_DISCONNECTED`). Both backends raise the same type with the same message,
         which names the accessor and the application and no ``can://`` id (E6)."""
         if not self._ports_carry_dependence:
