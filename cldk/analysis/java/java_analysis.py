@@ -54,7 +54,7 @@ from tree_sitter import Tree
 
 from cldk.analysis.commons.backend_config import CodeAnalyzerConfig, JavaBackend, Neo4jConnectionConfig, cache_subdir
 from cldk.analysis.commons.bounds import DEFAULT_DEPTH, DEFAULT_MAX_NODES, DEFAULT_MAX_PATHS, DEFAULT_PAGE_SIZE
-from cldk.analysis.commons.results import EdgePage, EntrypointCoverage, FlowPaths, LocateResult, Slice, SliceNode
+from cldk.analysis.commons.results import EdgePage, EntrypointCoverage, FlowPaths, LocateResult, Slice, SliceNode, TaintResult
 from cldk.analysis.commons.treesitter import TreesitterJava
 from cldk.models.java import JCallable
 from cldk.models.java import JApplication
@@ -72,6 +72,8 @@ from cldk.models.java.models import (
     JField,
     JMethodDetail,
     JType,
+    JViewDispatch,
+    JViewDispatchUnresolved,
 )
 from cldk.models.java.projections import JCallableOverview, JClassOverview
 from cldk.models.python import PyArtifact, PyConfigKey, PyConfigRead, PyConfigUseEdge, PyDependency
@@ -1651,6 +1653,74 @@ class JavaAnalysis:
         """
         return self.backend.flows_to_argument(src, callee, arg, within=within, depth=depth)
 
+    def taint(
+        self,
+        sources: Sequence[Tuple[str, str]],
+        sinks: Sequence[Tuple[str, str]],
+        sanitizers: Sequence[Tuple[str, str] | str] = (),
+        *,
+        depth: int | None = None,
+        max_paths: int = DEFAULT_MAX_PATHS,
+    ) -> TaintResult:
+        """Which of these sources reach which of these sinks, and what to make of the ones that do not.
+
+        m sources against n sinks in one traversal, where :meth:`paths_between` proves one flow::
+
+            r = java.taint(
+                sources=[("userID", "TradeAppServlet.doPost")],
+                sinks=[("sql", "TradeDirect.getOrders")],
+                sanitizers=["TradeAppServlet.escapeUserID", ("checked", "TradeAppServlet.doPost")],
+            )
+            for path in r.paths:
+                print(" -> ".join(h.to.name for h in path.hops))
+            for src, sink in r.exhausted:
+                print(src, "does not reach", sink)
+
+        **``exhausted`` is the reason to call this and the only output that can do harm.** A pair is
+        listed there when it was searched to exhaustion and nothing was found — the refutation
+        :meth:`paths_between`'s ``[]`` cannot give — and only when all three hold: no witness, no
+        diagnostic in ``unresolved`` implicating it, and **``depth`` was ``None``**. An explicit
+        ``depth`` empties ``exhausted`` by rule, because a bound turns a real long flow into an empty
+        result and a wrong refutation closes a live alert.
+
+        **``complete`` is the batch's flag, not the pair's.** While it is ``False``, no absence claim
+        stands on any pair in the result: one blocked pair voids the whole batch's ``exhausted``.
+
+        **Sources, sinks and sanitizers are the caller's to supply** — no framework catalogue ships
+        here. A bare ``str`` cuts a *callable* on the path (a transforming sanitizer, resolved with
+        :meth:`resolve_callable` and so named as a callable *this application* declares); a
+        ``(name, within)`` pair cuts a *variable* inside that callable, which is the only thing that
+        severs a *validating* guard, since a guard never sits on the data path. Both cuts are applied
+        inside the search, so the result is the shortest **unsanitized** route.
+
+        **Java refuses this on a disconnected port lattice**, exactly as :meth:`slice_forward`,
+        :meth:`paths_between`, :meth:`flows_to_call` and :meth:`flows_to_argument` do
+        (codeanalyzer-java#227). The gate is asked of the data — whether this application's
+        ``formal_in`` vertices carry any outgoing SDG edge — and never of the analyzer's version, so
+        output that connects the two layers makes this answer with no change here. Names and bounds
+        are judged first, so a typo is reported as a typo.
+
+        Args:
+            sources: The values taint enters at, each ``(name, within)``.
+            sinks: The values it must not reach, addressed the same way.
+            sanitizers: Bare names cut callables; ``(name, within)`` pairs cut variables.
+            depth: Most hops; ``None`` (the default) for no bound, and ``exhausted`` is empty
+                whenever it is set.
+            max_paths: Most witnesses **per pair**, not per call.
+
+        Raises:
+            AmbiguousName / SelectorNotInGraph: A name, or a sanitizer's ``within``, matched more
+                than one thing or nothing — including a sanitizer whose shape disagrees with what it
+                resolves to.
+            TypeError: ``sources`` or ``sinks`` is a bare string, which would unpack into a pair.
+            ValueError: A bound is out of range, ``sources`` or ``sinks`` is empty, or a sanitizer
+                names a blank variable.
+            CodeanalyzerExecutionException: The analyzer's port lattice carries no dependence edge.
+            CodeanalyzerUsageException: This analysis was built below
+                ``analysis_level="system_dependency_graph"``.
+        """
+        return self.backend.taint(sources, sinks, sanitizers, depth=depth, max_paths=max_paths)
+
     @property
     def has_resolution_edges(self) -> bool:
         """Whether call sites carry a resolved callee on this backend right now.
@@ -1880,6 +1950,47 @@ class JavaAnalysis:
             key: The bare configuration key, matched as :meth:`get_config_uses` matches it.
         """
         return self.backend.get_config_readers(key)
+
+    # -----[ the view-dispatch layer (codeanalyzer-java 3.3.0) ]-----
+    def get_view_dispatches(self, view: str | None = None) -> List[JViewDispatch]:
+        """Return every resolved view dispatch: which body node hands the request to which view
+        template (JSP, Facelet, Thymeleaf) — a ``forward`` / ``include`` / ``sendRedirect`` call, a
+        ``ModelAndView`` construction or ``setViewName``, or a Spring controller's ``return``.
+
+        Args:
+            view: When given, only edges whose view's repo-relative path ends with it,
+                segment-aligned (``home.jsp`` or ``WEB-INF/jsp/home.jsp``).
+
+        Raises:
+            CodeanalyzerExecutionException: The analysis predates codeanalyzer-java 3.3.0, which is
+                where the pass exists; an older analysis is refused rather than answered ``[]``.
+
+        See Also:
+            :meth:`get_view_dispatchers`: The same edges, resolved to their dispatching callables.
+            :meth:`get_unresolved_view_dispatches`: The dispatches this cannot show.
+        """
+        return self.backend.get_view_dispatches(view)
+
+    def get_unresolved_view_dispatches(self) -> List[JViewDispatchUnresolved]:
+        """Return every detected dispatch that closed on no view — a variable target, a servlet URL,
+        a view name matching two templates — with its reason and the tiers attempted.
+
+        Raises:
+            CodeanalyzerExecutionException: The analysis predates codeanalyzer-java 3.3.0; or, on the
+                Neo4j backend, always — the record lives in ``analysis.json`` only.
+        """
+        return self.backend.get_unresolved_view_dispatches()
+
+    def get_view_dispatchers(self, path: str) -> List[JCallableOverview]:
+        """Return overviews of every callable that dispatches to the view at ``path``.
+
+        Args:
+            path: The view's repo-relative path or any segment-aligned suffix of it.
+
+        Raises:
+            CodeanalyzerExecutionException: As :meth:`get_view_dispatches`.
+        """
+        return self.backend.get_view_dispatchers(path)
 
     # -----[ the type-kind leaf accessors (J-7) ]-----
     def get_interfaces(self) -> Dict[str, JType]:
