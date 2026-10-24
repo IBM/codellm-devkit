@@ -19,8 +19,7 @@ envelope, validate it into :class:`~cldk.models.go.GoAnalysis`, and answer every
 :class:`~cldk.analysis.go.backend.GoAnalysisBackend` method from the in-memory tree.
 
 The binary ships (post-release) with the ``codeanalyzer-go`` PyPI dependency; ``$CODEANALYZER_GO_BIN``
-is the out-of-band override used today, before the wheel is pinned. ``--analysis-schema 2`` is
-**mandatory** — ``cango`` defaults to the legacy v1 shape, which the v2 models reject.
+is the out-of-band override used today, before the wheel is pinned.
 """
 
 from __future__ import annotations
@@ -110,10 +109,9 @@ class GoCodeanalyzer(GoAnalysisBackend):
 
     def _argv(self, analysis_level: int, output_dir: Path | None) -> List[str]:
         """The cango command line: ``-i <project> --app-name <project.name> -a <1|2>
-        --analysis-schema 2 [-o <dir> --cache-dir <dir>] --skip-tests [--eager] [-t <file>]...``.
+        [-o <dir> --cache-dir <dir>] --skip-tests [--eager] [-t <file>]...``.
 
-        ``--analysis-schema 2`` is mandatory: cango defaults to the legacy v1 shape, which the v2
-        models reject. The level is capped at 2 — cango produces no L3/L4.
+        . The level is capped at 2 — cango produces no L3/L4.
         """
         project = Path(self.project_dir)
         args = self._get_codeanalyzer_exec() + [
@@ -123,8 +121,6 @@ class GoCodeanalyzer(GoAnalysisBackend):
             project.name,
             "-a",
             str(min(analysis_level, 2)),
-            "--analysis-schema",
-            "2",
         ]
         if output_dir is not None:
             args += ["-o", str(output_dir), "--cache-dir", str(output_dir)]
