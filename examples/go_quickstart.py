@@ -21,11 +21,26 @@ Go is CLDK's first type-centric, class-less facade: a type is a struct or interf
 package-level functions are kept distinct from receiver methods, so the surface is
 ``get_types`` / ``get_functions`` / ``get_methods_of`` — never ``get_classes``.
 
+Both `--backend` choices below run the same in-process `GoCodeanalyzer` over `CLDK.go(...)`;
+they differ only in *where the cango binary comes from*, which is the one axis
+`GoCodeanalyzer._get_codeanalyzer_exec` chooses on:
+
+* ``cldk``  — the ``cango`` bundled in the pinned ``codeanalyzer-go`` wheel (resolved by
+  ``codeanalyzer_go.bin_path()``). Nothing to install or point at; this is the default.
+* ``local`` — a hand-built ``cango`` named by ``$CODEANALYZER_GO_BIN``. That env var *shadows*
+  the wheel when set, so the ``cldk`` run unsets it for the duration to exercise the wheel honestly.
+
 Usage:
 
-    # local (cango) backend — point at a Go MODULE (a directory with a go.mod):
-    export CODEANALYZER_GO_BIN=/path/to/cango        # until the codeanalyzer-go wheel ships
-    python examples/go_quickstart.py /path/to/go/module
+    # cldk backend — the bundled wheel's cango; point at a Go MODULE (a directory with a go.mod):
+    python examples/go_quickstart.py /path/to/go/module                 # --backend cldk (default)
+
+    # local backend — your own cango build (env var shadows the wheel while set):
+    export CODEANALYZER_GO_BIN=/path/to/cango
+    python examples/go_quickstart.py --backend local /path/to/go/module
+
+    # run both, back to back:
+    python examples/go_quickstart.py --backend both /path/to/go/module
 
     # also run the read-only Neo4j backend against a graph a `cango --emit neo4j` run populated:
     export CLDK_GO_NEO4J_URI=bolt://localhost:7687
@@ -59,10 +74,15 @@ def _short(node_id: str) -> str:
     return node_id.rstrip("/").split("/")[-1]
 
 
-def run_local(project_path: str, level: AnalysisLevel, eager: bool) -> None:
-    """The in-process backend: run cango over the module and query the parsed analysis.json."""
+def _run(project_path: str, level: AnalysisLevel, eager: bool, *, banner: str) -> None:
+    """The in-process backend: run cango over the module and query the parsed analysis.json.
+
+    The caller has already selected the cango binary source (wheel vs. ``$CODEANALYZER_GO_BIN``)
+    before entering here — this body is identical whichever one resolved, because both land on the
+    same ``GoCodeanalyzer``.
+    """
     print("=" * 72)
-    print(f"LOCAL backend (cango) — {project_path}  [level: {level.value}{', eager' if eager else ''}]")
+    print(f"{banner} — {project_path}  [level: {level.value}{', eager' if eager else ''}]")
     print("=" * 72)
 
     analysis = CLDK.go(project_path=project_path, analysis_level=level, eager=eager)
@@ -114,6 +134,32 @@ def run_local(project_path: str, level: AnalysisLevel, eager: bool) -> None:
             break
 
 
+def run_cldk(project_path: str, level: AnalysisLevel, eager: bool) -> None:
+    """Analyze on the fly using the ``cango`` bundled in the pinned ``codeanalyzer-go`` wheel.
+
+    ``$CODEANALYZER_GO_BIN`` shadows the wheel in ``_get_codeanalyzer_exec`` whenever it is set, so
+    we pop it for the duration of this call — otherwise a stray env var would silently make the
+    "cldk" run actually use someone's hand-built binary. It is restored on the way out.
+    """
+    saved = os.environ.pop("CODEANALYZER_GO_BIN", None)
+    try:
+        _run(project_path, level, eager, banner="CLDK backend (bundled codeanalyzer-go wheel)")
+    finally:
+        if saved is not None:
+            os.environ["CODEANALYZER_GO_BIN"] = saved
+
+
+def run_local(project_path: str, level: AnalysisLevel, eager: bool) -> None:
+    """Analyze with a hand-built ``cango`` named by ``$CODEANALYZER_GO_BIN`` (set it first)."""
+    if not os.environ.get("CODEANALYZER_GO_BIN"):
+        print(
+            "\n(--backend local needs $CODEANALYZER_GO_BIN pointing at a cango build; "
+            "unset, so this would fall back to the wheel. Use --backend cldk, or set the env var.)"
+        )
+        return
+    _run(project_path, level, eager, banner="LOCAL backend ($CODEANALYZER_GO_BIN cango)")
+
+
 def run_neo4j() -> bool:
     """The read-only Neo4j backend, if the env is set. Returns True when it ran."""
     uri = os.environ.get("CLDK_GO_NEO4J_URI")
@@ -155,6 +201,15 @@ def main() -> int:
     )
     parser.add_argument("project_path", help="path to a Go module (a directory containing go.mod)")
     parser.add_argument(
+        "-b",
+        "--backend",
+        choices=("cldk", "local", "both"),
+        default="cldk",
+        help="which cango to analyze with: cldk = the bundled codeanalyzer-go wheel (default); "
+        "local = your own build named by $CODEANALYZER_GO_BIN; both = run them in turn. Both "
+        "choices use the same in-process GoCodeanalyzer — only the binary source differs.",
+    )
+    parser.add_argument(
         "-a",
         "--level",
         type=int,
@@ -175,7 +230,11 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    run_local(args.project_path, _LEVELS[args.level], args.eager)
+    level = _LEVELS[args.level]
+    if args.backend in ("cldk", "both"):
+        run_cldk(args.project_path, level, args.eager)
+    if args.backend in ("local", "both"):
+        run_local(args.project_path, level, args.eager)
     run_neo4j()
     return 0
 
